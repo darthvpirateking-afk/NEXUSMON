@@ -37,6 +37,11 @@ _DEFAULT_ROUTING: Final[dict[str, str]] = {
     "swarm_tier": "reflex",
     "offline_tier": "fallback",
 }
+_DEFAULT_BUDGET: Final[dict[str, int]] = {
+    "per_call_max_tokens": 4000,
+    "per_agent_max_tokens": 200000,
+    "global_max_tokens": 2000000,
+}
 
 _CONFIG: dict[str, Any] | None = None
 _WARNED_LEGACY = False
@@ -112,6 +117,55 @@ def get_routing() -> dict[str, str]:
             if isinstance(value, str) and value:
                 routing[key] = value
     return routing
+
+
+def _as_positive_int(raw: Any, fallback: int, key_path: str) -> int:
+    if isinstance(raw, int):
+        value = raw
+    elif isinstance(raw, str):
+        try:
+            value = int(raw.strip())
+        except ValueError:
+            value = -1
+    else:
+        value = -1
+
+    if value > 0:
+        return value
+
+    logger.warning(
+        "[NEXUSMON WARN] Invalid budget value at %s=%r; using default=%d",
+        key_path,
+        raw,
+        fallback,
+    )
+    return fallback
+
+
+def get_budget_config() -> dict[str, int]:
+    """Return validated token budget config from runtime.json."""
+
+    cfg = _load_config()
+    budget = dict(_DEFAULT_BUDGET)
+
+    llm_cfg = cfg.get("llm")
+    raw_budget = llm_cfg.get("budget") if isinstance(llm_cfg, dict) else None
+    if not isinstance(raw_budget, dict):
+        return budget
+
+    for key in (
+        "per_call_max_tokens",
+        "per_agent_max_tokens",
+        "global_max_tokens",
+    ):
+        if key in raw_budget:
+            budget[key] = _as_positive_int(
+                raw=raw_budget[key],
+                fallback=_DEFAULT_BUDGET[key],
+                key_path=f"llm.budget.{key}",
+            )
+
+    return budget
 
 
 def build_litellm_model(provider: str, model: str) -> str:
