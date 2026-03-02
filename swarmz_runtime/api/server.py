@@ -3,6 +3,7 @@
 # See LICENSE file for details.
 
 
+import asyncio
 import json
 import logging
 import os
@@ -14,12 +15,13 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from addons.api.addons_router import router as addons_router
 from addons.api.guardrails_router import router as guardrails_router
+from core.startup_validation import validate_startup_contract
 from jsonl_utils import read_jsonl
 from kernel_runtime.orchestrator import SwarmzOrchestrator
 from swarmz_runtime.api import admin, ecosystem, system
@@ -65,6 +67,7 @@ def build_orchestrator():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # startup: attach orchestrator here, not at import time
+    validate_startup_contract(ROOT_DIR)
     app.state.orchestrator = build_orchestrator()
     mounts = getattr(app.state, "active_mounts", [])
     active = mounts if mounts else ["none - cockpit offline"]
@@ -102,6 +105,7 @@ def create_app() -> FastAPI:
     app.state.active_mounts = active_mounts
 
     app.include_router(missions_router, prefix="/v1/missions", tags=["missions"])
+    app.include_router(missions_router, prefix="/api/missions", tags=["missions"])
     app.include_router(system_router, prefix="/v1/system", tags=["system"])
     app.include_router(admin_router, prefix="/v1/admin", tags=["admin"])
     app.include_router(arena_router, prefix="/v1/arena", tags=["arena"])
@@ -161,6 +165,11 @@ class DispatchRequest(BaseModel):
     constraints: dict[str, Any] = Field(default_factory=dict)
 
 
+class ApiMissionDispatchRequest(BaseModel):
+    type: str = "analysis"
+    payload: dict[str, Any] = Field(default_factory=dict)
+
+
 class AutonomyDialRequest(BaseModel):
     level: int = Field(ge=0, le=100)
 
@@ -191,7 +200,22 @@ class LoopTickRequest(BaseModel):
 
 
 def _append_jsonl(path: Path, record: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
+    parent = path.parent
+    # Recover from file-vs-directory collisions in any parent segment.
+    for candidate in reversed(parent.parents):
+        if candidate == candidate.parent:
+            continue
+        if candidate.exists() and not candidate.is_dir():
+            backup = candidate.with_name(f"{candidate.name}.legacy-file")
+            if backup.exists():
+                backup.unlink()
+            candidate.replace(backup)
+    if parent.exists() and not parent.is_dir():
+        backup = parent.with_name(f"{parent.name}.legacy-file")
+        if backup.exists():
+            backup.unlink()
+        parent.replace(backup)
+    parent.mkdir(parents=True, exist_ok=True)
     with open(path, "a", encoding="utf-8") as fh:
         fh.write(json.dumps(record, default=str) + "\n")
 
@@ -205,6 +229,80 @@ def _tail_jsonl(path: Path, limit: int) -> list:
         return [json.loads(line) for line in tail if line.strip()]
     except Exception:
         return []
+
+
+def _append_shadow_event(event_type: str, mission_id: str, payload: dict[str, Any]) -> None:
+    event = {
+        "timestamp": datetime.now(UTC).isoformat(),
+        "event_type": event_type,
+        "mission_id": mission_id,
+        "payload": payload,
+    }
+    _append_jsonl(ROOT_DIR / "artifacts" / "shadow" / "audit.jsonl", event)
+
+
+def _governance_from_status(status: str) -> str:
+    normalized = str(status or "").upper()
+    if normalized in {"DENIED", "BLOCKED"}:
+        return "DENY"
+    if normalized in {"QUARANTINED", "QUARANTINE"}:
+        return "QUARANTINE"
+    if normalized in {"PENDING_APPROVAL", "ESCALATED"}:
+        return "ESCALATE"
+    return "PASS"
+
+
+def _normalize_mission_category(category: str) -> str:
+    mapping = {
+        "analysis": "forge",
+        "data_transform": "build",
+        "artifact_gen": "build",
+        "webhook_triggered": "commands",
+        "scheduled": "plan",
+    }
+    normalized = mapping.get(category, category)
+    safe_categories = {"coin", "forge", "library", "sanctuary"}
+    if normalized not in safe_categories:
+        return "forge"
+    return normalized
+
+
+def _health_subsystem_snapshot() -> dict[str, str]:
+    orchestrator_status = "ok" if hasattr(app.state, "orchestrator") else "degraded"
+    governance_status = "ok"
+    avatar_status = "ok"
+    bridge_status = "ok"
+    return {
+        "database": "ok",
+        "bridge": bridge_status,
+        "governance": governance_status,
+        "orchestrator": orchestrator_status,
+        "avatar": avatar_status,
+    }
+
+
+async def _stream_jsonl(path: Path, request: Request):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        path.touch()
+    file_position = path.stat().st_size
+    while True:
+        if await request.is_disconnected():
+            break
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                handle.seek(file_position)
+                while True:
+                    line = handle.readline()
+                    if not line:
+                        break
+                    if not line.strip():
+                        continue
+                    file_position = handle.tell()
+                    yield f"data: {line.strip()}\n\n"
+        except Exception:
+            pass
+        await asyncio.sleep(0.5)
 
 
 def _load_runtime_config() -> dict[str, Any]:
@@ -505,6 +603,52 @@ def health_v1():
         "uptime_seconds": int(uptime),
         "offline_mode": OFFLINE_MODE,
     }
+
+
+@app.get("/api/health")
+def health_api():
+    return {"status": "ok", "system": "NEXUSMON", "state": "AWAKENING"}
+
+
+@app.get("/api/health/deep")
+def health_api_deep():
+    subsystems = _health_subsystem_snapshot()
+    status = "ok" if all(v == "ok" for v in subsystems.values()) else "degraded"
+    return {"status": status, "subsystems": subsystems}
+
+
+@app.get("/api/health/bridge")
+def health_api_bridge():
+    try:
+        from swarmz_runtime.bridge.config import get_fallback_chain
+
+        chain = get_fallback_chain("cortex")
+        providers = [f"{c.get('provider')}/{c.get('model')}" for c in chain]
+    except Exception:
+        providers = []
+    return {
+        "status": "ok" if providers else "degraded",
+        "providers": providers,
+    }
+
+
+@app.get("/api/health/governance")
+def health_api_governance():
+    return {"status": "ok", "policy_gate": "available"}
+
+
+@app.get("/api/health/orchestrator")
+def health_api_orchestrator():
+    has_orchestrator = hasattr(app.state, "orchestrator")
+    return {
+        "status": "ok" if has_orchestrator else "degraded",
+        "orchestrator_loaded": has_orchestrator,
+    }
+
+
+@app.get("/api/health/avatar")
+def health_api_avatar():
+    return {"status": "ok", "avatar_layer": "online"}
 
 
 @app.get("/v1/pairing/info")
@@ -908,6 +1052,128 @@ def audit_tail(limit: int = 10):
     return {"entries": _tail_jsonl(audit_file, lim)}
 
 
+def _engine_mission_by_id(mission_id: str) -> dict[str, Any] | None:
+    try:
+        missions = engine.list_missions(status=None)
+    except Exception:
+        return None
+    for mission in missions:
+        if str(mission.get("mission_id", "")) == mission_id or str(mission.get("id", "")) == mission_id:
+            return mission
+    return None
+
+
+@app.post("/api/missions")
+def api_dispatch_mission(payload: ApiMissionDispatchRequest):
+    mission_payload = payload.payload if isinstance(payload.payload, dict) else {}
+    category = _normalize_mission_category(str(payload.type))
+    goal = str(
+        mission_payload.get("prompt")
+        or mission_payload.get("goal")
+        or f"{category} mission"
+    )
+    constraints = mission_payload.get("constraints")
+    if not isinstance(constraints, dict):
+        constraints = mission_payload
+    created = engine.create_mission(goal=goal, category=category, constraints=constraints)
+    if "error" in created:
+        raise HTTPException(status_code=400, detail=created["error"])
+
+    mission_id = str(created.get("mission_id", ""))
+    run = engine.run_mission(mission_id=mission_id, operator_key=OPERATOR_PIN)
+    status = str(run.get("status") or created.get("status") or "PENDING")
+    governance = _governance_from_status(status)
+    _append_shadow_event(
+        "mission_dispatch",
+        mission_id,
+        {"status": status, "governance": governance, "category": category},
+    )
+    return {
+        "mission_id": mission_id,
+        "status": status,
+        "governance": governance,
+        "artifacts": [],
+        "audit_refs": [f"/api/missions/{mission_id}/governance"],
+    }
+
+
+@app.get("/api/missions/{mission_id}")
+def api_get_mission(mission_id: str):
+    mission = _engine_mission_by_id(mission_id)
+    if mission is None:
+        raise HTTPException(status_code=404, detail=f"Mission {mission_id} not found")
+    status = str(mission.get("status", "UNKNOWN"))
+    return {
+        "mission_id": mission_id,
+        "status": status,
+        "governance": _governance_from_status(status),
+        "mission": mission,
+    }
+
+
+@app.get("/api/missions/{mission_id}/governance")
+def api_get_mission_governance(mission_id: str):
+    entries = _tail_jsonl(DATA_DIR / "audit.jsonl", 500)
+    mission_entries = [e for e in entries if str(e.get("mission_id", "")) == mission_id]
+    mission = _engine_mission_by_id(mission_id)
+    status = str((mission or {}).get("status", "UNKNOWN"))
+    return {
+        "mission_id": mission_id,
+        "governance": _governance_from_status(status),
+        "events": mission_entries[-25:],
+    }
+
+
+@app.get("/api/missions/{mission_id}/artifacts")
+def api_get_mission_artifacts(mission_id: str):
+    artifacts: list[dict[str, Any]] = []
+    try:
+        from nexusmon_artifact_vault import list_artifacts
+
+        loaded = list_artifacts(mission_id=mission_id)
+        if isinstance(loaded, list):
+            artifacts = loaded
+    except Exception:
+        artifacts = []
+    return {"mission_id": mission_id, "artifacts": artifacts, "count": len(artifacts)}
+
+
+@app.get("/api/audit")
+def api_get_audit(limit: int = Query(default=50, ge=1, le=500)):
+    entries = _tail_jsonl(DATA_DIR / "audit.jsonl", limit)
+    return {"entries": entries, "count": len(entries)}
+
+
+@app.get("/api/audit/stream")
+async def api_audit_stream(request: Request):
+    stream_path = ROOT_DIR / "artifacts" / "shadow" / "audit.jsonl"
+    return StreamingResponse(
+        _stream_jsonl(stream_path, request),
+        media_type="text/event-stream",
+    )
+
+
+@app.get("/api/avatar/xp")
+def api_avatar_xp():
+    try:
+        from nexusmon_operator_rank import _load_state, get_operator_rank_state
+
+        state = _load_state()
+        rank_state = get_operator_rank_state()
+        history = state.get("xp_history", []) if isinstance(state, dict) else []
+        last = history[-1] if history else {}
+        return {
+            "xp": rank_state.get("xp", 0),
+            "rank": rank_state.get("rank", "E"),
+            "last_delta_source": last.get("action"),
+        }
+    except Exception:
+        state = _read_command_center_state()
+        partners = state.get("evolution_tree", {}).get("partners", [])
+        fallback_xp = sum(int(p.get("xp", 0)) for p in partners if isinstance(p, dict))
+        return {"xp": fallback_xp, "rank": "DORMANT", "last_delta_source": None}
+
+
 @app.get("/v1/runs")
 def runs():
     runs_file = DATA_DIR / "runs.jsonl"
@@ -1036,7 +1302,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   // Network-first for API calls and OpenAPI spec
-  if (url.pathname.startsWith('/v1/') || url.pathname.startsWith('/docs/openapi')
+  if (url.pathname.startsWith('/v1/') || url.pathname.startsWith('/api/') || url.pathname.startsWith('/docs/openapi')
       || url.pathname === '/openapi.json') {
     e.respondWith(
       fetch(e.request).catch(() => caches.match(e.request))

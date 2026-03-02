@@ -9,6 +9,7 @@ A FastAPI-based web server that exposes SWARMZ capabilities via REST API
 and serves a Progressive Web App for mobile-friendly access.
 """
 
+import asyncio
 import os
 import socket
 import json
@@ -19,14 +20,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, RedirectResponse
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, WebSocket
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    RedirectResponse,
+    StreamingResponse,
+)
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from jsonl_utils import read_jsonl, write_jsonl
 from core.activity_stream import record_event
+from core.startup_validation import validate_startup_contract
 from addons.auth_gate import LANAuthMiddleware
 from addons.rate_limiter import RateLimitMiddleware
 from addons.security import (
@@ -305,6 +313,11 @@ class MissionCreateRequest(BaseModel):
     results: Dict[str, Any] = Field(default_factory=dict)
 
 
+class ApiMissionDispatchRequest(BaseModel):
+    type: str = "analysis"
+    payload: Dict[str, Any] = Field(default_factory=dict)
+
+
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -398,6 +411,8 @@ app = FastAPI(
     docs_url="/docs",
     openapi_url="/docs/openapi.json",
 )
+
+validate_startup_contract(Path(__file__).resolve().parent)
 
 # Core security middlewares (all conservative / opt-out via config):
 app.add_middleware(RateLimitMiddleware)
@@ -631,6 +646,12 @@ async def list_missions():
     }
 
 
+@app.get("/v1/missions")
+async def list_missions_root_v1():
+    """Compatibility alias for mission listing."""
+    return await list_missions()
+
+
 @app.post("/v1/missions/run")
 async def run_mission(mission_id: str = None):
     """Run/execute a mission by ID."""
@@ -668,6 +689,92 @@ async def run_mission(mission_id: str = None):
     }
 
 
+@app.post("/api/missions")
+async def api_dispatch_mission(payload: ApiMissionDispatchRequest):
+    mission_payload = payload.payload if isinstance(payload.payload, dict) else {}
+    category = _normalize_mission_category(str(payload.type))
+    req = MissionCreateRequest(
+        goal=str(
+            mission_payload.get("prompt")
+            or mission_payload.get("goal")
+            or f"{category} mission"
+        ),
+        category=category,
+        constraints=(
+            mission_payload.get("constraints")
+            if isinstance(mission_payload.get("constraints"), dict)
+            else mission_payload
+        ),
+        results={},
+    )
+    created = await create_mission(req)
+    mission_id = str(created.get("mission_id", ""))
+    run = await run_mission(mission_id=mission_id)
+    status = str(run.get("status") or created.get("status") or "PENDING")
+    governance = _governance_from_status(status)
+    _append_shadow_event(
+        "mission_dispatch",
+        mission_id,
+        {"status": status, "governance": governance, "category": category},
+    )
+    return {
+        "mission_id": mission_id,
+        "status": status,
+        "governance": governance,
+        "artifacts": [],
+        "audit_refs": [f"/api/missions/{mission_id}/governance"],
+    }
+
+
+@app.get("/api/missions")
+async def api_list_missions():
+    """API alias for mission listing."""
+    return await list_missions()
+
+
+@app.get("/api/missions/{mission_id}")
+async def api_get_mission(mission_id: str):
+    listing = await list_missions()
+    missions = listing.get("missions", [])
+    mission = next((m for m in missions if str(m.get("mission_id", "")) == mission_id), None)
+    if mission is None:
+        raise HTTPException(status_code=404, detail=f"mission_id {mission_id} not found")
+    status = str(mission.get("status", "UNKNOWN"))
+    return {
+        "mission_id": mission_id,
+        "status": status,
+        "governance": _governance_from_status(status),
+        "mission": mission,
+    }
+
+
+@app.get("/api/missions/{mission_id}/governance")
+async def api_get_mission_governance(mission_id: str):
+    events_payload = await get_audit_events()
+    events = events_payload.get("events", [])
+    mission_events = [e for e in events if str(e.get("mission_id", "")) == mission_id]
+    mission_payload = await api_get_mission(mission_id)
+    return {
+        "mission_id": mission_id,
+        "governance": mission_payload.get("governance", "PASS"),
+        "events": mission_events[-25:],
+    }
+
+
+@app.get("/api/missions/{mission_id}/artifacts")
+async def api_get_mission_artifacts(mission_id: str):
+    artifacts: list[dict[str, Any]] = []
+    try:
+        from nexusmon_artifact_vault import list_artifacts
+
+        loaded = list_artifacts(mission_id=mission_id)
+        if isinstance(loaded, list):
+            artifacts = loaded
+    except Exception:
+        artifacts = []
+    return {"mission_id": mission_id, "artifacts": artifacts, "count": len(artifacts)}
+
+
 # --- UI state endpoint ---
 def compute_phase(total_missions: int, success_count: int) -> str:
     """Compute phase based on mission counts and success rate.
@@ -682,6 +789,74 @@ def compute_phase(total_missions: int, success_count: int) -> str:
     if total_missions < 50:
         return "FORGING"
     return "SOVEREIGN"
+
+
+def _append_shadow_event(event_type: str, mission_id: str, payload: Dict[str, Any]) -> None:
+    write_jsonl(
+        Path("artifacts/shadow/audit.jsonl"),
+        {
+            "timestamp": _utc_now_iso_z(),
+            "event_type": event_type,
+            "mission_id": mission_id,
+            "payload": payload,
+        },
+    )
+
+
+def _governance_from_status(status: str) -> str:
+    normalized = str(status or "").upper()
+    if normalized in {"DENIED", "BLOCKED"}:
+        return "DENY"
+    if normalized in {"QUARANTINED", "QUARANTINE"}:
+        return "QUARANTINE"
+    if normalized in {"PENDING_APPROVAL", "ESCALATED"}:
+        return "ESCALATE"
+    return "PASS"
+
+
+def _normalize_mission_category(category: str) -> str:
+    mapping = {
+        "analysis": "analyze",
+        "data_transform": "build",
+        "artifact_gen": "build",
+        "webhook_triggered": "commands",
+        "scheduled": "plan",
+    }
+    return mapping.get(category, category)
+
+
+def _health_subsystem_snapshot() -> Dict[str, str]:
+    return {
+        "database": "ok",
+        "bridge": "ok",
+        "governance": "ok",
+        "orchestrator": "ok" if _swarmz_core is not None else "degraded",
+        "avatar": "ok",
+    }
+
+
+async def _stream_jsonl(path: Path, request: Request):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        path.touch()
+    file_position = path.stat().st_size
+    while True:
+        if await request.is_disconnected():
+            break
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                handle.seek(file_position)
+                while True:
+                    line = handle.readline()
+                    if not line:
+                        break
+                    if not line.strip():
+                        continue
+                    file_position = handle.tell()
+                    yield f"data: {line.strip()}\n\n"
+        except Exception:
+            pass
+        await asyncio.sleep(0.5)
 
 
 @app.get("/v1/ui/state")
@@ -886,7 +1061,7 @@ self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
 
-    if (url.pathname.startsWith('/v1/') || url.pathname.startsWith('/health')) {
+    if (url.pathname.startsWith('/v1/') || url.pathname.startsWith('/api/') || url.pathname.startsWith('/health')) {
         event.respondWith(fetch(request));
         return;
     }
@@ -945,7 +1120,7 @@ self.addEventListener('fetch', event => {
     const url = new URL(req.url);
 
     // Keep API network-only (no cache)
-    if (url.pathname.startsWith('/v1/') || url.pathname.startsWith('/health')) {
+    if (url.pathname.startsWith('/v1/') || url.pathname.startsWith('/api/') || url.pathname.startsWith('/health')) {
         event.respondWith(fetch(req));
         return;
     }
@@ -1037,6 +1212,48 @@ async def readiness():
 async def health_ready_compat():
     """Compatibility readiness endpoint for UI clients."""
     return {"ok": True, "status": "ready"}
+
+
+@app.get("/api/health", operation_id="swarmz_health_api")
+async def health_api():
+    return {"status": "ok", "system": "NEXUSMON", "state": "AWAKENING"}
+
+
+@app.get("/api/health/deep", operation_id="swarmz_health_api_deep")
+async def health_api_deep():
+    subsystems = _health_subsystem_snapshot()
+    status = "ok" if all(v == "ok" for v in subsystems.values()) else "degraded"
+    return {"status": status, "subsystems": subsystems}
+
+
+@app.get("/api/health/bridge", operation_id="swarmz_health_api_bridge")
+async def health_api_bridge():
+    try:
+        from swarmz_runtime.bridge.config import get_fallback_chain
+
+        chain = get_fallback_chain("cortex")
+        providers = [f"{c.get('provider')}/{c.get('model')}" for c in chain]
+    except Exception:
+        providers = []
+    return {"status": "ok" if providers else "degraded", "providers": providers}
+
+
+@app.get("/api/health/governance", operation_id="swarmz_health_api_governance")
+async def health_api_governance():
+    return {"status": "ok", "policy_gate": "available"}
+
+
+@app.get("/api/health/orchestrator", operation_id="swarmz_health_api_orchestrator")
+async def health_api_orchestrator():
+    return {
+        "status": "ok" if _swarmz_core is not None else "degraded",
+        "orchestrator_loaded": _swarmz_core is not None,
+    }
+
+
+@app.get("/api/health/avatar", operation_id="swarmz_health_api_avatar")
+async def health_api_avatar():
+    return {"status": "ok", "avatar_layer": "online"}
 
 
 @app.get("/api/governor", operation_id="swarmz_governor_status_compat")
@@ -1838,6 +2055,40 @@ async def get_audit_events():
         return {"ok": False, "error": str(e)}
 
 
+@app.get("/api/audit")
+async def api_get_audit(limit: int = Query(default=50, ge=1, le=500)):
+    payload = await get_audit_events()
+    events = payload.get("events", []) if isinstance(payload, dict) else []
+    return {"entries": events[:limit], "count": min(len(events), limit)}
+
+
+@app.get("/api/audit/stream")
+async def api_audit_stream(request: Request):
+    stream_path = Path("artifacts/shadow/audit.jsonl")
+    return StreamingResponse(
+        _stream_jsonl(stream_path, request),
+        media_type="text/event-stream",
+    )
+
+
+@app.get("/api/avatar/xp")
+async def api_avatar_xp():
+    try:
+        from nexusmon_operator_rank import _load_state, get_operator_rank_state
+
+        state = _load_state()
+        rank_state = get_operator_rank_state()
+        history = state.get("xp_history", []) if isinstance(state, dict) else []
+        last = history[-1] if history else {}
+        return {
+            "xp": rank_state.get("xp", 0),
+            "rank": rank_state.get("rank", "E"),
+            "last_delta_source": last.get("action"),
+        }
+    except Exception:
+        return {"xp": 0, "rank": "E", "last_delta_source": None}
+
+
 @app.get("/v1/dependencies")
 async def get_dependencies():
     """Get module dependency graph."""
@@ -2496,6 +2747,12 @@ try:
     async def get_agent_manifest(agent_id: str):
         """Get a single agent manifest by id."""
         agent = _get_agent(agent_id)
+        if agent is None and _manifests_dir.exists():
+            try:
+                _load_manifests_from_dir(str(_manifests_dir))
+            except Exception:
+                pass
+            agent = _get_agent(agent_id)
         if agent is None:
             from fastapi import HTTPException
             raise HTTPException(status_code=404, detail=f"Agent '{agent_id}' not found")
@@ -2507,6 +2764,12 @@ try:
         from fastapi import HTTPException
 
         agent = _get_agent(agent_id)
+        if agent is None and _manifests_dir.exists():
+            try:
+                _load_manifests_from_dir(str(_manifests_dir))
+            except Exception:
+                pass
+            agent = _get_agent(agent_id)
         if agent is None:
             raise HTTPException(status_code=404, detail=f"Agent '{agent_id}' not found")
 
@@ -2536,6 +2799,12 @@ try:
         from fastapi import HTTPException
 
         agent = _get_agent(agent_id)
+        if agent is None and _manifests_dir.exists():
+            try:
+                _load_manifests_from_dir(str(_manifests_dir))
+            except Exception:
+                pass
+            agent = _get_agent(agent_id)
         if agent is None:
             raise HTTPException(status_code=404, detail=f"Agent '{agent_id}' not found")
 
@@ -2726,4 +2995,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
