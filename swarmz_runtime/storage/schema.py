@@ -41,6 +41,7 @@ class Mission(BaseModel):
     leverage_score: float = 0.0
     revisit_interval: int = 3600
     operator_public_key: Optional[str] = None
+    mode: Optional[str] = None  # nexusmon operator mode: strategic | combat | guardian
 
 
 class CrossLayerScores(BaseModel):

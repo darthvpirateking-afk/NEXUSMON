@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, Optional, Callable
 from swarmz_runtime.core.engine import SwarmzEngine
+from swarmz_runtime.bridge.mode import NexusmonMode
 
 router = APIRouter()
 
@@ -15,6 +16,7 @@ class CreateMissionRequest(BaseModel):
     goal: str
     category: str
     constraints: Dict[str, Any] = {}
+    mode: Optional[NexusmonMode] = None  # strategic | combat | guardian
 
 
 class RunMissionRequest(BaseModel):
@@ -30,7 +32,10 @@ class ApproveMissionRequest(BaseModel):
 @router.post("/create")
 def create_mission(request: CreateMissionRequest):
     result = get_engine().create_mission(
-        goal=request.goal, category=request.category, constraints=request.constraints
+        goal=request.goal,
+        category=request.category,
+        constraints=request.constraints,
+        mode=request.mode.value if request.mode else None,
     )
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
@@ -51,6 +56,11 @@ def run_mission(request: RunMissionRequest):
 def list_missions(status: Optional[str] = None):
     missions = get_engine().list_missions(status=status)
     return {"missions": missions, "count": len(missions)}
+
+
+@router.get("")
+def list_missions_root(status: Optional[str] = None):
+    return list_missions(status=status)
 
 
 @router.post("/approve")

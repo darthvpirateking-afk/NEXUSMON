@@ -122,7 +122,11 @@ class SwarmzEngine:
         }
 
     def create_mission(
-        self, goal: str, category: str, constraints: Dict[str, Any]
+        self,
+        goal: str,
+        category: str,
+        constraints: Dict[str, Any],
+        mode: str | None = None,
     ) -> Dict[str, Any]:
         active_missions = self.db.get_active_missions()
         if len(active_missions) >= self.max_active_missions:
@@ -158,6 +162,7 @@ class SwarmzEngine:
             constraints=constraints,
             status=MissionStatus.PENDING,
             leverage_score=leverage_score,
+            mode=mode,
         )
 
         self.db.save_mission(mission)
@@ -216,6 +221,71 @@ class SwarmzEngine:
             }
 
         mission_category = mission.get("category", "")
+        mission_mode: str | None = mission.get("mode") or None
+        mission_goal: str = mission.get("goal", "")
+
+        # --- Nexusmon Bridge Call ---
+        # mode drives tier selection hard: strategic->cortex, combat->reflex, guardian->blocked
+        bridge_result: str | None = None
+        if mission_mode and mission_goal:
+            from swarmz_runtime.bridge import call_v2
+            from swarmz_runtime.bridge.mode import GuardianCallBlocked, NexusmonMode
+            import asyncio
+
+            try:
+                _mode = NexusmonMode(mission_mode)
+                try:
+                    loop = asyncio.get_running_loop()
+                    # Already inside an async context - schedule as task
+                    import concurrent.futures
+
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                        future = pool.submit(
+                            asyncio.run,
+                            call_v2(
+                                prompt=mission_goal,
+                                mode=_mode,
+                                context={
+                                    "system": "You are NEXUSMON executing a mission."
+                                },
+                                budget_tokens=int(
+                                    (mission.get("constraints") or {}).get(
+                                        "budget_tokens", 2048
+                                    )
+                                ),
+                            ),
+                        )
+                        response = future.result(timeout=30)
+                except RuntimeError:
+                    # No running loop - safe to use asyncio.run directly
+                    response = asyncio.run(
+                        call_v2(
+                            prompt=mission_goal,
+                            mode=_mode,
+                            context={
+                                "system": "You are NEXUSMON executing a mission."
+                            },
+                            budget_tokens=int(
+                                (mission.get("constraints") or {}).get(
+                                    "budget_tokens", 2048
+                                )
+                            ),
+                        )
+                    )
+                bridge_result = response.content
+            except GuardianCallBlocked:
+                bridge_result = None  # Guardian monitors only - never initiates LLM calls
+            except Exception as _bridge_exc:
+                import logging
+
+                logging.getLogger("swarmz.engine").warning(
+                    "[NEXUSMON] Bridge call failed for mission %s: %s",
+                    mission_id,
+                    _bridge_exc,
+                )
+                bridge_result = None
+        # --- End Bridge Call ---
+
         inputs_hash = self.evolution.compute_inputs_hash(
             mission.get("goal", ""),
             mission_category,
