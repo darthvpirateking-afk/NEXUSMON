@@ -328,7 +328,7 @@ async def ai_status():
 # â”€â”€ GET /v1/runtime/scoreboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
-@app.get("/v1/runtime/scoreboard")
+@app.get("/v1/runtime/scoreboard", operation_id="runtime_endpoints_scoreboard_get")
 async def runtime_scoreboard():
     """Return aggregated engine status: personality, trajectory, phase, pending actions."""
     try:
@@ -673,14 +673,33 @@ _extra_routers = [
 ]
 import importlib as _il
 
+
+def _route_signature(route: Any) -> tuple[str, tuple[str, ...]] | None:
+    path = getattr(route, "path", None)
+    methods = getattr(route, "methods", None)
+    if not isinstance(path, str) or methods is None:
+        return None
+    return (path, tuple(sorted(str(method) for method in methods)))
+
+
+_existing_route_signatures = {
+    sig for sig in (_route_signature(route) for route in app.routes) if sig is not None
+}
+
 for _mod_name, _var, _prefix, _tag in _extra_routers:
     try:
         _mod = _il.import_module(_mod_name)
         _r = getattr(_mod, _var)
+        _incoming_signatures = {
+            sig for sig in (_route_signature(route) for route in getattr(_r, "routes", [])) if sig is not None
+        }
+        if _incoming_signatures and _incoming_signatures.issubset(_existing_route_signatures):
+            continue
         if _prefix:
             app.include_router(_r, prefix=_prefix, tags=[_tag])
         else:
             app.include_router(_r, tags=[_tag])
+        _existing_route_signatures.update(_incoming_signatures)
     except Exception:
         pass  # fail-open: router not available
 
