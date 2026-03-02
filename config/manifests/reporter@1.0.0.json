@@ -12,7 +12,7 @@
   },
   "spawn_policy": "manual",
   "constraints": {"max_memory_mb": 192, "max_cpu_percent": 15, "network_access": false},
-  "error_modes": {"on_validation_failure": "reject", "on_runtime_exception": "fallback", "fallback": "transformer@1.0.0"},
+  "error_modes": {"on_validation_failure": "reject", "on_dependency_missing": "defer", "on_runtime_exception": "fallback", "fallback": "transformer@1.0.0"},
   "feature_flags": {
     "enabled": true,
     "rollout_policy": {"strategy": "percentage", "percentage": 100, "segments": ["internal"]}

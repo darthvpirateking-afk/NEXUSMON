@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
@@ -18,6 +19,9 @@ class AgentManifest:
     version: str
     capabilities: list[str]
     limits: dict[str, int]
+    spawn_policy: Any
+    constraints: Any
+    error_modes: Any
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> AgentManifest:
@@ -28,6 +32,18 @@ class AgentManifest:
                 "max_depth": constraints.get("max_spawn_depth", 0),
                 "max_children": constraints.get("max_children", 0),
             }
+        constraints_raw = data.get("constraints", {})
+        if not isinstance(constraints_raw, dict):
+            constraints_raw = {}
+        error_modes_raw = data.get("error_modes", {})
+        if not isinstance(error_modes_raw, dict):
+            error_modes_raw = {}
+
+        spawn_raw = data.get("spawn_policy", "manual")
+        if isinstance(spawn_raw, str):
+            spawn_policy = SimpleNamespace(value=spawn_raw)
+        else:
+            spawn_policy = spawn_raw
 
         return cls(
             id=str(data["id"]),
@@ -37,6 +53,9 @@ class AgentManifest:
                 "max_depth": int(limits_raw.get("max_depth", 0)),
                 "max_children": int(limits_raw.get("max_children", 0)),
             },
+            spawn_policy=spawn_policy,
+            constraints=SimpleNamespace(**constraints_raw),
+            error_modes=SimpleNamespace(**error_modes_raw),
         )
 
     @classmethod
@@ -167,7 +186,12 @@ def _is_legacy_manifest(data: dict[str, Any]) -> bool:
 
 def validate_dict(data: dict[str, Any]) -> list[str]:
     if _is_v1_manifest(data):
-        return cast(list[str], v1_registry.validate_manifest(data))
+        errors = cast(list[str], v1_registry.validate_manifest(data, normalize=False))
+        if not errors:
+            return []
+        if _is_legacy_v1_compatible(data):
+            return []
+        return errors
 
     if _is_legacy_manifest(data):
         return []
@@ -179,6 +203,32 @@ def validate_dict(data: dict[str, Any]) -> list[str]:
             "spawn_policy, constraints, error_modes"
         ),
     ]
+
+
+def _is_legacy_v1_compatible(data: dict[str, Any]) -> bool:
+    agent_id = str(data.get("id", ""))
+    version = str(data.get("version", ""))
+    spawn_policy = str(data.get("spawn_policy", ""))
+    capabilities = data.get("capabilities")
+    error_modes = data.get("error_modes")
+    if not re.match(r"^[a-z][a-z0-9_-]*(?:@[0-9]+\.[0-9]+\.[0-9]+)?$", agent_id):
+        return False
+    if not re.match(r"^\d+\.\d+\.\d+$", version):
+        return False
+    if spawn_policy not in {"manual", "ephemeral", "singleton", "pooled", "restricted"}:
+        return False
+    if not isinstance(capabilities, list) or not capabilities or not all(
+        isinstance(cap, str) for cap in capabilities
+    ):
+        return False
+    if not isinstance(error_modes, dict):
+        return False
+    required_error_modes = {
+        "on_validation_failure",
+        "on_dependency_missing",
+        "on_runtime_exception",
+    }
+    return required_error_modes.issubset(set(error_modes.keys()))
 
 
 def _to_envelope(data: dict[str, Any]) -> _ManifestEnvelope:
@@ -248,7 +298,8 @@ def load_manifest(path: str | Path) -> _ManifestEnvelope:
 
 
 def load_manifests_from_dir(path: str | Path) -> list[_ManifestEnvelope]:
+    """Load and register manifests from ``*.manifest.json`` files only."""
     loaded: list[_ManifestEnvelope] = []
-    for file_path in sorted(Path(path).glob("*.json")):
+    for file_path in sorted(Path(path).glob("*.manifest.json")):
         loaded.append(load_manifest(file_path))
     return loaded

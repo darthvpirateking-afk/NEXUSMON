@@ -10,9 +10,9 @@
     "normalized_payload": {"type": "object", "required": true, "description": "Transformed payload"},
     "summary": {"type": "string", "required": false, "description": "Transformation summary"}
   },
-  "spawn_policy": "auto",
+  "spawn_policy": "ephemeral",
   "constraints": {"max_memory_mb": 384, "max_cpu_percent": 35, "network_access": false},
-  "error_modes": {"on_validation_failure": "reject", "on_runtime_exception": "fallback", "fallback": "reporter@1.0.0"},
+  "error_modes": {"on_validation_failure": "reject", "on_dependency_missing": "defer", "on_runtime_exception": "fallback", "fallback": "reporter@1.0.0"},
   "feature_flags": {
     "enabled": true,
     "rollout_policy": {"strategy": "percentage", "percentage": 100, "segments": ["internal"]}

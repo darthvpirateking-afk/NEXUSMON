@@ -10,9 +10,9 @@
     "raw_payload": {"type": "object", "required": true, "description": "Fetched payload"},
     "metadata": {"type": "object", "required": false, "description": "Fetch metadata"}
   },
-  "spawn_policy": "auto",
+  "spawn_policy": "ephemeral",
   "constraints": {"max_memory_mb": 256, "max_cpu_percent": 20, "network_access": false},
-  "error_modes": {"on_validation_failure": "reject", "on_runtime_exception": "retry", "max_retries": 1},
+  "error_modes": {"on_validation_failure": "reject", "on_dependency_missing": "defer", "on_runtime_exception": "retry", "max_retries": 1},
   "feature_flags": {
     "enabled": true,
     "rollout_policy": {"strategy": "percentage", "percentage": 100, "segments": ["internal"]}

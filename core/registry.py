@@ -25,8 +25,14 @@ class ManifestRegistry:
         self._source_files: dict[str, str] = {}
         self._listeners: list[Callable[[str, dict[str, Any]], None]] = []
 
-    def validate_manifest(self, manifest: dict[str, Any], source: str = "<memory>") -> list[str]:
-        errors = sorted(self._validator.iter_errors(manifest), key=lambda err: err.json_path)
+    def validate_manifest(
+        self,
+        manifest: dict[str, Any],
+        source: str = "<memory>",
+        normalize: bool = True,
+    ) -> list[str]:
+        candidate = self._normalize_manifest(manifest) if normalize else copy.deepcopy(manifest)
+        errors = sorted(self._validator.iter_errors(candidate), key=self._error_sort_key)
         return [f"{source}: [{error.json_path}] {error.message}" for error in errors]
 
     def load_all(self, path: str = "config/manifests/", reject_duplicates: bool = True) -> list[dict[str, Any]]:
@@ -38,6 +44,7 @@ class ManifestRegistry:
 
         for file_path in files:
             data = json.loads(file_path.read_text(encoding="utf-8-sig"))
+            data = self._normalize_manifest(data)
             errors = self.validate_manifest(data, source=file_path.name)
             if errors:
                 raise ValueError("Manifest validation failed:\n" + "\n".join(errors))
@@ -165,7 +172,8 @@ class ManifestRegistry:
         if str(manifest.get("id", "")) != manifest_id:
             return False, "manifest_id mismatch"
 
-        errors = self.validate_manifest(manifest, source=f"update:{manifest_id}")
+        normalized = self._normalize_manifest(manifest)
+        errors = self.validate_manifest(normalized, source=f"update:{manifest_id}")
         if errors:
             return False, "validation_failed: " + "; ".join(errors)
 
@@ -173,7 +181,7 @@ class ManifestRegistry:
             return False, "ci_gate_blocked"
 
         with self._lock:
-            self._by_id[manifest_id] = copy.deepcopy(manifest)
+            self._by_id[manifest_id] = copy.deepcopy(normalized)
             self._reindex_locked()
             listeners = list(self._listeners)
 
@@ -199,6 +207,30 @@ class ManifestRegistry:
             ci_status_path=ci_status_path,
             enforce_ci_gate=True,
         )
+
+    @staticmethod
+    def _error_sort_key(error: jsonschema.ValidationError) -> tuple[int, str]:
+        path = str(error.json_path)
+        if path == "$.spawn_policy":
+            return (0, path)
+        return (1, path)
+
+    @staticmethod
+    def _normalize_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
+        normalized = copy.deepcopy(manifest)
+        spawn_policy = str(normalized.get("spawn_policy", "")).strip().lower()
+        if spawn_policy == "auto":
+            normalized["spawn_policy"] = "ephemeral"
+
+        error_modes = normalized.get("error_modes")
+        if not isinstance(error_modes, dict):
+            error_modes = {}
+            normalized["error_modes"] = error_modes
+
+        error_modes.setdefault("on_validation_failure", "reject")
+        error_modes.setdefault("on_dependency_missing", "defer")
+        error_modes.setdefault("on_runtime_exception", "fallback")
+        return normalized
 
 
 registry = ManifestRegistry()
