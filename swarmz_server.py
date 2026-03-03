@@ -1332,6 +1332,45 @@ async def shadow_execute(payload: dict):
         return {"error": str(exc)}
 
 
+@app.get("/v1/federation/agents", operation_id="swarmz_federation_agents")
+def federation_agents():
+    """Return all registered federation agents."""
+    from swarmz_runtime.federation.council import get_council
+    return {"agents": [a.to_dict() for a in get_council().list_agents()]}
+
+
+@app.post("/v1/federation/register", operation_id="swarmz_federation_register")
+def federation_register(payload: dict):
+    """Register an agent with the federation council."""
+    agent_id = str(payload.get("agent_id", "")).strip()
+    mode = str(payload.get("mode", "strategic")).strip()
+    if not agent_id:
+        return {"error": "agent_id is required"}
+    try:
+        from swarmz_runtime.federation.council import get_council, AgentAlreadyRegistered
+        reg = get_council().register(agent_id=agent_id, mode=mode)
+        return {"ok": True, **reg.to_dict()}
+    except AgentAlreadyRegistered as exc:
+        return {"error": str(exc), "status": 409}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/federation/coordinate", operation_id="swarmz_federation_coordinate")
+async def federation_coordinate(payload: dict):
+    """Dispatch a goal to all registered federation agents in parallel."""
+    goal = str(payload.get("goal", "")).strip()
+    budget_tokens = int(payload.get("budget_tokens", 2048))
+    if not goal:
+        return {"error": "goal is required"}
+    try:
+        from swarmz_runtime.federation.council import get_council
+        result = await get_council().coordinate(goal=goal, budget_tokens=budget_tokens)
+        return {"ok": True, **result.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
 @app.get("/api/health/governance", operation_id="swarmz_health_api_governance")
 async def health_api_governance():
     return {"status": "ok", "policy_gate": "available"}
