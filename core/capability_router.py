@@ -193,6 +193,9 @@ class CapabilityRouter:
         error_modes = getattr(manifest, "error_modes", None)
         if error_modes is None:
             return None
+        if isinstance(error_modes, dict):
+            val = error_modes.get("fallback_agent_id")
+            return str(val) if val else None
         val = getattr(error_modes, "fallback_agent_id", None)
         return str(val) if val else None
 
@@ -201,7 +204,10 @@ class CapabilityRouter:
         constraints = getattr(manifest, "constraints", None)
         if constraints is None:
             constraints = SimpleNamespace()
-        raw = getattr(constraints, key, default)
+        if isinstance(constraints, dict):
+            raw = constraints.get(key, default)
+        else:
+            raw = getattr(constraints, key, default)
         try:
             return float(raw)
         except Exception:

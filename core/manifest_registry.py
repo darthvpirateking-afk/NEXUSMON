@@ -21,10 +21,14 @@ class ManifestRegistry:
         self._by_capability: dict[str, list[AgentManifest]] = {}
 
     def register(self, manifest: AgentManifest) -> None:
-        """Register a manifest. Duplicate IDs are rejected (append-only semantics)."""
-        if manifest.id in self._by_id:
-            raise ValueError(f"Manifest with id={manifest.id} already registered")
-
+        """Register or replace a manifest and keep capability index consistent."""
+        previous = self._by_id.get(manifest.id)
+        if previous is not None:
+            for cap in previous.capabilities:
+                bucket = self._by_capability.get(cap, [])
+                self._by_capability[cap] = [item for item in bucket if item.id != manifest.id]
+                if not self._by_capability[cap]:
+                    del self._by_capability[cap]
         self._by_id[manifest.id] = manifest
         for cap in manifest.capabilities:
             bucket = self._by_capability.setdefault(cap, [])
