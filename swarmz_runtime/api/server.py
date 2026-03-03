@@ -1491,3 +1491,11 @@ except ImportError:
 
     def companion_state():
         return {"status": "Fallback companion state"}
+
+
+try:
+    from nexusmon_artifact_vault import fuse_artifact_vault as _fuse_vault
+    _fuse_vault(app)
+    logger.info("Artifact vault fused into runtime kernel server.")
+except Exception as _vault_fuse_err:
+    logger.warning("Artifact vault not fused: %s", _vault_fuse_err)
