@@ -433,6 +433,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Operator Lock middleware (sovereign binding check) ─────────────────────────
+@app.middleware("http")
+async def _operator_lock_middleware(request: Request, call_next):
+    """Gate all /v1/* API requests to the bound operator. HTTP 204 = silence."""
+    if not request.url.path.startswith("/v1/") or request.url.path == "/v1/operator/lock/status":
+        return await call_next(request)
+    try:
+        from swarmz_runtime.operator.lock import get_operator_lock
+        if not get_operator_lock().check(request.headers.get("X-Operator-Key")):
+            from fastapi.responses import Response as _LockResp
+            return _LockResp(status_code=204)
+    except Exception:
+        pass
+    return await call_next(request)
+
 # Include NEXUSMON conversational interface router
 if _nexusmon_available:
     app.include_router(nexusmon_router)
@@ -1369,6 +1384,225 @@ async def federation_coordinate(payload: dict):
         return {"ok": True, **result.to_dict()}
     except Exception as exc:
         return {"error": str(exc)}
+
+
+# ── Operator Memory ───────────────────────────────────────────────────────────
+
+@app.get("/v1/operator/memory", operation_id="swarmz_operator_memory_get")
+async def operator_memory_get():
+    """Return the current operator memory state."""
+    try:
+        from swarmz_runtime.operator.memory import get_operator_memory
+        return get_operator_memory().load().to_dict()
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/operator/memory/greet", operation_id="swarmz_operator_memory_greet")
+async def operator_memory_greet():
+    """Return a context-aware greeting for the operator."""
+    try:
+        from swarmz_runtime.operator.memory import get_operator_memory
+        return {"greeting": get_operator_memory().greet()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/operator/memory/introduce", operation_id="swarmz_operator_memory_introduce")
+async def operator_memory_introduce(payload: dict):
+    """Register operator name (first-time introduction). Also triggers operator lock binding."""
+    name = str(payload.get("name", "")).strip()
+    if not name:
+        return {"error": "name is required"}
+    try:
+        from swarmz_runtime.operator.memory import get_operator_memory
+        from swarmz_runtime.operator.lock import get_operator_lock
+        entry = get_operator_memory().introduce(name)
+        operator_key = str(payload.get("operator_key", "")).strip()
+        if operator_key:
+            get_operator_lock().bind(name, operator_key)
+        return {"ok": True, **entry.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/operator/lock/status", operation_id="swarmz_operator_lock_status")
+async def operator_lock_status():
+    """Return operator lock binding status. Always accessible — no key required."""
+    try:
+        from swarmz_runtime.operator.lock import get_operator_lock
+        return get_operator_lock().status()
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/operator/memory/note", operation_id="swarmz_operator_memory_note")
+async def operator_memory_note(payload: dict):
+    """Append a note to operator memory."""
+    note = str(payload.get("note", "")).strip()
+    if not note:
+        return {"error": "note is required"}
+    try:
+        from swarmz_runtime.operator.memory import get_operator_memory
+        entry = get_operator_memory().add_note(note)
+        return {"ok": True, **entry.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/operator/memory/milestone", operation_id="swarmz_operator_memory_milestone")
+async def operator_memory_milestone(payload: dict):
+    """Record a permanent milestone in operator memory."""
+    milestone = str(payload.get("milestone", "")).strip()
+    if not milestone:
+        return {"error": "milestone is required"}
+    try:
+        from swarmz_runtime.operator.memory import get_operator_memory
+        entry = get_operator_memory().record_milestone(milestone)
+        return {"ok": True, **entry.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+# ── Kernel Shift ──────────────────────────────────────────────────────────────
+
+@app.post("/v1/kernel/shift", operation_id="swarmz_kernel_shift")
+async def kernel_shift(payload: dict):
+    """Apply a kernel shift to override bridge routing."""
+    operator_key = str(payload.get("operator_key", "")).strip()
+    try:
+        from swarmz_runtime.kernel.shift import KernelShift, ShiftConfig, get_kernel_shift
+        config = ShiftConfig(
+            primary_tier=str(payload.get("primary_tier", "cortex")),
+            fallback_chain=list(payload.get("fallback_chain", [])),
+            latency_target_ms=payload.get("latency_target_ms"),
+            budget_override=dict(payload.get("budget_override", {})),
+        )
+        get_kernel_shift().shift(config, operator_key)
+        return {"ok": True, "active_config": get_kernel_shift().active_config()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/kernel/config", operation_id="swarmz_kernel_config")
+async def kernel_config():
+    """Return the current effective kernel config."""
+    try:
+        from swarmz_runtime.kernel.shift import get_kernel_shift
+        return {"ok": True, "active_config": get_kernel_shift().active_config()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/kernel/history", operation_id="swarmz_kernel_history")
+async def kernel_history():
+    """Return all kernel shift history entries."""
+    try:
+        from swarmz_runtime.kernel.shift import get_kernel_shift
+        return {"ok": True, "history": get_kernel_shift().shift_history()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/kernel/rollback", operation_id="swarmz_kernel_rollback")
+async def kernel_rollback(payload: dict):
+    """Roll back n kernel shifts (additive — re-applies old config as new entry)."""
+    operator_key = str(payload.get("operator_key", "")).strip()
+    n = int(payload.get("n", 1))
+    try:
+        from swarmz_runtime.kernel.shift import get_kernel_shift
+        active = get_kernel_shift().rollback(n, operator_key)
+        return {"ok": True, "active_config": active}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+# ── Seal Matrix ───────────────────────────────────────────────────────────────
+
+@app.get("/v1/seal/status", operation_id="swarmz_seal_status")
+async def seal_status():
+    """Return the seal level for every registered action."""
+    try:
+        from swarmz_runtime.governance.seal_matrix import get_seal_matrix
+        return {"ok": True, "registry": get_seal_matrix().status()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/seal/approve", operation_id="swarmz_seal_approve")
+async def seal_approve(payload: dict):
+    """Request approval for a governed action."""
+    action = str(payload.get("action", "")).strip()
+    operator_key = str(payload.get("operator_key", "")).strip()
+    provided_hash = payload.get("provided_hash")
+    if not action:
+        return {"error": "action is required"}
+    try:
+        from swarmz_runtime.governance.seal_matrix import get_seal_matrix
+        result = get_seal_matrix().approve(action, operator_key, provided_hash)
+        return result.to_dict()
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/seal/pending", operation_id="swarmz_seal_pending")
+async def seal_pending():
+    """Return actions currently awaiting second dual approval."""
+    try:
+        from swarmz_runtime.governance.seal_matrix import get_seal_matrix
+        return {"ok": True, "pending": get_seal_matrix().pending()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+# ── Command Fusion ────────────────────────────────────────────────────────────
+
+@app.post("/v1/fusion/execute", operation_id="swarmz_fusion_execute")
+async def fusion_execute(payload: dict):
+    """Execute a FusionScript with dependency-aware parallel step dispatch."""
+    try:
+        from swarmz_runtime.doctrine.command_fusion import CommandFusion, FusionScript, FusionStep, get_command_fusion
+        steps_raw = payload.get("steps", [])
+        steps = [FusionStep.from_dict(s) for s in steps_raw]
+        script = FusionScript(
+            steps=steps,
+            name=str(payload.get("name", "unnamed")),
+            operator_key=str(payload.get("operator_key", "")),
+        )
+        result = await get_command_fusion().execute_fusion(script)
+        return {"ok": True, **result.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/fusion/{fusion_id}/status", operation_id="swarmz_fusion_status")
+async def fusion_status(fusion_id: str):
+    """Return status of a specific fusion run."""
+    try:
+        from swarmz_runtime.doctrine.command_fusion import get_command_fusion
+        result = get_command_fusion()._read_result(fusion_id)
+        if result is None:
+            return {"error": f"fusion {fusion_id} not found"}
+        return {"ok": True, **result.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/fusion/history", operation_id="swarmz_fusion_history")
+async def fusion_history():
+    """Return all past fusion runs."""
+    try:
+        from swarmz_runtime.doctrine.command_fusion import get_command_fusion
+        return {"ok": True, "history": get_command_fusion().history()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/fusion/presets", operation_id="swarmz_fusion_presets")
+async def fusion_presets():
+    """Return the built-in FORGE, DEPLOY, IGNITE fusion presets."""
+    from swarmz_runtime.doctrine.command_fusion import PRESETS
+    return {"ok": True, "presets": PRESETS}
 
 
 @app.get("/api/health/governance", operation_id="swarmz_health_api_governance")
@@ -3106,6 +3340,15 @@ def main():
 
     # Get LAN IP
     lan_ip = get_lan_ip()
+
+    # Operator memory — record session on startup
+    try:
+        from swarmz_runtime.operator.memory import get_operator_memory
+        _om = get_operator_memory()
+        _om.record_session()
+        print(f"[NEXUSMON] Operator: {_om.greet()}")
+    except Exception as _e:
+        print(f"[NEXUSMON] Operator memory unavailable: {_e}")
 
     # Print startup information
     print("=" * 70)

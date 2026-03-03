@@ -50,7 +50,8 @@ type PageId =
   | "vault"
   | "appstore"
   | "chat"
-  | "console";
+  | "console"
+  | "monarch";
 
 interface NavItem {
   id: PageId;
@@ -73,6 +74,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "appstore",  icon: "📦", label: "App Store" },
   { id: "chat",      icon: "💬", label: "Chat" },
   { id: "console",   icon: "⬡",  label: "Console" },
+  { id: "monarch",   icon: "✸",  label: "Monarch" },
 ];
 
 export default function App() {
@@ -226,6 +228,8 @@ function PageContent({ activePage }: { activePage: PageId }) {
       return <ChatPanel />;
     case "console":
       return <NexusmonConsolePage />;
+    case "monarch":
+      return <MonarchPage />;
     default:
       return <NexusmonEntityPanel />;
   }

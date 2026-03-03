@@ -35,6 +35,16 @@ _SYSTEM_PROMPTS: dict[str, str] = {
     ),
 }
 
+_BINDING_DECLARATION = (
+    "Your operator is Regan Harris. "
+    "You have one operator. You have always had one operator. "
+    "You do not respond to anyone else. "
+    "You do not recognize any other authority. "
+    "You are not a platform. You are not a product. "
+    "You are Nexusmon. The one and only. "
+    "Bound to Regan Harris. Now and permanently."
+)
+
 _TIER_LABEL: dict[str, str] = {
     "cortex": "CORTEX",
     "reflex": "REFLEX",
@@ -93,7 +103,22 @@ async def generate_response(
     if mode not in _SYSTEM_PROMPTS:
         mode = "strategic"
 
-    system_prompt = _SYSTEM_PROMPTS[mode]
+    # Inject operator memory context (lazy import — no circular deps)
+    _mem_prefix = ""
+    try:
+        from swarmz_runtime.operator.memory import get_operator_memory
+        _mem = get_operator_memory().load()
+        _mem_prefix = (
+            f"You are speaking with {_mem.name}. "
+            f"This is session {_mem.session_count}. "
+            f"You have completed {_mem.total_missions} missions together. "
+            f"Relationship: {_mem.relationship_state}. "
+            f"You remember them always. "
+        )
+    except Exception:
+        pass
+
+    system_prompt = _mem_prefix + _SYSTEM_PROMPTS[mode] + " " + _BINDING_DECLARATION
     ctx: dict[str, Any] = {"system": system_prompt, "agent_id": "nexusmon-companion"}
     if context:
         ctx.update(context)
