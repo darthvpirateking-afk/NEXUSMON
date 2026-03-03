@@ -673,6 +673,37 @@ async def companion_nexusmon(payload: dict):
         return {"error": str(exc), "mode": mode}
 
 
+@app.post("/v1/swarm/spawn")
+async def swarm_spawn(payload: dict):
+    """Spawn an agent in a new swarm, route goal through the bridge."""
+    agent_id = str(payload.get("agent_id", "nexusmon")).strip()
+    goal = str(payload.get("goal", "")).strip()
+    mode = str(payload.get("mode", "strategic")).strip().lower()
+    constraints = dict(payload.get("constraints") or {})
+    if not goal:
+        return {"error": "goal is required"}
+    try:
+        from swarmz_runtime.swarm.coordinator import SpawnRequest, get_coordinator
+        req = SpawnRequest(agent_id=agent_id, goal=goal, mode=mode, constraints=constraints)
+        swarm_id, agent = await get_coordinator().spawn(req)
+        return {"ok": True, "swarm_id": swarm_id, **agent.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc), "mode": mode}
+
+
+@app.get("/v1/swarm/{swarm_id}/status")
+def swarm_status(swarm_id: str):
+    """Return current state for a swarm by ID."""
+    try:
+        from swarmz_runtime.swarm.coordinator import get_coordinator
+        state = get_coordinator().track(swarm_id)
+        if not state:
+            return {"error": "Swarm not found", "swarm_id": swarm_id}
+        return {"ok": True, **state.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc), "swarm_id": swarm_id}
+
+
 @app.get("/api/health/governance")
 def health_api_governance():
     return {"status": "ok", "policy_gate": "available"}
