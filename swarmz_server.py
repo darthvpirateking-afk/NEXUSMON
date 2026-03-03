@@ -1256,6 +1256,17 @@ async def health_api_bridge():
     }
 
 
+@app.get("/v1/evolution/status/{agent_id}", operation_id="swarmz_evolution_status")
+async def evolution_status(agent_id: str):
+    """Return current evolution stage, XP, traits, and history for an agent."""
+    try:
+        from swarmz_runtime.evolution.engine import get_state
+        state = get_state(agent_id)
+        return state.to_dict()
+    except Exception as exc:
+        return {"error": str(exc), "agent_id": agent_id}
+
+
 @app.get("/api/health/governance", operation_id="swarmz_health_api_governance")
 async def health_api_governance():
     return {"status": "ok", "policy_gate": "available"}

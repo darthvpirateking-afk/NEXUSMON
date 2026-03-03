@@ -435,6 +435,11 @@ class SwarmzEngine:
                 "mode": mission_mode,
                 "bridge_output": bridge_result,
             }
+            try:
+                from swarmz_runtime.evolution.engine import award_xp as _award_xp
+                _award_xp("nexusmon", max(1, int(roi * 100)), f"mission:{mission_id}")
+            except Exception:
+                pass
             total_runtime_ms = (time.perf_counter() - start) * 1000.0
             if learning_active:
                 score = self.evolution.compute_score(
