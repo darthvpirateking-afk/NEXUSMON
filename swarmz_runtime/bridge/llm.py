@@ -6,10 +6,12 @@ Operator-configurable via config/runtime.json.
 
 from __future__ import annotations
 
+import hashlib
 import importlib
 import logging
 import threading
 import time
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Any
 
@@ -104,6 +106,46 @@ class _CircuitBreaker:
 
 
 _CIRCUIT = _CircuitBreaker()
+
+
+class _ResponseCache:
+    """In-memory LRU cache for bridge responses (combat/reflex tier only)."""
+
+    def __init__(self, maxsize: int = 256) -> None:
+        self._maxsize = maxsize
+        self._cache: OrderedDict[str, "BridgeResponse"] = OrderedDict()
+        self._lock = threading.Lock()
+
+    def _key(self, prompt: str, tier: str, system: str | None) -> str:
+        raw = f"{tier}\x00{system or ''}\x00{prompt}"
+        return hashlib.sha256(raw.encode()).hexdigest()[:32]
+
+    def get(self, prompt: str, tier: str, system: str | None) -> "BridgeResponse | None":
+        k = self._key(prompt, tier, system)
+        with self._lock:
+            if k in self._cache:
+                self._cache.move_to_end(k)
+                return self._cache[k]
+        return None
+
+    def put(self, prompt: str, tier: str, system: str | None, resp: "BridgeResponse") -> None:
+        k = self._key(prompt, tier, system)
+        with self._lock:
+            self._cache[k] = resp
+            self._cache.move_to_end(k)
+            if len(self._cache) > self._maxsize:
+                self._cache.popitem(last=False)
+
+    def clear(self) -> None:
+        with self._lock:
+            self._cache.clear()
+
+    def size(self) -> int:
+        with self._lock:
+            return len(self._cache)
+
+
+_RESPONSE_CACHE = _ResponseCache(maxsize=256)
 
 
 def _get_litellm_module() -> Any:
@@ -345,6 +387,8 @@ async def call_v2(
     context: dict[str, Any] | None = None,
     budget_tokens: int = 4000,
     mode: NexusmonMode | str | None = None,
+    latency_target_ms: float | None = None,
+    retry_budget: int | None = None,
 ) -> BridgeResponse:
     """Async typed bridge API with deterministic tiered fallback."""
 
@@ -352,6 +396,8 @@ async def call_v2(
         resolved_tier = resolve_tier(mode)
     else:
         resolved_tier = _coerce_tier(tier)
+
+    mode_str = str(mode) if mode is not None else resolved_tier
 
     requested_tokens = int(budget_tokens)
     system = None
@@ -367,11 +413,21 @@ async def call_v2(
     get_cost_tracker().preflight_check(
         agent_id=agent_id,
         requested_tokens=requested_tokens,
+        mode=mode_str,
     )
+
+    # Cache hit — reflex/combat tier only
+    if resolved_tier == "reflex":
+        cached = _RESPONSE_CACHE.get(prompt, resolved_tier, system)
+        if cached is not None:
+            return cached
 
     messages = _build_messages(prompt, system)
     failures: list[str] = []
-    for candidate in get_fallback_chain(resolved_tier):
+    candidates = list(get_fallback_chain(resolved_tier))
+    if retry_budget is not None:
+        candidates = candidates[:max(1, int(retry_budget))]
+    for candidate in candidates:
         provider, selected_model = _resolve_model_candidate(candidate, model)
         if not provider or not selected_model:
             failures.append("invalid-candidate")
@@ -398,6 +454,13 @@ async def call_v2(
                 **call_kwargs,
             )
             latency_ms = (time.perf_counter() - start) * 1000
+            if latency_target_ms is not None and resolved_tier == "reflex" and latency_ms > latency_target_ms:
+                logger.warning(
+                    "[NEXUSMON WARN] reflex latency breach: %.1fms > %.1fms target (model=%s)",
+                    latency_ms,
+                    latency_target_ms,
+                    litellm_model,
+                )
             content = _extract_content(response)
             if not content:
                 _CIRCUIT.record_failure(label)
@@ -410,7 +473,7 @@ async def call_v2(
                 model_key=label,
                 tokens_used=tokens_used,
             )
-            return BridgeResponse(
+            bridge_resp = BridgeResponse(
                 content=content,
                 model_used=litellm_model,
                 provider=provider,
@@ -418,6 +481,9 @@ async def call_v2(
                 tier=_INDEX_BY_TIER.get(resolved_tier, tier),
                 latency_ms=latency_ms,
             )
+            if resolved_tier == "reflex":
+                _RESPONSE_CACHE.put(prompt, resolved_tier, system, bridge_resp)
+            return bridge_resp
         except Exception as exc:  # pragma: no cover - fallback path tested indirectly
             _CIRCUIT.record_failure(label)
             logger.warning("[NEXUSMON WARN] LLM attempt failed for %s: %s", label, exc)
@@ -433,6 +499,7 @@ def get_bridge_status() -> dict[str, Any]:
     return {
         "circuit": _CIRCUIT.snapshot(),
         "cost": get_cost_tracker().snapshot(),
+        "response_cache": {"size": _RESPONSE_CACHE.size()},
     }
 
 
@@ -441,3 +508,4 @@ def _reset_bridge_runtime_state_for_tests() -> None:
 
     _CIRCUIT.reset()
     get_cost_tracker().reset()
+    _RESPONSE_CACHE.clear()

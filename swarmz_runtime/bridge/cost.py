@@ -7,6 +7,27 @@ from typing import Any, Callable
 
 from .config import get_budget_config
 
+# Hard per-mode token ceilings — enforced before provider dispatch
+_MODE_TOKEN_LIMITS: dict[str, int] = {
+    "strategic": 4096,
+    "combat": 2048,
+    "guardian": 0,
+    "reflex": 2048,
+    "cortex": 4096,
+    "fallback": 4096,
+}
+
+
+def get_mode_token_limit(mode: str | None) -> int:
+    """Return the maximum tokens allowed for a given mode/tier.
+
+    Returns 0 (fully blocked) for guardian. Returns a large sentinel (99999)
+    for unknown/None modes so they are not artificially capped.
+    """
+    if mode is None:
+        return 99999
+    return _MODE_TOKEN_LIMITS.get(str(mode).lower().strip(), 99999)
+
 
 class BudgetExceededError(RuntimeError):
     """Raised when a bridge call exceeds configured token budget limits."""
@@ -25,8 +46,21 @@ class CostTracker:
         self._per_agent_tokens_used: dict[str, int] = {}
         self._per_model_tokens_used: dict[str, int] = {}
 
-    def preflight_check(self, agent_id: str, requested_tokens: int) -> None:
+    def preflight_check(
+        self,
+        agent_id: str,
+        requested_tokens: int,
+        mode: str | None = None,
+    ) -> None:
         """Validate call budget before dispatching provider request."""
+
+        # Per-mode hard ceiling check (e.g. guardian=0 blocks all calls)
+        mode_limit = get_mode_token_limit(mode)
+        if requested_tokens > mode_limit:
+            raise BudgetExceededError(
+                f"Mode token budget exceeded for '{mode}': "
+                f"{requested_tokens} > {mode_limit}."
+            )
 
         budgets = self._budget_provider()
         per_call_limit = int(budgets.get("per_call_max_tokens", 0))
