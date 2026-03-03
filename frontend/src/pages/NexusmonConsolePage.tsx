@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useEvolution } from "../hooks/useEvolution";
+import { NexusmonChat } from "../components/NexusmonChat";
 
 const STAGE_COLOR: Record<string, string> = {
   ORIGIN:          "#9CA3AF",
@@ -389,6 +390,14 @@ export function NexusmonConsolePage() {
                 placeholder="type a command..."
                 style={{ flex: 1, background: "transparent", border: "none", color: "#e2e8f0", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}
               />
+            </div>
+
+            {/* ── Companion Chat ── */}
+            <div style={{ borderTop: "1px solid #141a24", paddingTop: 12, marginTop: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: 2.5, color: "#475569", textTransform: "uppercase", marginBottom: 8 }}>
+                Companion
+              </div>
+              <NexusmonChat />
             </div>
           </div>
         </div>

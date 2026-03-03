@@ -658,6 +658,21 @@ def evolution_status(agent_id: str):
         return {"error": str(exc), "agent_id": agent_id}
 
 
+@app.post("/v1/companion/nexusmon")
+async def companion_nexusmon(payload: dict):
+    """Generate a mode-aware companion response from NEXUSMON."""
+    prompt = str(payload.get("prompt", "")).strip()
+    mode = str(payload.get("mode", "strategic")).strip().lower()
+    if not prompt:
+        return {"error": "prompt is required"}
+    try:
+        from swarmz_runtime.companion.voice import generate_response
+        response = await generate_response(prompt=prompt, mode=mode)
+        return response.to_dict()
+    except Exception as exc:
+        return {"error": str(exc), "mode": mode}
+
+
 @app.get("/api/health/governance")
 def health_api_governance():
     return {"status": "ok", "policy_gate": "available"}
