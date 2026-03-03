@@ -1,4 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useEvolution } from "../hooks/useEvolution";
+
+const STAGE_COLOR: Record<string, string> = {
+  ORIGIN:          "#9CA3AF",
+  EMBODIMENT:      "#4EF2C5",
+  EXECUTION_FRAME: "#FFB020",
+  MONARCH_SHELL:   "#FFD700",
+  ZERO_POINT:      "#FF6FD8",
+};
 
 const MODULES = [
   { id: "cognition",   label: "COGNITION",   icon: "◈", desc: "Reasoning & Planning",  health: 98,  activity: "scaffolding trajectory",       color: "#00f0ff" },
@@ -96,23 +105,39 @@ export function NexusmonConsolePage() {
   const [commandInput, setCommandInput]   = useState("");
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
   const [organismPulse, setOrganismPulse] = useState(0);
+  const [stageFlash, setStageFlash]       = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<TermEntry[]>([
     { type: "system", text: "NEXUSMON Operator Console v2.1.0" },
     { type: "system", text: "ATENGIC kernel loaded — allegiance: operator-bound" },
     { type: "system", text: 'Type "help" for available commands. Ready.' },
   ]);
 
-  const feedRef = useRef<HTMLDivElement>(null);
-  const termRef = useRef<HTMLDivElement>(null);
+  const feedRef    = useRef<HTMLDivElement>(null);
+  const termRef    = useRef<HTMLDivElement>(null);
+  const prevStageRef = useRef<string | null>(null);
 
-  // ── Tick / organism pulse ──
+  const { stage, xp } = useEvolution();
+  const stageColor = STAGE_COLOR[stage] ?? "#4EF2C5";
+
+  // ── Stage advance flash (2s) ──
   useEffect(() => {
+    if (prevStageRef.current !== null && prevStageRef.current !== stage) {
+      setStageFlash(true);
+      const t = setTimeout(() => setStageFlash(false), 2000);
+      return () => clearTimeout(t);
+    }
+    prevStageRef.current = stage;
+  }, [stage]);
+
+  // ── Tick / organism pulse — speed scales with XP ──
+  useEffect(() => {
+    const pulseStep = Math.max(1, Math.floor(xp / 1000) + 1);
     const id = setInterval(() => {
       setTick((t) => t + 1);
-      setOrganismPulse((p) => (p + 1) % 360);
+      setOrganismPulse((p) => (p + pulseStep) % 360);
     }, 3000);
     return () => clearInterval(id);
-  }, []);
+  }, [xp]);
 
   // ── Feed new event on each tick ──
   useEffect(() => {
@@ -215,9 +240,18 @@ export function NexusmonConsolePage() {
           <span style={{ fontSize: 10, color: "#475569", letterSpacing: 2, textTransform: "uppercase" }}>
             Operator Console v2.1
           </span>
+          <div style={{ width: 1, height: 20, background: "#1e293b" }} />
+          <span style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: stageColor, fontWeight: 600 }}>
+            {stage}
+          </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11 }}>
+            {stageFlash && (
+              <span style={{ color: stageColor, fontWeight: 700, letterSpacing: 2, animation: "pulse 0.4s ease-in-out infinite" }}>
+                ▲ STAGE ADVANCE
+              </span>
+            )}
             <Pulse color={overallHealth > 95 ? "#34d399" : "#fbbf24"} />
             <span style={{ color: overallHealth > 95 ? "#34d399" : "#fbbf24", fontWeight: 600 }}>
               ORGANISM {overallHealth > 95 ? "NOMINAL" : "DEGRADED"}
@@ -251,7 +285,7 @@ export function NexusmonConsolePage() {
               onClick={() => setSelectedModule(selectedModule === mod.id ? null : mod.id)}
               style={{
                 ["--nx-accent" as string]: mod.color,
-                border: `1px solid ${selectedModule === mod.id ? mod.color : "#141a24"}`,
+                border: `1px solid ${stageFlash ? stageColor : selectedModule === mod.id ? mod.color : "#141a24"}`,
                 borderRadius: 6, padding: 12, marginBottom: 8, cursor: "pointer",
                 background: selectedModule === mod.id ? "rgba(255,255,255,0.02)" : "transparent",
                 transition: "all 0.2s ease",

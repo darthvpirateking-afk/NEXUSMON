@@ -7,6 +7,7 @@ import {
   type NexusmonMode,
 } from "../components/NexusmonModeSelector";
 import { NexusmonEntityPanel } from "../components/NexusmonEntityPanel";
+import { EvolutionPanel } from "../components/EvolutionPanel";
 
 export function NexusmonPage() {
   const [mode, setMode] = useState<NexusmonMode>("strategic");
@@ -20,6 +21,7 @@ export function NexusmonPage() {
       <div style={styles.column}>
         <NexusmonModeSelector value={mode} onChange={setMode} />
         <NexusmonBridgeHealth />
+        <EvolutionPanel />
       </div>
     </section>
   );
