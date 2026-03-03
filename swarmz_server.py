@@ -1313,6 +1313,25 @@ async def swarm_status(swarm_id: str):
         return {"error": str(exc), "swarm_id": swarm_id}
 
 
+@app.post("/v1/shadow/execute", operation_id="swarmz_shadow_execute")
+async def shadow_execute(payload: dict):
+    """Execute a shadow mission — operator key required, no audit trail."""
+    goal = str(payload.get("goal", "")).strip()
+    mode = str(payload.get("mode", "strategic")).strip().lower()
+    agent_id = str(payload.get("agent_id", "nexusmon-shadow")).strip()
+    operator_key = str(payload.get("operator_key", "")).strip()
+    if not goal:
+        return {"error": "goal is required"}
+    try:
+        from swarmz_runtime.shadow.executor import execute, OperatorKeyRequired
+        mission = await execute(goal=goal, mode=mode, agent_id=agent_id, operator_key=operator_key)
+        return {"ok": True, **mission.to_dict()}
+    except OperatorKeyRequired as exc:
+        return {"error": str(exc), "status": 403}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
 @app.get("/api/health/governance", operation_id="swarmz_health_api_governance")
 async def health_api_governance():
     return {"status": "ok", "policy_gate": "available"}
