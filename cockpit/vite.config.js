@@ -6,14 +6,20 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      '/api': {
+        target: 'http://localhost:8012',
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+      },
       '/v1/canonical': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:8012',
         ws: true,
         changeOrigin: true,
         secure: false,
       },
       '/v1': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:8012',
         ws: true,
         changeOrigin: true,
         secure: false,
