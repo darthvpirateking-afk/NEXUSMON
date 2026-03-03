@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import importlib
 import json
+import time
 from pathlib import Path
 
 from swarmz_runtime.core.operational_runtime import OperationalRuntime
@@ -12,6 +13,10 @@ SECRET = "test_secret_for_tests_only"
 def make_sig(body: bytes, secret: str = SECRET) -> str:
     digest = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
     return f"sha256={digest}"
+
+
+def ts_now() -> str:
+    return str(int(time.time()))
 
 
 def _wire_runtime(tmp_path, monkeypatch):
@@ -78,7 +83,10 @@ def test_invalid_signature_400(client, tmp_path, monkeypatch):
     response = client.post(
         "/v1/store/payment-webhook",
         content=payload,
-        headers={"X-Webhook-Signature": "sha256=bad_sig"},
+        headers={
+            "X-Webhook-Signature": "sha256=bad_sig",
+            "X-Webhook-Timestamp": ts_now(),
+        },
     )
 
     assert response.status_code == 400
@@ -93,7 +101,11 @@ def test_missing_signature_400(client, tmp_path, monkeypatch):
         {"id": "evt_missing_sig", "order_id": order_id, "event": "payment_succeeded"}
     ).encode("utf-8")
 
-    response = client.post("/v1/store/payment-webhook", content=payload)
+    response = client.post(
+        "/v1/store/payment-webhook",
+        content=payload,
+        headers={"X-Webhook-Timestamp": ts_now()},
+    )
 
     assert response.status_code == 400
     assert any(event == "forged_webhook" for event, _ in captured_events)
@@ -109,7 +121,10 @@ def test_missing_secret_503(client, tmp_path, monkeypatch):
     response = client.post(
         "/v1/store/payment-webhook",
         content=payload,
-        headers={"X-Webhook-Signature": "sha256=unused"},
+        headers={
+            "X-Webhook-Signature": "sha256=unused",
+            "X-Webhook-Timestamp": ts_now(),
+        },
     )
 
     assert response.status_code == 503
@@ -127,7 +142,10 @@ def test_valid_first_delivery_200(client, tmp_path, monkeypatch):
     response = client.post(
         "/v1/store/payment-webhook",
         content=payload,
-        headers={"X-Webhook-Signature": signature},
+        headers={
+            "X-Webhook-Signature": signature,
+            "X-Webhook-Timestamp": ts_now(),
+        },
     )
 
     assert response.status_code == 200
@@ -149,7 +167,10 @@ def test_duplicate_delivery_200(client, tmp_path, monkeypatch):
     first = client.post(
         "/v1/store/payment-webhook",
         content=payload,
-        headers={"X-Webhook-Signature": signature},
+        headers={
+            "X-Webhook-Signature": signature,
+            "X-Webhook-Timestamp": ts_now(),
+        },
     )
     assert first.status_code == 200
     first_ledger_count = len(runtime.ledger_tail(20))
@@ -160,7 +181,10 @@ def test_duplicate_delivery_200(client, tmp_path, monkeypatch):
     second = client.post(
         "/v1/store/payment-webhook",
         content=payload,
-        headers={"X-Webhook-Signature": signature},
+        headers={
+            "X-Webhook-Signature": signature,
+            "X-Webhook-Timestamp": ts_now(),
+        },
     )
     assert second.status_code == 200
     assert second.json()["status"] == "already_processed"
@@ -170,3 +194,25 @@ def test_duplicate_delivery_200(client, tmp_path, monkeypatch):
         == first_processed_count
     )
     assert any(event == "webhook_replay" for event, _ in captured_events)
+
+
+def test_expired_timestamp_400(client, tmp_path, monkeypatch):
+    _wire_runtime(tmp_path, monkeypatch)
+    monkeypatch.setenv("PAYMENT_WEBHOOK_SECRET", SECRET)
+    order_id = _create_order(client)
+    payload = json.dumps(
+        {"id": "evt_expired", "order_id": order_id, "event": "payment_succeeded"}
+    ).encode("utf-8")
+    signature = make_sig(payload)
+    expired = str(int(time.time()) - 3600)
+
+    response = client.post(
+        "/v1/store/payment-webhook",
+        content=payload,
+        headers={
+            "X-Webhook-Signature": signature,
+            "X-Webhook-Timestamp": expired,
+        },
+    )
+
+    assert response.status_code == 400

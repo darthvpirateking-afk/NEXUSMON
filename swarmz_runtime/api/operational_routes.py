@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -108,10 +109,25 @@ def checkout(payload: CheckoutRequest):
 async def payment_webhook(request: Request):
     raw_body = await request.body()
     signature_header = request.headers.get("X-Webhook-Signature", "")
+    timestamp_header = request.headers.get("X-Webhook-Timestamp", "")
 
     if not os.environ.get("PAYMENT_WEBHOOK_SECRET"):
         logger.error("[NEXUSMON] PAYMENT_WEBHOOK_SECRET not configured; failing closed")
         raise HTTPException(status_code=503, detail="Webhook security not configured")
+
+    try:
+        event_timestamp = int(timestamp_header)
+    except (TypeError, ValueError):
+        _log_security_event("webhook_invalid_timestamp", request)
+        raise HTTPException(status_code=400, detail="Invalid or missing webhook timestamp")
+
+    if abs(int(time.time()) - event_timestamp) > 300:
+        _log_security_event(
+            "webhook_expired_timestamp",
+            request,
+            extra={"event_timestamp": event_timestamp},
+        )
+        raise HTTPException(status_code=400, detail="Webhook replay rejected: timestamp expired")
 
     if not signature_header or not verify_webhook_signature(raw_body, signature_header):
         _log_security_event("forged_webhook", request)
@@ -163,6 +179,7 @@ def _log_security_event(
     event_type: str,
     request: Request,
     event_id: str | None = None,
+    extra: dict[str, Any] | None = None,
 ) -> None:
     from addons.security import append_security_event
 
@@ -173,4 +190,6 @@ def _log_security_event(
     }
     if event_id:
         details["event_id"] = event_id
+    if isinstance(extra, dict):
+        details.update(extra)
     append_security_event(event_type, details)

@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import importlib
 import json
+import time
 from pathlib import Path
 
 
@@ -83,6 +84,7 @@ def test_blueprint_to_fulfillment_pipeline(client, tmp_path, monkeypatch):
         content=webhook_payload,
         headers={
             "X-Webhook-Signature": webhook_sig,
+            "X-Webhook-Timestamp": str(int(time.time())),
             "Content-Type": "application/json",
         },
     )
