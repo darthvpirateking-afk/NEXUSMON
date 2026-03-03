@@ -2,20 +2,20 @@
 
 import yaml
 import json
-from backend.core.governor.governor import Governor
-from backend.core.patchpack.patchpack import Patchpack
-from backend.core.session.session import Session
-from backend.core.mission.parser import Parser
-from backend.core.mission.planner import Planner
-from backend.core.mission.executor import Executor
-from backend.core.mission.reporter import Reporter
-from backend.core.swarm.registry import Registry
-from backend.core.swarm.behavior import BehaviorEngine
-from backend.core.swarm.formation import FormationEngine
+from swarmz.backend.core.governor.governor import Governor
+from swarmz.backend.core.patchpack.patchpack import Patchpack
+from swarmz.backend.core.session.session import Session
+from swarmz.backend.core.mission.parser import Parser
+from swarmz.backend.core.mission.planner import Planner
+from swarmz.backend.core.mission.executor import MissionExecutor as Executor
+from swarmz.backend.core.mission.reporter import MissionReporter as Reporter
+from swarmz.backend.core.swarm.registry import UnitRegistry as Registry
+from swarmz.backend.core.swarm.behavior import BehaviorEngine
+from swarmz.backend.core.swarm.formation import FormationEngine
 from swarmz_runtime.avatar.avatar_brain import AvatarBrain
 from swarmz_runtime.avatar.avatar_state import AvatarState
 from swarmz_runtime.avatar.avatar_presence import AvatarPresence
-from backend.core.cosmology.mesh_router import MeshRouter
+from swarmz.backend.core.cosmology.mesh_router import MeshRouter
 
 
 class Engine:
