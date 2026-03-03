@@ -121,6 +121,12 @@ class StartMissionRequest(BaseModel):
     constraints: Dict[str, Any] = {}
 
 
+class CompleteMissionRequest(BaseModel):
+    mission_id: str
+    bridge_output: str | None = None
+    mode: str | None = None
+
+
 class MissionActionRequest(BaseModel):
     mission_id: str
 
@@ -141,6 +147,8 @@ def start_mission(req: StartMissionRequest) -> Dict[str, Any]:
         "state": "QUEUED",
         "created_at": now,
         "history": [{"state": "QUEUED", "timestamp": now}],
+        "bridge_output": None,
+        "mode": None,
     }
     with _LOCK:
         _MISSIONS[mission_id] = mission
@@ -168,6 +176,19 @@ def resume_mission(req: MissionActionRequest) -> Dict[str, Any]:
     return {"mission_id": req.mission_id, "state": m["state"], "timestamp": _ts()}
 
 
+@router.post("/complete")
+def complete_mission(req: CompleteMissionRequest) -> Dict[str, Any]:
+    """Mark mission COMPLETED and store bridge_output + mode."""
+    with _LOCK:
+        m = _MISSIONS.get(req.mission_id)
+        if not m:
+            raise HTTPException(status_code=404, detail=f"Mission {req.mission_id} not found")
+        m["bridge_output"] = req.bridge_output
+        m["mode"] = req.mode
+    result = _transition(req.mission_id, "COMPLETED")
+    return {"mission_id": req.mission_id, "state": result["state"], "timestamp": _ts()}
+
+
 @router.get("/status")
 def missions_status() -> Dict[str, Any]:
     """Return all active missions and their current states."""
@@ -188,5 +209,7 @@ def mission_status(mission_id: str) -> Dict[str, Any]:
         "mission_id": mission_id,
         "state": m["state"],
         "history": m["history"],
+        "bridge_output": m.get("bridge_output"),
+        "mode": m.get("mode"),
         "timestamp": _ts(),
     }

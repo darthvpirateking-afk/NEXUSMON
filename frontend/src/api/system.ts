@@ -37,6 +37,8 @@ export interface MissionStatus {
   mission_id: string;
   state: string;
   history: { state: string; timestamp: string }[];
+  bridge_output?: string | null;
+  mode?: string | null;
   timestamp: string;
 }
 
@@ -89,4 +91,13 @@ export const missionApi = {
   status: () => apiGet<MissionsStatusResponse>("/v1/missions/status"),
   statusById: (mission_id: string) =>
     apiGet<MissionStatus>(`/v1/missions/status/${mission_id}`),
+  complete: (
+    mission_id: string,
+    bridge_output: string | null,
+    mode: string | null,
+  ) =>
+    apiPost<{ mission_id: string; state: string; timestamp: string }>(
+      "/v1/missions/complete",
+      { mission_id, bridge_output, mode },
+    ),
 };

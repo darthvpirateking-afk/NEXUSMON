@@ -1235,7 +1235,25 @@ async def health_api_bridge():
         providers = [f"{c.get('provider')}/{c.get('model')}" for c in chain]
     except Exception:
         providers = []
-    return {"status": "ok" if providers else "degraded", "providers": providers}
+
+    try:
+        from swarmz_runtime.bridge import get_bridge_status
+
+        bridge_status = get_bridge_status()
+    except Exception:
+        bridge_status = {}
+
+    return {
+        "status": "ok" if providers else "degraded",
+        "providers": providers,
+        "circuit_breaker": bridge_status.get("circuit", {}),
+        "budget": bridge_status.get("cost", {}),
+        "mode_table": {
+            "strategic": "cortex",
+            "combat": "reflex",
+            "guardian": "blocked",
+        },
+    }
 
 
 @app.get("/api/health/governance", operation_id="swarmz_health_api_governance")

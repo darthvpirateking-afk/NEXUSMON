@@ -432,6 +432,8 @@ class SwarmzEngine:
                 "roi": roi,
                 "next_run": next_run.isoformat(),
                 "rune_created": rune.id,
+                "mode": mission_mode,
+                "bridge_output": bridge_result,
             }
             total_runtime_ms = (time.perf_counter() - start) * 1000.0
             if learning_active:

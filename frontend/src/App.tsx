@@ -25,6 +25,7 @@ import { DatabaseLayerPage } from "./pages/DatabaseLayerPage";
 import { OperatorAuthPage } from "./pages/OperatorAuthPage";
 import { ApiFoundationPage } from "./pages/ApiFoundationPage";
 import { NexusmonConsolePage } from "./pages/NexusmonConsolePage";
+import { NexusmonPage } from "./pages/NexusmonPage";
 import { systemApi } from "./api/system";
 import { colors, spacing, radii, typography, shadows } from "./theme/cosmicTokens";
 
@@ -198,7 +199,7 @@ export default function App() {
 function PageContent({ activePage }: { activePage: PageId }) {
   switch (activePage) {
     case "nexusmon":
-      return <NexusmonEntityPanel />;
+      return <NexusmonPage />;
     case "companion":
       return <CompanionCorePage />;
     case "runtime":

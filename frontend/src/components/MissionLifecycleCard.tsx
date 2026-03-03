@@ -1,6 +1,7 @@
-import { type CSSProperties, useCallback, useEffect, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { colors, radii, spacing, typography } from "../theme/cosmicTokens";
 import { missionApi, type MissionStatus } from "../api/system";
+import { setBridgeOutput } from "../hooks/useBridgeOutput";
 
 const STATE_COLOR: Record<string, string> = {
   IDLE: colors.textSecondary,
@@ -27,11 +28,24 @@ export function MissionLifecycleCard() {
   const [goal, setGoal] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const prevStatesRef = useRef<Record<string, string>>({});
 
   const fetchMissions = useCallback(async () => {
     try {
       const data = await missionApi.status();
-      setMissions(data.missions);
+      const incoming = data.missions;
+      const prev = prevStatesRef.current;
+      for (const m of incoming) {
+        if (m.state === "COMPLETED" && prev[m.mission_id] !== "COMPLETED") {
+          setBridgeOutput(
+            m.bridge_output ?? `Mission ${m.mission_id} completed`,
+            m.mode ?? null,
+          );
+        }
+        prev[m.mission_id] = m.state;
+      }
+      prevStatesRef.current = prev;
+      setMissions(incoming);
     } catch {
       // silent
     }
