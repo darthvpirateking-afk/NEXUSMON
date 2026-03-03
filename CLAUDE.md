@@ -29,7 +29,7 @@ AI organism. You build it additively. You never overwrite. You never drift.
 Location:  e:\NEXUSMON-main\NEXUSMON-main-backup-20260227-224154\
 Branch:    evolution/evolution_controller_install
 Stack:     Python 3.11 · FastAPI · Pydantic v2 · LiteLLM · React · Vite · TypeScript strict
-Tests:     pytest (operator runs manually) · last clean: 1130 passed, 1 skipped, 0 failed
+Tests:     pytest (operator runs manually) · last clean: 1156 passed, 1 skipped, 0 failed
 ```
 
 ---
@@ -215,7 +215,7 @@ swarmz_runtime/bridge/             ← LLM routing layer
 swarmz_runtime/core/engine.py      ← SwarmzEngine — mission execution
 swarmz_runtime/storage/schema.py   ← Mission and core models
 swarmz_runtime/evolution/          ← evolution engine (BUILT — Phase 2)
-swarmz_runtime/companion/          ← companion voice layer (Phase 4 — next)
+swarmz_runtime/companion/          ← companion voice layer (BUILT — Phase 4)
 core/registry.py                   ← agent manifest registry
 frontend/src/
   App.tsx                          ← routing, page layout
@@ -253,38 +253,18 @@ Enforced in `swarmz_runtime/bridge/mode.py`. Never bypass.
 
 ---
 
-## WHAT'S BUILT (COMMITTED)
+## WHAT'S BUILT (COMMITTED) — ALL PHASES SEALED
 
 | Phase | Status | Commit |
 |-------|--------|--------|
 | 1 — Stabilize | ✅ | `88cd6f3` feat(nexusmon): bridge health + mission lifecycle + mode UI wiring |
 | 2 — Evolution Engine | ✅ | `5b0c805` feat(nexusmon): evolution engine — stage, traits, XP, persistence, API |
 | 3 — Cockpit Expansion | ✅ | `248b794` feat(cockpit): evolution panel, useEvolution hook, organism pulse XP wiring |
-| 4 — Companion Voice | 🔲 | Next |
-| 5 — Artifact Vault | 🔲 | After 4 |
-| 6 — Seal | 🔲 | Final |
+| 4 — Companion Voice | ✅ | `ecfcc87` feat(companion): voice layer, mode-aware routing, NexusmonChat wired |
+| 5 — Artifact Vault | ✅ | `f42aaa1` feat(artifacts): vault fused into both servers, 26 vault tests |
+| 6 — Seal | ✅ | docs/NEXUSMON_DOCTRINE.md created · CLAUDE.md finalized |
 
-**Last test run: 1130 passed, 1 skipped, 0 failed**
-
----
-
-## BUILD PHASES — REMAINING
-
-### PHASE 4 — Companion Voice
-- `swarmz_runtime/companion/voice.py` — mode-aware prompt routing
-- `POST /v1/companion/nexusmon` in both servers
-- `frontend/src/components/NexusmonChat.tsx`
-- Wire into console page terminal
-
-### PHASE 5 — Artifact Vault Surface
-- `GET /v1/artifacts/list` and `GET /v1/artifacts/{id}`
-- `frontend/src/components/ArtifactVaultPanel.tsx`
-
-### PHASE 6 — Seal
-- Full regression
-- Commit everything
-- Create `docs/NEXUSMON_DOCTRINE.md`
-- Update this CLAUDE.md with final state
+**Last test run: 1156 passed, 1 skipped, 0 failed**
 
 ---
 
