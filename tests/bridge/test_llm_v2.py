@@ -114,7 +114,7 @@ def test_call_v2_mode_combat_forces_reflex(monkeypatch) -> None:
     monkeypatch.setattr(llm, "_get_litellm_module", lambda: stub)
     monkeypatch.setattr(llm, "resolve_provider_api_key", lambda *_: None)
 
-    result = asyncio.run(llm.call_v2("ping", tier=1, mode="combat"))
+    result = asyncio.run(llm.call_v2("ping", tier=1, mode="combat", budget_tokens=100))
 
     assert seen_tier["tier"] == "reflex"
     assert result.tier == 2
