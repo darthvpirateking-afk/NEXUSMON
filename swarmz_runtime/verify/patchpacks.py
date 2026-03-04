@@ -4,7 +4,7 @@
 import json
 import time
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 from swarmz_runtime.verify import provenance
 
@@ -12,7 +12,7 @@ PACK_ROOT = Path(__file__).resolve().parents[2] / "packs" / "patchpacks"
 PACK_ROOT.mkdir(parents=True, exist_ok=True)
 
 
-def generate_patchpack(note: str = "auto") -> Dict[str, Any]:
+def generate_patchpack(note: str = "auto") -> dict[str, Any]:
     ts = int(time.time())
     pack_id = f"patch-{ts}"
     base = PACK_ROOT / pack_id
@@ -39,7 +39,7 @@ def generate_patchpack(note: str = "auto") -> Dict[str, Any]:
     return {"ok": True, "id": pack_id, "path": str(base)}
 
 
-def apply_patchpack(pack_id: str) -> Dict[str, Any]:
+def apply_patchpack(pack_id: str) -> dict[str, Any]:
     base = PACK_ROOT / pack_id
     if not base.exists():
         return {"ok": False, "error": "missing pack"}
@@ -47,7 +47,7 @@ def apply_patchpack(pack_id: str) -> Dict[str, Any]:
     return {"ok": True, "message": "apply stub"}
 
 
-def rollback_patchpack(pack_id: str) -> Dict[str, Any]:
+def rollback_patchpack(pack_id: str) -> dict[str, Any]:
     base = PACK_ROOT / pack_id
     if not base.exists():
         return {"ok": False, "error": "missing pack"}

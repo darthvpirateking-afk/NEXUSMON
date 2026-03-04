@@ -1,7 +1,8 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import Dict, Any, List
+from typing import Any
+
 from swarmz_runtime.storage.db import Database
 
 
@@ -10,7 +11,7 @@ class ResonanceDetector:
         self.db = db
         self.thresholds = {1: "ignore", 3: "warn", 7: "intervene", 13: "lock"}
 
-    def detect_pattern(self, pattern: str) -> Dict[str, Any]:
+    def detect_pattern(self, pattern: str) -> dict[str, Any]:
         count = self.db.increment_pattern_counter(pattern)
         action = self._get_action(count)
 
@@ -37,7 +38,7 @@ class ResonanceDetector:
                 return threshold
         return 1
 
-    def get_all_patterns(self) -> List[Dict[str, Any]]:
+    def get_all_patterns(self) -> list[dict[str, Any]]:
         state = self.db.load_state()
         counters = state.get("pattern_counters", {})
 

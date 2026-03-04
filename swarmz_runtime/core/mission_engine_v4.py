@@ -1,13 +1,13 @@
 # SWARMZ Mission Engine v4
 # Operator-Authored Mission DSL
 
-from typing import Dict, Any, List
+from typing import Any
 
 
 class DSLParser:
     """Parse a simple operator-authored mission DSL into a mission graph."""
 
-    def parse(self, dsl: str) -> Dict[str, Any]:
+    def parse(self, dsl: str) -> dict[str, Any]:
         """Parse mission DSL string into a structured mission graph dict.
 
         DSL format (line-oriented):
@@ -20,7 +20,7 @@ class DSLParser:
             return {"name": "unnamed", "goal": "", "steps": [], "raw": dsl}
 
         lines = [l.strip() for l in dsl.strip().splitlines() if l.strip()]
-        graph: Dict[str, Any] = {"name": "unnamed", "goal": "", "steps": [], "raw": dsl}
+        graph: dict[str, Any] = {"name": "unnamed", "goal": "", "steps": [], "raw": dsl}
 
         for line in lines:
             lower = line.lower()
@@ -49,7 +49,7 @@ class DSLValidator:
 
     _REQUIRED = {"name", "goal"}
 
-    def validate(self, mission_graph: Dict[str, Any]) -> bool:
+    def validate(self, mission_graph: dict[str, Any]) -> bool:
         """Check syntax and governor rules. Returns True when safe to execute."""
         if not isinstance(mission_graph, dict):
             return False
@@ -60,20 +60,18 @@ class DSLValidator:
         if not mission_graph.get("goal") or not isinstance(mission_graph["goal"], str):
             return False
         steps = mission_graph.get("steps", [])
-        if not isinstance(steps, list):
-            return False
-        return True
+        return isinstance(steps, list)
 
 
 class DSLExecutor:
     """Execute a validated mission graph step by step."""
 
-    def execute(self, mission_graph: Dict[str, Any]) -> Dict[str, Any]:
+    def execute(self, mission_graph: dict[str, Any]) -> dict[str, Any]:
         """Execute the mission graph. Marks each step COMPLETED and returns summary."""
         if not mission_graph:
             return {"ok": False, "error": "empty graph"}
 
-        steps: List[Dict[str, Any]] = mission_graph.get("steps", [])
+        steps: list[dict[str, Any]] = mission_graph.get("steps", [])
         completed = 0
         for step in steps:
             step["status"] = "COMPLETED"
@@ -91,7 +89,7 @@ class DSLExecutor:
 class DSLReporter:
     """Generate cockpit-friendly visualization data from a mission graph."""
 
-    def report(self, mission_graph: Dict[str, Any]) -> Dict[str, Any]:
+    def report(self, mission_graph: dict[str, Any]) -> dict[str, Any]:
         """Return a cockpit-ready summary dict for UI rendering."""
         steps = mission_graph.get("steps", [])
         total = len(steps)
@@ -113,10 +111,6 @@ class DSLReporter:
             "status": (
                 "COMPLETED"
                 if completed == total and total > 0
-                else (
-                    "FAILED"
-                    if failed > 0
-                    else "IN_PROGRESS" if completed > 0 else "PENDING"
-                )
+                else ("FAILED" if failed > 0 else "IN_PROGRESS" if completed > 0 else "PENDING")
             ),
         }

@@ -5,7 +5,7 @@ import json
 import secrets
 import time
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
 from swarmz_runtime.verify import provenance
 
@@ -16,13 +16,13 @@ DECISIONS_FILE = DATA_DIR / "decisions.jsonl"
 GUILDS = ["runtime", "governance", "research", "build", "revenue", "verify"]
 
 
-def _append(path: Path, row: Dict[str, Any]):
+def _append(path: Path, row: dict[str, Any]):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(row, separators=(",", ":")) + "\n")
 
 
-def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
+def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     rows = []
     if not path.exists():
         return rows
@@ -36,7 +36,7 @@ def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
     return rows
 
 
-def intake(mission: Dict[str, Any]) -> Dict[str, Any]:
+def intake(mission: dict[str, Any]) -> dict[str, Any]:
     mission_id = mission.get("id") or f"F-{int(time.time())}-{secrets.token_hex(3)}"
     guild = mission.get("guild") or (GUILDS[hash(mission_id) % len(GUILDS)])
     row = {
@@ -54,18 +54,16 @@ def intake(mission: Dict[str, Any]) -> Dict[str, Any]:
         "audit_ref": None,
     }
     _append(FACTORY_FILE, row)
-    provenance.append_audit(
-        "factory_intake", {"mission_id": mission_id, "guild": guild}
-    )
+    provenance.append_audit("factory_intake", {"mission_id": mission_id, "guild": guild})
     return row
 
 
-def list_missions(limit: int = 200) -> List[Dict[str, Any]]:
+def list_missions(limit: int = 200) -> list[dict[str, Any]]:
     rows = _read_jsonl(FACTORY_FILE)
     return rows[-limit:]
 
 
-def get_mission(mid: str) -> Dict[str, Any]:
+def get_mission(mid: str) -> dict[str, Any]:
     rows = _read_jsonl(FACTORY_FILE)
     for m in rows:
         if m["id"] == mid:
@@ -73,7 +71,7 @@ def get_mission(mid: str) -> Dict[str, Any]:
     return {}  # Replace None with an empty dictionary
 
 
-def record_decision(mission_id: str, chosen: str, reason: str = "") -> Dict[str, Any]:
+def record_decision(mission_id: str, chosen: str, reason: str = "") -> dict[str, Any]:
     decision = {
         "decision_id": f"D-{int(time.time())}-{secrets.token_hex(2)}",
         "mission_id": mission_id,
@@ -92,7 +90,7 @@ def record_decision(mission_id: str, chosen: str, reason: str = "") -> Dict[str,
     return decision
 
 
-def latest_decision() -> Dict[str, Any]:
+def latest_decision() -> dict[str, Any]:
     decs = _read_jsonl(DECISIONS_FILE)
     return decs[-1] if decs else {}  # Replace None with an empty dictionary
 
@@ -111,10 +109,10 @@ def mermaid_graph() -> str:
 
 def execute_artifact(
     artifact_id: str,
-    parameters: Dict[str, Any],
+    parameters: dict[str, Any],
     operator_key: str,
     safe_mode: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Execute an artifact with manifestation and safety checks."""
     # Find the artifact/mission
     mission = get_mission(artifact_id)
@@ -149,25 +147,19 @@ def execute_artifact(
             {"action": "runtime_update", "result": "Runtime configuration updated"}
         )
     elif guild == "governance":
-        execution_result.update(
-            {"action": "policy_update", "result": "Governance policy applied"}
-        )
+        execution_result.update({"action": "policy_update", "result": "Governance policy applied"})
     elif guild == "research":
         execution_result.update(
             {"action": "research_execution", "result": "Research artifact executed"}
         )
     elif guild == "build":
-        execution_result.update(
-            {"action": "build_execution", "result": "Build artifact deployed"}
-        )
+        execution_result.update({"action": "build_execution", "result": "Build artifact deployed"})
     elif guild == "revenue":
         execution_result.update(
             {"action": "revenue_optimization", "result": "Revenue optimization applied"}
         )
     elif guild == "verify":
-        execution_result.update(
-            {"action": "verification_run", "result": "Verification completed"}
-        )
+        execution_result.update({"action": "verification_run", "result": "Verification completed"})
     else:
         execution_result.update(
             {
@@ -209,7 +201,7 @@ def execute_artifact(
     return execution_result
 
 
-def _update_mission(mission_id: str, updated_mission: Dict[str, Any]):
+def _update_mission(mission_id: str, updated_mission: dict[str, Any]):
     """Update a mission in the factory file."""
     missions = _read_jsonl(FACTORY_FILE)
     for i, m in enumerate(missions):

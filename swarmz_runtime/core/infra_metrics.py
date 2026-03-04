@@ -13,15 +13,15 @@ these summaries into missions or external actions.
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Any, Dict, List
+from datetime import UTC, datetime
+from typing import Any
 
 from swarmz_runtime.storage.infra_state import append_infra_event, load_infra_events
 
 _METRIC_FIELDS = ("cpu", "memory", "gpu", "disk", "net_rx", "net_tx")
 
 
-def record_infra_metrics(sample: Dict[str, Any]) -> None:
+def record_infra_metrics(sample: dict[str, Any]) -> None:
     """Normalize and append a single infra metrics sample.
 
     Expected keys include:
@@ -31,14 +31,14 @@ def record_infra_metrics(sample: Dict[str, Any]) -> None:
     """
 
     node_id = str(sample.get("node_id") or sample.get("id") or "unknown")
-    ts = sample.get("ts") or datetime.now(timezone.utc).isoformat()
+    ts = sample.get("ts") or datetime.now(UTC).isoformat()
 
-    payload: Dict[str, Any] = {}
+    payload: dict[str, Any] = {}
     for field in _METRIC_FIELDS:
         if field in sample:
             payload[field] = sample[field]
 
-    event: Dict[str, Any] = {
+    event: dict[str, Any] = {
         "type": "metrics",
         "ts": ts,
         "node_id": node_id,
@@ -57,7 +57,7 @@ def record_infra_metrics(sample: Dict[str, Any]) -> None:
     append_infra_event(event)
 
 
-def build_infra_overview(limit: int = 500) -> Dict[str, Any]:
+def build_infra_overview(limit: int = 500) -> dict[str, Any]:
     """Return a coarse infra overview from recent metrics events.
 
     The overview is intentionally simple and conservative: it computes
@@ -71,7 +71,7 @@ def build_infra_overview(limit: int = 500) -> Dict[str, Any]:
     if not metrics:
         return {"nodes": [], "total_nodes": 0, "last_ts": None}
 
-    per_node: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    per_node: dict[str, list[dict[str, Any]]] = defaultdict(list)
     last_ts: str | None = None
     for ev in metrics:
         node_id = str(ev.get("node_id") or "unknown")
@@ -81,13 +81,11 @@ def build_infra_overview(limit: int = 500) -> Dict[str, Any]:
         if isinstance(ts, str):
             last_ts = ts if last_ts is None or ts > last_ts else last_ts
 
-    nodes_summary: List[Dict[str, Any]] = []
+    nodes_summary: list[dict[str, Any]] = []
     for node_id, samples in per_node.items():
-        agg: Dict[str, Any] = {"node_id": node_id, "samples": len(samples)}
+        agg: dict[str, Any] = {"node_id": node_id, "samples": len(samples)}
         for field in _METRIC_FIELDS:
-            values = [
-                s[field] for s in samples if isinstance(s.get(field), (int, float))
-            ]
+            values = [s[field] for s in samples if isinstance(s.get(field), (int, float))]
             if values:
                 agg[f"avg_{field}"] = sum(values) / len(values)
         nodes_summary.append(agg)

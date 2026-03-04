@@ -9,6 +9,7 @@ Shadow missions:
 Encryption: XOR stream cipher keyed on SHA-256(operator_key).
 Artifacts are stored as base64-encoded ciphertext — not plaintext.
 """
+
 from __future__ import annotations
 
 import base64
@@ -17,7 +18,7 @@ import json
 import os
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -40,9 +41,7 @@ def _expected_key() -> str:
 def validate_operator_key(key: str) -> None:
     """Raise OperatorKeyRequired if key does not match the configured key."""
     if not key or key.strip() != _expected_key():
-        raise OperatorKeyRequired(
-            "Shadow execution requires a valid operator key. Access denied."
-        )
+        raise OperatorKeyRequired("Shadow execution requires a valid operator key. Access denied.")
 
 
 # ── Encryption ────────────────────────────────────────────────────────────────
@@ -77,7 +76,7 @@ def unseal(ciphertext: str, operator_key: str) -> str:
 
 
 def _utc() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @dataclass
@@ -89,8 +88,8 @@ class ShadowMission:
     goal: str
     mode: str
     agent_id: str
-    status: str           # "complete" | "error"
-    output: str | None    # plaintext — only returned to the authenticated caller
+    status: str  # "complete" | "error"
+    output: str | None  # plaintext — only returned to the authenticated caller
     error: str | None
     tokens: int
     latency_ms: float
@@ -161,6 +160,7 @@ async def execute(
 
     try:
         from swarmz_runtime.bridge.llm import call_v2
+
         bridge = await call_v2(
             prompt=goal,
             mode=mode,

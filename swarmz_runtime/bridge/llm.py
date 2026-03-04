@@ -74,9 +74,7 @@ class _CircuitBreaker:
             if state.opened_at is None:
                 return False
             elapsed = time.monotonic() - state.opened_at
-            if elapsed >= self._recovery_seconds:
-                return False
-            return True
+            return not elapsed >= self._recovery_seconds
 
     def record_failure(self, model_key: str) -> None:
         with self._lock:
@@ -114,14 +112,14 @@ class _ResponseCache:
 
     def __init__(self, maxsize: int = 256) -> None:
         self._maxsize = maxsize
-        self._cache: OrderedDict[str, "BridgeResponse"] = OrderedDict()
+        self._cache: OrderedDict[str, BridgeResponse] = OrderedDict()
         self._lock = threading.Lock()
 
     def _key(self, prompt: str, tier: str, system: str | None) -> str:
         raw = f"{tier}\x00{system or ''}\x00{prompt}"
         return hashlib.sha256(raw.encode()).hexdigest()[:32]
 
-    def get(self, prompt: str, tier: str, system: str | None) -> "BridgeResponse | None":
+    def get(self, prompt: str, tier: str, system: str | None) -> BridgeResponse | None:
         k = self._key(prompt, tier, system)
         with self._lock:
             if k in self._cache:
@@ -129,7 +127,7 @@ class _ResponseCache:
                 return self._cache[k]
         return None
 
-    def put(self, prompt: str, tier: str, system: str | None, resp: "BridgeResponse") -> None:
+    def put(self, prompt: str, tier: str, system: str | None, resp: BridgeResponse) -> None:
         k = self._key(prompt, tier, system)
         with self._lock:
             self._cache[k] = resp
@@ -424,10 +422,7 @@ async def call_v2(
 ) -> BridgeResponse:
     """Async typed bridge API with deterministic tiered fallback."""
 
-    if mode is not None:
-        resolved_tier = resolve_tier(mode)
-    else:
-        resolved_tier = _coerce_tier(tier)
+    resolved_tier = resolve_tier(mode) if mode is not None else _coerce_tier(tier)
 
     mode_str = str(mode) if mode is not None else resolved_tier
 
@@ -458,7 +453,7 @@ async def call_v2(
     failures: list[str] = []
     candidates = list(get_fallback_chain(resolved_tier))
     if retry_budget is not None:
-        candidates = candidates[:max(1, int(retry_budget))]
+        candidates = candidates[: max(1, int(retry_budget))]
     for candidate in candidates:
         provider, selected_model = _resolve_model_candidate(candidate, model)
         if not provider or not selected_model:
@@ -485,7 +480,11 @@ async def call_v2(
                 **call_kwargs,
             )
             latency_ms = (time.perf_counter() - start) * 1000
-            if latency_target_ms is not None and resolved_tier == "reflex" and latency_ms > latency_target_ms:
+            if (
+                latency_target_ms is not None
+                and resolved_tier == "reflex"
+                and latency_ms > latency_target_ms
+            ):
                 logger.warning(
                     "[NEXUSMON WARN] reflex latency breach: %.1fms > %.1fms target (model=%s)",
                     latency_ms,

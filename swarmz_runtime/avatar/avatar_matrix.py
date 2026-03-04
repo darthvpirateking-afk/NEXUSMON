@@ -14,16 +14,16 @@ import json
 from pathlib import Path
 from typing import Any
 
-from swarmz_runtime.avatar.avatar_omega import (
-    AvatarInfinity,
-    AvatarOmega,
-    AvatarOmegaPlus,
-)
 from swarmz_runtime.avatar.abilities.battle_chip_engine import (
     BattleChipEngine,
     ChipWitnessLogger,
 )
 from swarmz_runtime.avatar.avatar_combat import resolve_combat_profile
+from swarmz_runtime.avatar.avatar_omega import (
+    AvatarInfinity,
+    AvatarOmega,
+    AvatarOmegaPlus,
+)
 from swarmz_runtime.avatar.evolution_controller import (
     EvolutionController,
     RankSystemAdapter,
@@ -142,7 +142,8 @@ class AvatarMatrix:
             "rank": rank,
             "can_evolve": can_evolve,
             "sovereign_unlocked": self.rank_system.rank_at_least("Sovereign"),
-            "monarch_available": self.evolution.can_enter_monarch_mode() or self.current_form == "AvatarMonarch",
+            "monarch_available": self.evolution.can_enter_monarch_mode()
+            or self.current_form == "AvatarMonarch",
         }
 
     def get_matrix_state(self) -> dict[str, Any]:
@@ -165,8 +166,7 @@ class AvatarMatrix:
             },
             "chip_state": self.get_chip_state(),
             "variants": {
-                k: {"class": v[0], "description": v[1]}
-                for k, v in AVATAR_VARIANTS.items()
+                k: {"class": v[0], "description": v[1]} for k, v in AVATAR_VARIANTS.items()
             },
         }
 

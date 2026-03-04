@@ -1,10 +1,12 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import Dict, Any, List, Callable
-from datetime import datetime
 import hashlib
 import json
+from collections.abc import Callable
+from datetime import datetime
+from typing import Any
+
 import numpy as np
 
 # Avoid circular import - will be set by the engine
@@ -80,8 +82,8 @@ class NextTaskMatrix:
         }
 
     def process_task_matrix(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], options: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """
         Process through the NEXT TASK MATRIX to generate unified ignition-state vector.
 
@@ -123,14 +125,12 @@ class NextTaskMatrix:
             "cockpit_signal": cockpit_signal,
             "kernel_path": kernel_path,
             "layer_states": layer_states,
-            "meta_coherence": layer_states.get("sovereign_arbitration", {}).get(
-                "coherence", 0
-            ),
+            "meta_coherence": layer_states.get("sovereign_arbitration", {}).get("coherence", 0),
             "timestamp": datetime.now().isoformat(),
             "matrix_version": "1.0",
         }
 
-    def _generate_ignition_vector(self, layer_states: Dict[str, Any]) -> np.ndarray:
+    def _generate_ignition_vector(self, layer_states: dict[str, Any]) -> np.ndarray:
         """
         Generate unified ignition-state vector from layer states with weighted hierarchy.
         Returns 9-dimensional numpy array representing weighted ignition state.
@@ -149,8 +149,8 @@ class NextTaskMatrix:
         return np.array(vector_components, dtype=np.float32)
 
     def _generate_cockpit_signal(
-        self, layer_states: Dict[str, Any], ignition_vector: np.ndarray
-    ) -> Dict[str, Any]:
+        self, layer_states: dict[str, Any], ignition_vector: np.ndarray
+    ) -> dict[str, Any]:
         """
         Generate cockpit-ready operator signal from layer states and ignition vector.
         """
@@ -180,8 +180,8 @@ class NextTaskMatrix:
         }
 
     def _determine_kernel_path(
-        self, layer_states: Dict[str, Any], ignition_vector: np.ndarray
-    ) -> Dict[str, Any]:
+        self, layer_states: dict[str, Any], ignition_vector: np.ndarray
+    ) -> dict[str, Any]:
         """
         Determine kernel-level execution path based on ignition state.
         """
@@ -239,9 +239,7 @@ class NextTaskMatrix:
 class PreEvaluatedLayer:
     """FILTRATION: PRE-EVALUATED - Fast filtering layer"""
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """Apply fast pre-evaluation filtering."""
         filtered = []
         filtered_count = 0
@@ -262,24 +260,18 @@ class PreEvaluatedLayer:
             "filter_efficiency": filtered_count / max(1, len(options)),
         }
 
-    def _passes_pre_evaluation(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> bool:
+    def _passes_pre_evaluation(self, context: dict[str, Any], option: dict[str, Any]) -> bool:
         """Fast pre-evaluation check."""
         # Basic validity checks
         if not option.get("id"):
             return False
-        if option.get("invalid", False):
-            return False
-        return True
+        return not option.get("invalid", False)
 
 
 class SpaceShapingLayer:
     """GEOMETRY: SPACE-SHAPING - Boundary and directional constraints"""
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """Apply space-shaping geometry constraints."""
         shaped_options = []
 
@@ -302,8 +294,8 @@ class SpaceShapingLayer:
         }
 
     def _apply_space_shaping(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply geometric space shaping."""
         shaped_option = option.copy()
 
@@ -321,9 +313,7 @@ class SpaceShapingLayer:
 class ArchitecturalRestraintLayer:
     """BOUNDARY: ARCHITECTURAL RESTRAINT - Purity enforcement"""
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """Apply architectural purity constraints."""
         restrained_options = []
 
@@ -331,9 +321,7 @@ class ArchitecturalRestraintLayer:
             restrained = self._apply_architectural_restraint(context, option)
             restrained_options.append(restrained)
 
-        purity_scores = [
-            opt.get("architectural_purity", 0) for opt in restrained_options
-        ]
+        purity_scores = [opt.get("architectural_purity", 0) for opt in restrained_options]
         avg_purity = sum(purity_scores) / max(1, len(purity_scores))
 
         return {
@@ -342,17 +330,13 @@ class ArchitecturalRestraintLayer:
             "architectural_purity": avg_purity,
             "ignition_value": avg_purity,
             "constraint_violations": len(
-                [
-                    opt
-                    for opt in restrained_options
-                    if not opt.get("purity_compliant", True)
-                ]
+                [opt for opt in restrained_options if not opt.get("purity_compliant", True)]
             ),
         }
 
     def _apply_architectural_restraint(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply architectural purity constraints."""
         restrained_option = option.copy()
 
@@ -361,9 +345,7 @@ class ArchitecturalRestraintLayer:
         follows_patterns = option.get("pattern_compliant", True)
         minimal_implementation = option.get("minimal", True)
 
-        purity_score = (
-            has_clean_design + follows_patterns + minimal_implementation
-        ) / 3.0
+        purity_score = (has_clean_design + follows_patterns + minimal_implementation) / 3.0
         restrained_option["architectural_purity"] = purity_score
         restrained_option["purity_compliant"] = purity_score > 0.6
 
@@ -373,9 +355,7 @@ class ArchitecturalRestraintLayer:
 class MythicalWayLayer:
     """ALIGNMENT: MYTHICAL WAY - Archetypal resonance"""
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """Apply archetypal alignment."""
         aligned_options = []
 
@@ -383,9 +363,7 @@ class MythicalWayLayer:
             aligned = self._apply_mythical_alignment(context, option)
             aligned_options.append(aligned)
 
-        resonance_scores = [
-            opt.get("archetypal_resonance", 0) for opt in aligned_options
-        ]
+        resonance_scores = [opt.get("archetypal_resonance", 0) for opt in aligned_options]
         avg_resonance = sum(resonance_scores) / max(1, len(resonance_scores))
 
         return {
@@ -399,8 +377,8 @@ class MythicalWayLayer:
         }
 
     def _apply_mythical_alignment(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply archetypal pattern alignment."""
         aligned_option = option.copy()
 
@@ -424,9 +402,7 @@ class MythicalWayLayer:
 class HiddenWayLayer:
     """OVERRIDE: HIDDEN WAY - Covert sovereign control"""
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """Apply hidden sovereign override."""
         override_options = []
 
@@ -434,9 +410,9 @@ class HiddenWayLayer:
             overridden = self._apply_hidden_override(context, option)
             override_options.append(overridden)
 
-        override_strength = sum(
-            opt.get("sovereign_override", 0) for opt in override_options
-        ) / max(1, len(override_options))
+        override_strength = sum(opt.get("sovereign_override", 0) for opt in override_options) / max(
+            1, len(override_options)
+        )
 
         return {
             "layer": "override",
@@ -444,17 +420,13 @@ class HiddenWayLayer:
             "sovereign_override_strength": override_strength,
             "ignition_value": override_strength,
             "covert_interventions": len(
-                [
-                    opt
-                    for opt in override_options
-                    if opt.get("sovereign_intervention", False)
-                ]
+                [opt for opt in override_options if opt.get("sovereign_intervention", False)]
             ),
         }
 
     def _apply_hidden_override(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply covert sovereign control."""
         override_option = option.copy()
 
@@ -481,9 +453,7 @@ class HiddenWayLayer:
 class MagicWayLayer:
     """UPLIFT: MAGIC WAY - Nonlinear emergence"""
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """Apply nonlinear uplift and emergence."""
         uplifted_options = []
 
@@ -506,8 +476,8 @@ class MagicWayLayer:
         }
 
     def _apply_magic_uplift(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply nonlinear transformation for emergence."""
         uplifted_option = option.copy()
 
@@ -528,9 +498,7 @@ class MagicWayLayer:
 class SovereignArbitrationLayer:
     """SOVEREIGN ARBITRATION: THE THING WITHOUT A NAME - Final meta-coherence decision"""
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """Apply final sovereign arbitration."""
         if not options:
             return {
@@ -561,9 +529,7 @@ class SovereignArbitrationLayer:
             "coherence_distribution": [score for _, score in coherence_scores],
         }
 
-    def _calculate_meta_coherence(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> float:
+    def _calculate_meta_coherence(self, context: dict[str, Any], option: dict[str, Any]) -> float:
         """Calculate meta-coherence score."""
         # Create coherence hash from context + option
         coherence_input = json.dumps(
@@ -588,9 +554,7 @@ class SovereignArbitrationLayer:
 class UniversalGiftLayer:
     """UNIVERSAL GIFT → integration - Universal integration and synthesis"""
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """Apply universal integration across all options."""
         integrated_options = []
 
@@ -613,8 +577,8 @@ class UniversalGiftLayer:
         }
 
     def _apply_universal_integration(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply universal gift of integration."""
         integrated_option = option.copy()
 
@@ -625,9 +589,7 @@ class UniversalGiftLayer:
 
         if total_elements > 0:
             # Integration strength based on element synthesis potential
-            integration = min(
-                1.0, (context_elements * option_elements) / (total_elements**1.5)
-            )
+            integration = min(1.0, (context_elements * option_elements) / (total_elements**1.5))
         else:
             integration = 0.5
 
@@ -642,9 +604,7 @@ class UniversalGiftLayer:
 class StabilizingLayer:
     """STABILIZING → continuity - Stability and continuity enforcement"""
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """Apply stabilizing continuity constraints."""
         stabilized_options = []
 
@@ -652,9 +612,9 @@ class StabilizingLayer:
             stabilized = self._apply_stabilizing_continuity(context, option)
             stabilized_options.append(stabilized)
 
-        stability_score = sum(
-            opt.get("stability_factor", 0) for opt in stabilized_options
-        ) / max(1, len(stabilized_options))
+        stability_score = sum(opt.get("stability_factor", 0) for opt in stabilized_options) / max(
+            1, len(stabilized_options)
+        )
 
         return {
             "layer": "continuity",
@@ -662,17 +622,13 @@ class StabilizingLayer:
             "stability_factor": stability_score,
             "ignition_value": stability_score,
             "continuity_breaches": len(
-                [
-                    opt
-                    for opt in stabilized_options
-                    if not opt.get("continuity_maintained", True)
-                ]
+                [opt for opt in stabilized_options if not opt.get("continuity_maintained", True)]
             ),
         }
 
     def _apply_stabilizing_continuity(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply stabilizing continuity enforcement."""
         stabilized_option = option.copy()
 

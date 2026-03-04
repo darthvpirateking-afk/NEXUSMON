@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 THRONE_IDENTITY = "SOVEREIGN_OPERATOR"
@@ -31,9 +31,7 @@ class Decree:
     decree_id: str
     title: str
     body: str
-    issued_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    issued_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     authority_level: str = "SOVEREIGN"
     active: bool = True
 
@@ -54,9 +52,7 @@ class ThroneLayer:
     def constitution(self) -> list[str]:
         return list(self._constitution)
 
-    def issue_decree(
-        self, title: str, body: str, authority_level: str = "SOVEREIGN"
-    ) -> Decree:
+    def issue_decree(self, title: str, body: str, authority_level: str = "SOVEREIGN") -> Decree:
         decree = Decree(
             decree_id=f"DECREE-{uuid.uuid4().hex[:8].upper()}",
             title=title,

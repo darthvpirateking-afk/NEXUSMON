@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import secrets
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class FederationManager:
@@ -21,19 +21,19 @@ class FederationManager:
 
     @staticmethod
     def _now() -> str:
-        return datetime.now(timezone.utc).isoformat()
+        return datetime.now(UTC).isoformat()
 
     @staticmethod
-    def _append_jsonl(path: Path, record: Dict[str, Any]) -> None:
+    def _append_jsonl(path: Path, record: dict[str, Any]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(record) + "\n")
 
     @staticmethod
-    def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
+    def _read_jsonl(path: Path) -> list[dict[str, Any]]:
         if not path.exists():
             return []
-        rows: List[Dict[str, Any]] = []
+        rows: list[dict[str, Any]] = []
         with path.open("r", encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
@@ -46,18 +46,16 @@ class FederationManager:
         return rows
 
     @staticmethod
-    def _latest_by_id(
-        rows: List[Dict[str, Any]], key: str = "id"
-    ) -> Dict[str, Dict[str, Any]]:
-        latest: Dict[str, Dict[str, Any]] = {}
+    def _latest_by_id(rows: list[dict[str, Any]], key: str = "id") -> dict[str, dict[str, Any]]:
+        latest: dict[str, dict[str, Any]] = {}
         for row in rows:
             if key in row:
                 latest[row[key]] = row
         return latest
 
     def create_organism(
-        self, name: str, owner_id: str, config_json: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, name: str, owner_id: str, config_json: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         organism_id = f"org-{secrets.token_hex(4)}"
         organism = {
             "id": organism_id,
@@ -84,8 +82,7 @@ class FederationManager:
         cfg = {
             "id": f"cfg-{secrets.token_hex(4)}",
             "organism_id": organism_id,
-            "config_json": config_json
-            or {"mode": "prime", "policy_profile": "default"},
+            "config_json": config_json or {"mode": "prime", "policy_profile": "default"},
             "created_at": self._now(),
         }
         self._append_jsonl(self._configs, cfg)
@@ -105,17 +102,17 @@ class FederationManager:
             "policy": baseline_policy,
         }
 
-    def get_organism(self, organism_id: str) -> Optional[Dict[str, Any]]:
+    def get_organism(self, organism_id: str) -> dict[str, Any] | None:
         latest = self._latest_by_id(self._read_jsonl(self._organisms))
         return latest.get(organism_id)
 
-    def list_organisms(self) -> List[Dict[str, Any]]:
+    def list_organisms(self) -> list[dict[str, Any]]:
         latest = self._latest_by_id(self._read_jsonl(self._organisms))
         return list(latest.values())
 
     def pause_organism(
         self, organism_id: str, reason: str = "operator_command"
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         organism = self.get_organism(organism_id)
         if not organism:
             return None
@@ -130,7 +127,7 @@ class FederationManager:
 
     def retire_organism(
         self, organism_id: str, reason: str = "operator_retire"
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         organism = self.get_organism(organism_id)
         if not organism:
             return None
@@ -149,7 +146,7 @@ class FederationManager:
         mission_success: bool,
         incidents: int,
         policy_compliance: bool,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         organism = self.get_organism(organism_id)
         if not organism:
             return None
@@ -189,7 +186,7 @@ class FederationManager:
         )
         return organism
 
-    def aggregate_metrics(self) -> Dict[str, Any]:
+    def aggregate_metrics(self) -> dict[str, Any]:
         organisms = self.list_organisms()
         metrics = self._read_jsonl(self._metrics)
 
@@ -213,8 +210,8 @@ class FederationManager:
         }
 
     def generate_nightly_insights(
-        self, outcomes: Optional[List[Dict[str, Any]]] = None
-    ) -> Dict[str, Any]:
+        self, outcomes: list[dict[str, Any]] | None = None
+    ) -> dict[str, Any]:
         rows = outcomes or []
         winners = sorted(
             rows,
@@ -257,6 +254,6 @@ class FederationManager:
         self._append_jsonl(self._insights, insight)
         return insight
 
-    def latest_insights(self) -> Optional[Dict[str, Any]]:
+    def latest_insights(self) -> dict[str, Any] | None:
         rows = self._read_jsonl(self._insights)
         return rows[-1] if rows else None

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -21,7 +21,7 @@ class TimelineEventRequest(BaseModel):
     domain: str
     risk: str = "low"
     money_impact_cents: int = 0
-    details: Dict[str, Any] = Field(default_factory=dict)
+    details: dict[str, Any] = Field(default_factory=dict)
 
 
 class MissionUpsertRequest(BaseModel):
@@ -55,7 +55,7 @@ class OperatorProfileRequest(BaseModel):
 class OperatorPreferenceRequest(BaseModel):
     operator_id: str
     key: str
-    value_json: Dict[str, Any] = Field(default_factory=dict)
+    value_json: dict[str, Any] = Field(default_factory=dict)
 
 
 class OperatorPolicyRequest(BaseModel):
@@ -70,20 +70,20 @@ class OperatorGoalRequest(BaseModel):
     operator_id: str
     time_horizon: str
     goal_text: str
-    metrics_json: Dict[str, Any] = Field(default_factory=dict)
+    metrics_json: dict[str, Any] = Field(default_factory=dict)
 
 
 class PolicyDecisionRequest(BaseModel):
     operator_id: str
     action: str
-    context: Dict[str, Any] = Field(default_factory=dict)
+    context: dict[str, Any] = Field(default_factory=dict)
 
 
 class VaultBlueprintRequest(BaseModel):
     blueprint_id: str
     name: str
     version: int
-    manifest: Dict[str, Any] = Field(default_factory=dict)
+    manifest: dict[str, Any] = Field(default_factory=dict)
 
 
 class VaultOfferRequest(BaseModel):
@@ -115,7 +115,7 @@ class VaultExperimentRequest(BaseModel):
     variant_a_id: str
     variant_b_id: str
     kpi: str
-    result_json: Dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
 
 
 class VaultOutcomeRequest(BaseModel):
@@ -134,7 +134,7 @@ class VaultReflectionRequest(BaseModel):
     scope: str
     input_summary: str
     output_summary: str
-    changes_json: Dict[str, Any] = Field(default_factory=dict)
+    changes_json: dict[str, Any] = Field(default_factory=dict)
 
 
 class VaultEmbeddingRequest(BaseModel):
@@ -151,9 +151,9 @@ def add_timeline_event(payload: TimelineEventRequest):
 
 @router.get("/operator-os/timeline")
 def timeline(
-    agent: Optional[str] = Query(default=None),
-    domain: Optional[str] = Query(default=None),
-    risk: Optional[str] = Query(default=None),
+    agent: str | None = Query(default=None),
+    domain: str | None = Query(default=None),
+    risk: str | None = Query(default=None),
 ):
     rows = _ecosystem.list_timeline(agent=agent, domain=domain, risk=risk)
     return {"ok": True, "events": rows, "count": len(rows)}
@@ -165,7 +165,7 @@ def upsert_mission(payload: MissionUpsertRequest):
 
 
 @router.get("/operator-os/missions")
-def missions(status: Optional[str] = Query(default=None)):
+def missions(status: str | None = Query(default=None)):
     rows = _ecosystem.list_missions(status=status)
     return {"ok": True, "missions": rows, "count": len(rows)}
 
@@ -262,8 +262,8 @@ def blueprint_lineage(blueprint_id: str):
 
 @router.get("/vault/experiments")
 def experiments(
-    subject_type: Optional[str] = Query(default=None),
-    subject_id: Optional[str] = Query(default=None),
+    subject_type: str | None = Query(default=None),
+    subject_id: str | None = Query(default=None),
 ):
     rows = _ecosystem.list_experiments(subject_type=subject_type, subject_id=subject_id)
     return {"ok": True, "experiments": rows, "count": len(rows)}

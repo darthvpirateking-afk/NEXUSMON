@@ -5,8 +5,8 @@
 
 import random
 import time
-from datetime import datetime, timezone
-from typing import Any, Dict, List
+from datetime import UTC, datetime
+from typing import Any
 
 from fastapi import APIRouter
 
@@ -14,7 +14,7 @@ router = APIRouter()
 
 # ── Seed data ─────────────────────────────────────────────────────────────────
 
-_APPS: List[Dict[str, Any]] = [
+_APPS: list[dict[str, Any]] = [
     {
         "id": "com.supercell.clashroyale",
         "name": "Clash Royale",
@@ -103,27 +103,18 @@ _APPS: List[Dict[str, Any]] = [
 ]
 
 # Stable pseudo-random ratings per app
-_RATINGS = {
-    app["id"]: round(3.5 + random.Random(app["id"]).random() * 1.5, 1) for app in _APPS
-}
-_REVIEWS = {
-    app["id"]: random.Random(app["id"] + "r").randint(50_000, 5_000_000)
-    for app in _APPS
-}
+_RATINGS = {app["id"]: round(3.5 + random.Random(app["id"]).random() * 1.5, 1) for app in _APPS}
+_REVIEWS = {app["id"]: random.Random(app["id"] + "r").randint(50_000, 5_000_000) for app in _APPS}
 
 # ── Ranking simulation ────────────────────────────────────────────────────────
 
 _SEED_OFFSET = int(time.time() // 300)  # rotate every 5 minutes
 
 
-def _generate_rankings(category: str | None = None) -> List[Dict[str, Any]]:
+def _generate_rankings(category: str | None = None) -> list[dict[str, Any]]:
     """Return a ranked list that slowly shifts over time."""
     bucket = int(time.time() // 300)  # changes every 5 min
-    apps = [
-        a
-        for a in _APPS
-        if category is None or a["category"].lower() == category.lower()
-    ]
+    apps = [a for a in _APPS if category is None or a["category"].lower() == category.lower()]
     rng = random.Random(bucket)
 
     # Assign a score per app that changes each bucket but stays plausible
@@ -166,20 +157,20 @@ def _generate_rankings(category: str | None = None) -> List[Dict[str, Any]]:
 
 
 @router.get("/rankings")
-def get_rankings(category: str | None = None, limit: int = 15) -> Dict[str, Any]:
+def get_rankings(category: str | None = None, limit: int = 15) -> dict[str, Any]:
     """Return simulated App Store rankings with live deltas."""
     rankings = _generate_rankings(category)[:limit]
     return {
         "rankings": rankings,
         "total": len(rankings),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "category": category or "all",
         "next_update_in": 300 - (int(time.time()) % 300),
     }
 
 
 @router.get("/categories")
-def get_categories() -> Dict[str, Any]:
+def get_categories() -> dict[str, Any]:
     """Return available categories."""
     cats = sorted({app["category"] for app in _APPS})
     return {"categories": cats}

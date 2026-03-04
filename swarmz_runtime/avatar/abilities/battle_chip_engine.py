@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -63,7 +63,7 @@ class BattleChipEngine:
 
     @staticmethod
     def _now() -> str:
-        return datetime.now(timezone.utc).isoformat()
+        return datetime.now(UTC).isoformat()
 
     def _current_form(self) -> str:
         return str(getattr(self.avatar, "current_form", "AvatarOmega") or "AvatarOmega")
@@ -92,18 +92,26 @@ class BattleChipEngine:
             "cost": chip.base_cost,
         }
         per_chip = chip.evolution_modifiers.get(form, {})
-        stats["damage"] = self._apply_percent(stats["damage"], float(per_chip.get("damage_pct", 0.0)))
+        stats["damage"] = self._apply_percent(
+            stats["damage"], float(per_chip.get("damage_pct", 0.0))
+        )
         stats["speed"] = self._apply_percent(stats["speed"], float(per_chip.get("speed_pct", 0.0)))
         stats["cost"] = self._apply_percent(stats["cost"], float(per_chip.get("cost_pct", 0.0)))
         return {k: round(v, 3) for k, v in stats.items()}
 
-    def _apply_monarch_modifiers(self, stats: dict[str, float], chip: BattleChip) -> dict[str, float]:
+    def _apply_monarch_modifiers(
+        self, stats: dict[str, float], chip: BattleChip
+    ) -> dict[str, float]:
         updated = dict(stats)
         updated["damage"] = self._apply_percent(updated["damage"], 50.0)
         updated["speed"] = self._apply_percent(updated["speed"], 25.0)
         per_chip = chip.monarch_modifiers or {}
-        updated["damage"] = self._apply_percent(updated["damage"], float(per_chip.get("damage_pct", 0.0)))
-        updated["speed"] = self._apply_percent(updated["speed"], float(per_chip.get("speed_pct", 0.0)))
+        updated["damage"] = self._apply_percent(
+            updated["damage"], float(per_chip.get("damage_pct", 0.0))
+        )
+        updated["speed"] = self._apply_percent(
+            updated["speed"], float(per_chip.get("speed_pct", 0.0))
+        )
         updated["cost"] = self._apply_percent(updated["cost"], float(per_chip.get("cost_pct", 0.0)))
         return {k: round(v, 3) for k, v in updated.items()}
 
@@ -157,7 +165,12 @@ class BattleChipEngine:
             key=lambda c: (_FORM_INDEX.get(c.min_form, 0), c.base_damage, c.base_speed),
         )
         result = self.execute_chip(selected.chip_id)
-        return {"ok": True, "executed": bool(result.get("executed")), "mode": "BURST", "chip_result": result}
+        return {
+            "ok": True,
+            "executed": bool(result.get("executed")),
+            "mode": "BURST",
+            "chip_result": result,
+        }
 
     def chain(self) -> dict[str, Any]:
         candidates = sorted(
@@ -196,5 +209,7 @@ class BattleChipEngine:
             "categories": by_category,
             "recent_executions": list(self._recent_executions[-10:]),
             "monarch_mode": self._current_form() == "AvatarMonarch",
-            "special_variants": list(_MONARCH_VARIANTS) if self._current_form() == "AvatarMonarch" else [],
+            "special_variants": list(_MONARCH_VARIANTS)
+            if self._current_form() == "AvatarMonarch"
+            else [],
         }

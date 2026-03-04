@@ -1,8 +1,8 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import Dict, Any
 import math
+from typing import Any
 
 
 class LearningEngine:
@@ -35,7 +35,7 @@ class LearningEngine:
     def get_weight(self, mission_id: str) -> float:
         return self.weights.get(mission_id, 0.5)
 
-    def extract_template(self, mission: Dict[str, Any]) -> Dict[str, Any]:
+    def extract_template(self, mission: dict[str, Any]) -> dict[str, Any]:
         return {
             "category": mission.get("category"),
             "goal_pattern": mission.get("goal", "")[:50],

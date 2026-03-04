@@ -4,6 +4,7 @@ Steps without dependencies run in parallel via asyncio.gather.
 Steps with depends_on wait for their prerequisites to complete first.
 All fusion runs produce JSONL artifacts.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -11,13 +12,13 @@ import json
 import secrets
 import threading
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 _ARTIFACTS_DIR = Path("artifacts/fusion")
 _LOCK = threading.Lock()
-_COMMAND_FUSION: "CommandFusion | None" = None
+_COMMAND_FUSION: CommandFusion | None = None
 
 # ── Built-in presets ──────────────────────────────────────────────────────────
 
@@ -27,7 +28,12 @@ PRESETS: dict[str, dict[str, Any]] = {
         "description": "Mission → Swarm → Evolve",
         "steps": [
             {"step_id": "forge-1", "action": "mission", "params": {"goal": ""}, "depends_on": None},
-            {"step_id": "forge-2", "action": "swarm", "params": {"goal": ""}, "depends_on": ["forge-1"]},
+            {
+                "step_id": "forge-2",
+                "action": "swarm",
+                "params": {"goal": ""},
+                "depends_on": ["forge-1"],
+            },
             {"step_id": "forge-3", "action": "evolve", "params": {}, "depends_on": ["forge-2"]},
         ],
     },
@@ -36,8 +42,18 @@ PRESETS: dict[str, dict[str, Any]] = {
         "description": "Kernel → Federation → Companion",
         "steps": [
             {"step_id": "deploy-1", "action": "kernel", "params": {}, "depends_on": None},
-            {"step_id": "deploy-2", "action": "federation", "params": {"goal": ""}, "depends_on": ["deploy-1"]},
-            {"step_id": "deploy-3", "action": "companion", "params": {"prompt": ""}, "depends_on": None},
+            {
+                "step_id": "deploy-2",
+                "action": "federation",
+                "params": {"goal": ""},
+                "depends_on": ["deploy-1"],
+            },
+            {
+                "step_id": "deploy-3",
+                "action": "companion",
+                "params": {"prompt": ""},
+                "depends_on": None,
+            },
         ],
     },
     "IGNITE": {
@@ -45,16 +61,31 @@ PRESETS: dict[str, dict[str, Any]] = {
         "description": "Full system boot sequence",
         "steps": [
             {"step_id": "ignite-1", "action": "kernel", "params": {}, "depends_on": None},
-            {"step_id": "ignite-2", "action": "swarm", "params": {"goal": "system boot"}, "depends_on": ["ignite-1"]},
-            {"step_id": "ignite-3", "action": "federation", "params": {"goal": "system ready"}, "depends_on": ["ignite-1"]},
-            {"step_id": "ignite-4", "action": "companion", "params": {"prompt": "system online"}, "depends_on": ["ignite-2", "ignite-3"]},
+            {
+                "step_id": "ignite-2",
+                "action": "swarm",
+                "params": {"goal": "system boot"},
+                "depends_on": ["ignite-1"],
+            },
+            {
+                "step_id": "ignite-3",
+                "action": "federation",
+                "params": {"goal": "system ready"},
+                "depends_on": ["ignite-1"],
+            },
+            {
+                "step_id": "ignite-4",
+                "action": "companion",
+                "params": {"prompt": "system online"},
+                "depends_on": ["ignite-2", "ignite-3"],
+            },
         ],
     },
 }
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @dataclass
@@ -73,7 +104,7 @@ class FusionStep:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "FusionStep":
+    def from_dict(cls, d: dict[str, Any]) -> FusionStep:
         return cls(
             step_id=str(d.get("step_id", "")),
             action=str(d.get("action", "")),
@@ -127,7 +158,9 @@ class FusionResult:
             "fusion_id": self.fusion_id,
             "name": self.name,
             "status": self.status,
-            "step_results": [r.to_dict() if isinstance(r, StepResult) else r for r in self.step_results],
+            "step_results": [
+                r.to_dict() if isinstance(r, StepResult) else r for r in self.step_results
+            ],
             "created_at": self.created_at,
             "completed_at": self.completed_at,
         }
@@ -165,10 +198,14 @@ class CommandFusion:
             return None
         step_results = [
             StepResult(
-                step_id=e["step_id"], action=e["action"], status=e["status"],
-                output=e.get("output"), error=e.get("error")
+                step_id=e["step_id"],
+                action=e["action"],
+                status=e["status"],
+                output=e.get("output"),
+                error=e.get("error"),
             )
-            for e in entries if e.get("event") == "step_complete"
+            for e in entries
+            if e.get("event") == "step_complete"
         ]
         return FusionResult(
             fusion_id=fusion_id,
@@ -191,15 +228,14 @@ class CommandFusion:
                 results.append(result.to_dict())
         return results
 
-    async def _dispatch_step(
-        self, step: FusionStep, context: dict[str, Any]
-    ) -> StepResult:
+    async def _dispatch_step(self, step: FusionStep, context: dict[str, Any]) -> StepResult:
         """Route a step to the appropriate subsystem."""
         action = step.action.lower()
         params = dict(step.params)
         try:
             if action == "swarm":
-                from swarmz_runtime.swarm.coordinator import get_coordinator, SpawnRequest
+                from swarmz_runtime.swarm.coordinator import SpawnRequest, get_coordinator
+
                 req = SpawnRequest(
                     agent_id=params.get("agent_id", f"fusion-{step.step_id}"),
                     goal=params.get("goal", ""),
@@ -207,52 +243,55 @@ class CommandFusion:
                 )
                 state = await get_coordinator().spawn(req)
                 return StepResult(
-                    step_id=step.step_id, action=action,
-                    status="complete", output=state.to_dict()
+                    step_id=step.step_id, action=action, status="complete", output=state.to_dict()
                 )
             elif action == "federation":
                 from swarmz_runtime.federation.council import get_council
+
                 goal = params.get("goal", "")
-                result = await get_council().coordinate(goal=goal, budget_tokens=params.get("budget_tokens", 2048))
+                result = await get_council().coordinate(
+                    goal=goal, budget_tokens=params.get("budget_tokens", 2048)
+                )
                 return StepResult(
-                    step_id=step.step_id, action=action,
-                    status="complete", output=result.to_dict()
+                    step_id=step.step_id, action=action, status="complete", output=result.to_dict()
                 )
             elif action == "companion":
                 from swarmz_runtime.companion.voice import generate_response
+
                 prompt = params.get("prompt", "")
                 resp = await generate_response(prompt, mode=params.get("mode", "strategic"))
                 return StepResult(
-                    step_id=step.step_id, action=action,
-                    status="complete", output=resp.to_dict()
+                    step_id=step.step_id, action=action, status="complete", output=resp.to_dict()
                 )
             elif action in ("kernel", "shift"):
-                from swarmz_runtime.kernel.shift import get_kernel_shift, ShiftConfig
+                from swarmz_runtime.kernel.shift import ShiftConfig, get_kernel_shift
+
                 cfg = ShiftConfig.from_dict(params)
                 op_key = context.get("operator_key", "")
                 get_kernel_shift().shift(cfg, op_key)
                 return StepResult(
-                    step_id=step.step_id, action=action,
-                    status="complete", output=get_kernel_shift().active_config()
+                    step_id=step.step_id,
+                    action=action,
+                    status="complete",
+                    output=get_kernel_shift().active_config(),
                 )
             elif action in ("mission", "evolve"):
                 # Stub actions — return a descriptive output
                 return StepResult(
-                    step_id=step.step_id, action=action,
+                    step_id=step.step_id,
+                    action=action,
                     status="complete",
-                    output={"action": action, "params": params, "note": "dispatch stub"}
+                    output={"action": action, "params": params, "note": "dispatch stub"},
                 )
             else:
                 return StepResult(
-                    step_id=step.step_id, action=action,
+                    step_id=step.step_id,
+                    action=action,
                     status="error",
-                    error=f"Unknown action: {action}"
+                    error=f"Unknown action: {action}",
                 )
         except Exception as exc:
-            return StepResult(
-                step_id=step.step_id, action=action,
-                status="error", error=str(exc)
-            )
+            return StepResult(step_id=step.step_id, action=action, status="error", error=str(exc))
 
     async def execute_fusion(self, script: FusionScript) -> FusionResult:
         """Execute a FusionScript respecting dependency order."""
@@ -260,10 +299,7 @@ class CommandFusion:
         created_at = _now_iso()
         context = {"operator_key": script.operator_key}
 
-        steps = [
-            s if isinstance(s, FusionStep) else FusionStep.from_dict(s)
-            for s in script.steps
-        ]
+        steps = [s if isinstance(s, FusionStep) else FusionStep.from_dict(s) for s in script.steps]
 
         self._write_event(fusion_id, {"event": "fusion_start", "name": script.name})
 
@@ -275,14 +311,19 @@ class CommandFusion:
         remaining = list(steps)
         while remaining:
             ready = [
-                s for s in remaining
+                s
+                for s in remaining
                 if not s.depends_on or all(dep in completed for dep in s.depends_on)
             ]
             if not ready:
                 # Circular dependency or blocked — mark remaining as skipped
                 for s in remaining:
-                    r = StepResult(step_id=s.step_id, action=s.action, status="skipped",
-                                   error="dependency not met")
+                    r = StepResult(
+                        step_id=s.step_id,
+                        action=s.action,
+                        status="skipped",
+                        error="dependency not met",
+                    )
                     step_results.append(r)
                     self._write_event(fusion_id, {"event": "step_complete", **r.to_dict()})
                 all_complete = False
@@ -294,12 +335,12 @@ class CommandFusion:
                 return_exceptions=True,
             )
             results = [
-                r if isinstance(r, StepResult)
-                else StepResult(step_id=s.step_id, action=s.action,
-                                status="error", error=str(r))
-                for s, r in zip(ready, raw)
+                r
+                if isinstance(r, StepResult)
+                else StepResult(step_id=s.step_id, action=s.action, status="error", error=str(r))
+                for s, r in zip(ready, raw, strict=False)
             ]
-            for s, r in zip(ready, results):
+            for s, r in zip(ready, results, strict=False):
                 completed[s.step_id] = r
                 step_results.append(r)
                 self._write_event(fusion_id, {"event": "step_complete", **r.to_dict()})

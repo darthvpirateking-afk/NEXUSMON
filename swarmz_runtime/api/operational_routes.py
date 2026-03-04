@@ -61,9 +61,7 @@ def policy_rules():
 def create_blueprint(payload: BlueprintCreateRequest):
     return {
         "ok": True,
-        "blueprint": _runtime.create_blueprint(
-            payload.name, payload.spec, payload.owner
-        ),
+        "blueprint": _runtime.create_blueprint(payload.name, payload.spec, payload.owner),
     }
 
 

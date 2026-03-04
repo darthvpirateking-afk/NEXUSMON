@@ -14,7 +14,5 @@ class VisibilityManager:
 
     def filter_events(self, events: list, visibility_level: str = "visible") -> list:
         return [
-            e
-            for e in events
-            if self.should_log(e.get("visibility", "visible"), visibility_level)
+            e for e in events if self.should_log(e.get("visibility", "visible"), visibility_level)
         ]

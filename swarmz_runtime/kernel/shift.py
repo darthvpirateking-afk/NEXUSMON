@@ -4,23 +4,24 @@ Shifts override the default fallback chain from runtime.json.
 All operations are additive — nothing is ever deleted.
 Rollback re-applies a previous config as a new shift entry.
 """
+
 from __future__ import annotations
 
 import json
 import threading
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 _ARTIFACTS_DIR = Path("artifacts/kernel")
 _SHIFTS_FILE = Path("artifacts/kernel/shifts.jsonl")
 _LOCK = threading.Lock()
-_KERNEL_SHIFT: "KernelShift | None" = None
+_KERNEL_SHIFT: KernelShift | None = None
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @dataclass
@@ -39,7 +40,7 @@ class ShiftConfig:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "ShiftConfig":
+    def from_dict(cls, d: dict[str, Any]) -> ShiftConfig:
         return cls(
             primary_tier=str(d.get("primary_tier", "cortex")),
             fallback_chain=list(d.get("fallback_chain", [])),
@@ -56,6 +57,7 @@ class KernelShift:
 
     def _validate_key(self, operator_key: str) -> None:
         from swarmz_runtime.shadow.executor import validate_operator_key
+
         validate_operator_key(operator_key)
 
     def _read_entries(self) -> list[dict[str, Any]]:

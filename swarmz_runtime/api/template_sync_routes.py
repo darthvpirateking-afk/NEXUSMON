@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -12,9 +12,9 @@ _manager = TemplateSyncManager(Path(__file__).resolve().parent.parent.parent)
 
 class TemplateSyncConfigRequest(BaseModel):
     operator_id: str
-    allowlist: Optional[List[str]] = None
-    auto_sync: Optional[bool] = None
-    sync_interval_hours: Optional[int] = None
+    allowlist: list[str] | None = None
+    auto_sync: bool | None = None
+    sync_interval_hours: int | None = None
 
 
 class QueueTemplateSyncRequest(BaseModel):
@@ -32,7 +32,7 @@ class CompanionBondRequest(BaseModel):
     focus: str = "operator_success"
 
 
-_bond_state: Dict[str, Any] = {
+_bond_state: dict[str, Any] = {
     "operator_id": "",
     "tone": "loyal",
     "style": "direct",

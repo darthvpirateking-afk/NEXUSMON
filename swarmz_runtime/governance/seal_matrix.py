@@ -5,6 +5,7 @@ SealLevel OPERATOR: valid operator key required.
 SealLevel DUAL: two sequential approvals with valid operator key.
 SealLevel SOVEREIGN: valid operator key + correct NEXUSMON_DOCTRINE.md SHA-256 hash.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -17,7 +18,7 @@ from typing import Any
 
 _DOCTRINE_PATH = Path("docs/NEXUSMON_DOCTRINE.md")
 _LOCK = threading.Lock()
-_SEAL_MATRIX: "SealMatrix | None" = None
+_SEAL_MATRIX: SealMatrix | None = None
 
 
 class SealLevel(IntEnum):
@@ -81,6 +82,7 @@ class SealMatrix:
 
     def _validate_key(self, operator_key: str) -> None:
         from swarmz_runtime.shadow.executor import validate_operator_key
+
         validate_operator_key(operator_key)
 
     def approve(
@@ -94,8 +96,10 @@ class SealMatrix:
 
         if seal_level == SealLevel.OPEN:
             return ApprovalResult(
-                approved=True, action=action, seal_level="OPEN",
-                reason="open action — no auth required"
+                approved=True,
+                action=action,
+                seal_level="OPEN",
+                reason="open action — no auth required",
             )
 
         # All levels >= OPERATOR require a valid key
@@ -103,14 +107,15 @@ class SealMatrix:
             self._validate_key(operator_key)
         except Exception as exc:
             return ApprovalResult(
-                approved=False, action=action, seal_level=seal_level.name,
-                reason=f"operator key invalid: {exc}"
+                approved=False,
+                action=action,
+                seal_level=seal_level.name,
+                reason=f"operator key invalid: {exc}",
             )
 
         if seal_level == SealLevel.OPERATOR:
             return ApprovalResult(
-                approved=True, action=action, seal_level="OPERATOR",
-                reason="operator key valid"
+                approved=True, action=action, seal_level="OPERATOR", reason="operator key valid"
             )
 
         if seal_level == SealLevel.DUAL:
@@ -119,41 +124,47 @@ class SealMatrix:
                 token = secrets.token_hex(8)
                 self._pending_approvals[action] = [token]
                 return ApprovalResult(
-                    approved=False, action=action, seal_level="DUAL",
+                    approved=False,
+                    action=action,
+                    seal_level="DUAL",
                     reason="first approval recorded — call approve again to confirm",
                     token=token,
                 )
             # Second approval — clear pending and approve
             self._pending_approvals.pop(action, None)
             return ApprovalResult(
-                approved=True, action=action, seal_level="DUAL",
-                reason="dual approval complete"
+                approved=True, action=action, seal_level="DUAL", reason="dual approval complete"
             )
 
         if seal_level == SealLevel.SOVEREIGN:
             if provided_hash is None:
                 doctrine_hash = self._get_doctrine_hash()
                 return ApprovalResult(
-                    approved=False, action=action, seal_level="SOVEREIGN",
+                    approved=False,
+                    action=action,
+                    seal_level="SOVEREIGN",
                     reason=(
                         f"sovereign actions require doctrine hash. "
                         f"Expected SHA-256 of docs/NEXUSMON_DOCTRINE.md: {doctrine_hash}"
-                    )
+                    ),
                 )
             actual = self._get_doctrine_hash()
             if provided_hash.strip().lower() != actual:
                 return ApprovalResult(
-                    approved=False, action=action, seal_level="SOVEREIGN",
-                    reason="doctrine hash mismatch — doctrine may have been modified"
+                    approved=False,
+                    action=action,
+                    seal_level="SOVEREIGN",
+                    reason="doctrine hash mismatch — doctrine may have been modified",
                 )
             return ApprovalResult(
-                approved=True, action=action, seal_level="SOVEREIGN",
-                reason="sovereign approval granted"
+                approved=True,
+                action=action,
+                seal_level="SOVEREIGN",
+                reason="sovereign approval granted",
             )
 
         return ApprovalResult(
-            approved=False, action=action, seal_level="UNKNOWN",
-            reason="unknown seal level"
+            approved=False, action=action, seal_level="UNKNOWN", reason="unknown seal level"
         )
 
     def submit_dual_approval(self, action: str, operator_key: str) -> str:

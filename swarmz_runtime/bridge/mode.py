@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from .config import Tier
 
 
-class NexusmonMode(str, Enum):
+class NexusmonMode(StrEnum):
     STRATEGIC = "strategic"
     COMBAT = "combat"
     GUARDIAN = "guardian"
@@ -33,16 +33,13 @@ def resolve_tier(mode: NexusmonMode | str) -> Tier:
             resolved_mode = NexusmonMode(mode.strip().lower())
         except ValueError as exc:
             valid = ", ".join(item.value for item in NexusmonMode)
-            raise ValueError(
-                f"Unknown Nexusmon mode: {mode!r}. Valid modes: {valid}"
-            ) from exc
+            raise ValueError(f"Unknown Nexusmon mode: {mode!r}. Valid modes: {valid}") from exc
     else:
         resolved_mode = mode
 
     tier = _MODE_TIER[resolved_mode]
     if tier is None:
         raise GuardianCallBlocked(
-            "Guardian mode does not initiate LLM calls. "
-            "Use strategic or combat mode."
+            "Guardian mode does not initiate LLM calls. Use strategic or combat mode."
         )
     return tier

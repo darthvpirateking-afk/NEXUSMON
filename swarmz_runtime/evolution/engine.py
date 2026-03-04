@@ -3,19 +3,19 @@
 All operations are additive. Nothing is ever removed.
 State is persisted to artifacts/evolution/{agent_id}.json.
 """
+
 from __future__ import annotations
 
 import json
 import threading
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Dict
 
-from .stage import EvolutionStage, EvolutionState, STAGE_DEFS, STAGE_ORDER
+from .stage import STAGE_DEFS, STAGE_ORDER, EvolutionStage, EvolutionState
 from .traits import apply_trait_gain
 
 _LOCK = threading.Lock()
-_STATES: Dict[str, EvolutionState] = {}
+_STATES: dict[str, EvolutionState] = {}
 _ARTIFACTS_DIR = Path("artifacts/evolution")
 
 
@@ -44,13 +44,15 @@ def _persist(state: EvolutionState) -> None:
     _ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
     path = _state_path(state.agent_id)
     path.write_text(
-        json.dumps({
-            "agent_id": state.agent_id,
-            "stage": state.stage.value,
-            "xp": state.xp,
-            "trait_scores": state.trait_scores,
-            "history": state.history,
-        })
+        json.dumps(
+            {
+                "agent_id": state.agent_id,
+                "stage": state.stage.value,
+                "xp": state.xp,
+                "trait_scores": state.trait_scores,
+                "history": state.history,
+            }
+        )
     )
 
 
@@ -73,12 +75,14 @@ def advance_stage(agent_id: str) -> bool:
             return False
         new_stage = STAGE_ORDER[current_idx + 1]
         state.stage = new_stage
-        state.history.append({
-            "event": "stage_advance",
-            "stage": new_stage.value,
-            "xp_at_advance": state.xp,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        state.history.append(
+            {
+                "event": "stage_advance",
+                "stage": new_stage.value,
+                "xp_at_advance": state.xp,
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
+        )
         _persist(state)
     return True
 
@@ -165,23 +169,27 @@ def award_cosmic_xp(
 
         if xp > 0:
             state.xp += xp
-            state.history.append({
-                "event": "cosmic_xp_awarded",
-                "action": action,
-                "depth": depth,
-                "amount": xp,
-                "total_xp": state.xp,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            })
+            state.history.append(
+                {
+                    "event": "cosmic_xp_awarded",
+                    "action": action,
+                    "depth": depth,
+                    "amount": xp,
+                    "total_xp": state.xp,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }
+            )
 
         # COSMIC SIGHT unlock
         if cosmic_count >= _COSMIC_SIGHT_THRESHOLD and not state.trait_scores.get("cosmic_sight"):
             state.trait_scores["cosmic_sight"] = True
-            state.history.append({
-                "event": "cosmic_sight_unlocked",
-                "cosmic_query_count": cosmic_count,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            })
+            state.history.append(
+                {
+                    "event": "cosmic_sight_unlocked",
+                    "cosmic_query_count": cosmic_count,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }
+            )
 
         _persist(state)
 
@@ -200,16 +208,16 @@ def award_xp(agent_id: str, amount: int, source: str) -> EvolutionState:
             _STATES[agent_id] = _load_state(agent_id)
         state = _STATES[agent_id]
         state.xp += amount
-        state.history.append({
-            "event": "xp_awarded",
-            "amount": amount,
-            "source": source,
-            "total_xp": state.xp,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
-        state.trait_scores = apply_trait_gain(
-            state.trait_scores, state.stage, amount / 100.0
+        state.history.append(
+            {
+                "event": "xp_awarded",
+                "amount": amount,
+                "source": source,
+                "total_xp": state.xp,
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
         )
+        state.trait_scores = apply_trait_gain(state.trait_scores, state.stage, amount / 100.0)
         _persist(state)
 
     _check_advance(agent_id)

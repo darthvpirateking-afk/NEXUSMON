@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -52,7 +52,7 @@ class SummonEngine:
 
     @staticmethod
     def _now() -> str:
-        return datetime.now(timezone.utc).isoformat()
+        return datetime.now(UTC).isoformat()
 
     @staticmethod
     def _form_index(form: str) -> int:
@@ -123,7 +123,12 @@ class SummonEngine:
         self.active_summons.append(summon)
         summon.on_spawn()
         self._log_summon_event("spawn", summon.id)
-        return {"ok": True, "executed": True, "summon": summon.id, "active_count": len(self.active_summons)}
+        return {
+            "ok": True,
+            "executed": True,
+            "summon": summon.id,
+            "active_count": len(self.active_summons),
+        }
 
     def dismiss(self, summon_id: str) -> dict[str, Any]:
         summon = self._find_active(summon_id)
@@ -132,7 +137,12 @@ class SummonEngine:
         summon.on_dismiss()
         self.active_summons.remove(summon)
         self._log_summon_event("dismiss", summon.id)
-        return {"ok": True, "executed": True, "summon": summon.id, "active_count": len(self.active_summons)}
+        return {
+            "ok": True,
+            "executed": True,
+            "summon": summon.id,
+            "active_count": len(self.active_summons),
+        }
 
     def command_all(self, command: str) -> dict[str, Any]:
         token = str(command or "").strip().upper()
@@ -142,7 +152,13 @@ class SummonEngine:
         for summon in self.active_summons:
             issued.append(summon.on_command(token))
             self._log_summon_event(token.lower(), summon.id)
-        return {"ok": True, "executed": True, "command": token, "count": len(issued), "results": issued}
+        return {
+            "ok": True,
+            "executed": True,
+            "command": token,
+            "count": len(issued),
+            "results": issued,
+        }
 
     def legion(self) -> dict[str, Any]:
         if self._current_form() != "AvatarMonarch":

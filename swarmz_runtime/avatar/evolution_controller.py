@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -8,10 +8,10 @@ from nexusmon_operator_rank import get_current_rank
 from swarmz_runtime.storage.jsonl_utils import append_jsonl
 
 EVOLUTION_ORDER = [
-    "AvatarOmega",        # Base
-    "AvatarInfinity",     # Champion
-    "AvatarOmegaPlus",    # Ultimate
-    "AvatarSovereign",    # Final
+    "AvatarOmega",  # Base
+    "AvatarInfinity",  # Champion
+    "AvatarOmegaPlus",  # Ultimate
+    "AvatarSovereign",  # Final
 ]
 
 RANK_REQUIREMENTS = {
@@ -79,7 +79,7 @@ class EvolutionController:
         self.current_form = "AvatarOmega"
 
     def _now(self) -> str:
-        return datetime.now(timezone.utc).isoformat()
+        return datetime.now(UTC).isoformat()
 
     def get_next_form(self) -> str | None:
         if self.current_form not in EVOLUTION_ORDER:

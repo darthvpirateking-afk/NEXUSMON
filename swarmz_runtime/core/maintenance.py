@@ -1,8 +1,8 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import Dict, Any, List
 from datetime import datetime
+from typing import Any
 
 
 class MaintenanceScheduler:
@@ -10,16 +10,12 @@ class MaintenanceScheduler:
         self.complexity_threshold = 75
         self.maintenance_tasks = []
 
-    def evaluate_module_complexity(
-        self, module_name: str, metrics: Dict[str, Any]
-    ) -> float:
+    def evaluate_module_complexity(self, module_name: str, metrics: dict[str, Any]) -> float:
         lines_of_code = metrics.get("lines_of_code", 0)
         dependencies = metrics.get("dependencies", 0)
         cyclomatic_complexity = metrics.get("cyclomatic_complexity", 0)
 
-        complexity = (
-            (lines_of_code / 10) + (dependencies * 5) + (cyclomatic_complexity * 2)
-        )
+        complexity = (lines_of_code / 10) + (dependencies * 5) + (cyclomatic_complexity * 2)
         return min(100, complexity)
 
     def schedule_if_needed(self, module_name: str, complexity_score: float) -> bool:
@@ -34,5 +30,5 @@ class MaintenanceScheduler:
             return True
         return False
 
-    def get_pending_tasks(self) -> List[Dict[str, Any]]:
+    def get_pending_tasks(self) -> list[dict[str, Any]]:
         return self.maintenance_tasks

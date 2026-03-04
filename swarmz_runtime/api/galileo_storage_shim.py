@@ -1,17 +1,17 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import List, Dict, Any
-from pathlib import Path
 import json
+from pathlib import Path
+from typing import Any
 
-from galileo.storage import ensure_storage, GALILEO_DATA_DIR
+from galileo.storage import GALILEO_DATA_DIR, ensure_storage
 
 
-def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
+def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     with path.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -24,16 +24,16 @@ def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
     return out
 
 
-def read_hypotheses() -> List[Dict[str, Any]]:
+def read_hypotheses() -> list[dict[str, Any]]:
     ensure_storage()
     return _read_jsonl(GALILEO_DATA_DIR / "hypotheses.jsonl")
 
 
-def read_experiments() -> List[Dict[str, Any]]:
+def read_experiments() -> list[dict[str, Any]]:
     ensure_storage()
     return _read_jsonl(GALILEO_DATA_DIR / "experiments.jsonl")
 
 
-def read_runs() -> List[Dict[str, Any]]:
+def read_runs() -> list[dict[str, Any]]:
     ensure_storage()
     return _read_jsonl(GALILEO_DATA_DIR / "runs.jsonl")

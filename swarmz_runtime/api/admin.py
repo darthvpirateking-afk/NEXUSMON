@@ -1,19 +1,23 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
-from typing import Callable, Dict, Any
 from pydantic import BaseModel
+
 from swarmz_runtime.core.engine import SwarmzEngine
 
 router = APIRouter()
 
-get_engine: Callable[[], SwarmzEngine] = lambda: SwarmzEngine()
+
+def get_engine() -> SwarmzEngine:
+    return SwarmzEngine()
 
 
 class OperatorCommand(BaseModel):
     command: str
-    parameters: Dict[str, Any] = {}
+    parameters: dict[str, Any] = {}
     operator_key: str
 
 
@@ -30,9 +34,7 @@ def execute_operator_command(request: OperatorCommand):
 
     # Validate operator sovereignty
     if not engine.validate_operator_sovereignty(request.operator_key):
-        raise HTTPException(
-            status_code=403, detail="Operator sovereignty validation failed"
-        )
+        raise HTTPException(status_code=403, detail="Operator sovereignty validation failed")
 
     # Execute command with precision
     result = engine.execute_operator_command(

@@ -252,6 +252,7 @@ def get_fallback_chain(primary_tier: Tier) -> list[dict[str, Any]]:
     # KernelShift override (lazy import to avoid circular deps at module level)
     try:
         from swarmz_runtime.kernel.shift import get_kernel_shift
+
         ks_config = get_kernel_shift().active_config()
         if ks_config.get("fallback_chain"):
             return list(ks_config["fallback_chain"])

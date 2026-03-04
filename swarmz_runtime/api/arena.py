@@ -11,14 +11,15 @@ Endpoints:
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import Callable, Optional
 
 router = APIRouter()
 
 # Engine provider – wired by server.py
-get_engine: Optional[Callable] = None
+get_engine: Callable | None = None
 
 
 class ArenaRunRequest(BaseModel):

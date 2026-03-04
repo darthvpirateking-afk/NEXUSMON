@@ -24,16 +24,22 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 class _OperatorLockMiddleware(BaseHTTPMiddleware):
     """Gate all /v1/* API requests to the bound operator. HTTP 204 = silence."""
+
     async def dispatch(self, request, call_next):
-        if not request.url.path.startswith("/v1/") or request.url.path == "/v1/operator/lock/status":
+        if (
+            not request.url.path.startswith("/v1/")
+            or request.url.path == "/v1/operator/lock/status"
+        ):
             return await call_next(request)
         try:
             from swarmz_runtime.operator.lock import get_operator_lock
+
             if not get_operator_lock().check(request.headers.get("X-Operator-Key")):
                 return Response(status_code=204)
         except Exception:
             pass
         return await call_next(request)
+
 
 from addons.api.addons_router import router as addons_router
 from addons.api.guardrails_router import router as guardrails_router
@@ -107,6 +113,7 @@ async def lifespan(app: FastAPI):
     # Operator memory — record session on startup
     try:
         from swarmz_runtime.operator.memory import get_operator_memory
+
         _om = get_operator_memory()
         _om.record_session()
         logger.info("[NEXUSMON] Operator: %s", _om.greet())
@@ -126,9 +133,7 @@ def create_app() -> FastAPI:
     _cors_origins = parse_cors_origins(_cors_origins_env)
     _allow_credentials = "*" not in _cors_origins
     if not _allow_credentials:
-        logger.warning(
-            "[SECURITY] Wildcard CORS origin detected; disabling credentialed CORS."
-        )
+        logger.warning("[SECURITY] Wildcard CORS origin detected; disabling credentialed CORS.")
 
     app = FastAPI(lifespan=lifespan)
     app.add_middleware(
@@ -157,19 +162,13 @@ def create_app() -> FastAPI:
     app.include_router(factory_routes_router, prefix="/v1/factory", tags=["factory"])
     app.include_router(meta_routes_router, prefix="/v1/meta", tags=["meta"])
     app.include_router(operational_routes_router, prefix="/v1", tags=["operational"])
-    app.include_router(
-        operator_ecosystem_routes_router, prefix="/v1", tags=["operator-os"]
-    )
+    app.include_router(operator_ecosystem_routes_router, prefix="/v1", tags=["operator-os"])
     app.include_router(federation_routes_router, prefix="/v1", tags=["federation"])
     app.include_router(charter_routes_router, prefix="/v1", tags=["charter"])
     app.include_router(fusion_routes_router, prefix="/v1", tags=["fusion"])
     app.include_router(primal_routes_router, prefix="/v1", tags=["primal"])
-    app.include_router(
-        template_sync_routes_router, prefix="/v1", tags=["template-sync"]
-    )
-    app.include_router(
-        system_primitives_routes_router, prefix="/v1", tags=["system-primitives"]
-    )
+    app.include_router(template_sync_routes_router, prefix="/v1", tags=["template-sync"])
+    app.include_router(system_primitives_routes_router, prefix="/v1", tags=["system-primitives"])
     app.include_router(infra_router)
     app.include_router(addons_router, prefix="/v1/addons", tags=["addons"])
     app.include_router(guardrails_router, prefix="/v1/guardrails", tags=["guardrails"])
@@ -178,12 +177,8 @@ def create_app() -> FastAPI:
     from .mission_lifecycle import router as mission_lifecycle_router
     from .system_control import router as system_control_router
 
-    app.include_router(
-        system_control_router, prefix="/v1/system", tags=["system-control"]
-    )
-    app.include_router(
-        mission_lifecycle_router, prefix="/v1/missions", tags=["mission-lifecycle"]
-    )
+    app.include_router(system_control_router, prefix="/v1/system", tags=["system-control"])
+    app.include_router(mission_lifecycle_router, prefix="/v1/missions", tags=["mission-lifecycle"])
     app.include_router(app_store_router, prefix="/v1/appstore", tags=["appstore"])
 
     return app
@@ -334,7 +329,7 @@ async def _stream_jsonl(path: Path, request: Request):
         if await request.is_disconnected():
             break
         try:
-            with open(path, "r", encoding="utf-8") as handle:
+            with open(path, encoding="utf-8") as handle:
                 handle.seek(file_position)
                 while True:
                     line = handle.readline()
@@ -362,9 +357,7 @@ def _load_runtime_config() -> dict[str, Any]:
     cfg: dict[str, Any] = {}
     if isinstance(raw, dict):
         cfg.update(raw)
-        api_base = (
-            raw.get("apiBaseUrl") or raw.get("api_base") or raw.get("api_base_url")
-        )
+        api_base = raw.get("apiBaseUrl") or raw.get("api_base") or raw.get("api_base_url")
         ui_base = raw.get("uiBaseUrl") or raw.get("ui_base") or raw.get("ui_base_url")
         if api_base:
             cfg["apiBaseUrl"] = api_base
@@ -696,6 +689,7 @@ def evolution_status(agent_id: str):
     """Return current evolution stage, XP, traits, and history for an agent."""
     try:
         from swarmz_runtime.evolution.engine import get_state
+
         state = get_state(agent_id)
         return state.to_dict()
     except Exception as exc:
@@ -711,6 +705,7 @@ async def companion_nexusmon(payload: dict):
         return {"error": "prompt is required"}
     try:
         from swarmz_runtime.companion.voice import generate_response
+
         response = await generate_response(prompt=prompt, mode=mode)
         return response.to_dict()
     except Exception as exc:
@@ -728,6 +723,7 @@ async def swarm_spawn(payload: dict):
         return {"error": "goal is required"}
     try:
         from swarmz_runtime.swarm.coordinator import SpawnRequest, get_coordinator
+
         req = SpawnRequest(agent_id=agent_id, goal=goal, mode=mode, constraints=constraints)
         swarm_id, agent = await get_coordinator().spawn(req)
         return {"ok": True, "swarm_id": swarm_id, **agent.to_dict()}
@@ -740,6 +736,7 @@ def swarm_status(swarm_id: str):
     """Return current state for a swarm by ID."""
     try:
         from swarmz_runtime.swarm.coordinator import get_coordinator
+
         state = get_coordinator().track(swarm_id)
         if not state:
             return {"error": "Swarm not found", "swarm_id": swarm_id}
@@ -758,7 +755,8 @@ async def shadow_execute(payload: dict):
     if not goal:
         return {"error": "goal is required"}
     try:
-        from swarmz_runtime.shadow.executor import execute, OperatorKeyRequired
+        from swarmz_runtime.shadow.executor import OperatorKeyRequired, execute
+
         mission = await execute(goal=goal, mode=mode, agent_id=agent_id, operator_key=operator_key)
         return {"ok": True, **mission.to_dict()}
     except OperatorKeyRequired as exc:
@@ -771,6 +769,7 @@ async def shadow_execute(payload: dict):
 def federation_agents():
     """Return all registered federation agents."""
     from swarmz_runtime.federation.council import get_council
+
     return {"agents": [a.to_dict() for a in get_council().list_agents()]}
 
 
@@ -782,7 +781,8 @@ def federation_register(payload: dict):
     if not agent_id:
         return {"error": "agent_id is required"}
     try:
-        from swarmz_runtime.federation.council import get_council, AgentAlreadyRegistered
+        from swarmz_runtime.federation.council import AgentAlreadyRegistered, get_council
+
         reg = get_council().register(agent_id=agent_id, mode=mode)
         return {"ok": True, **reg.to_dict()}
     except AgentAlreadyRegistered as exc:
@@ -800,6 +800,7 @@ async def federation_coordinate(payload: dict):
         return {"error": "goal is required"}
     try:
         from swarmz_runtime.federation.council import get_council
+
         result = await get_council().coordinate(goal=goal, budget_tokens=budget_tokens)
         return {"ok": True, **result.to_dict()}
     except Exception as exc:
@@ -808,11 +809,13 @@ async def federation_coordinate(payload: dict):
 
 # ── Operator Memory ───────────────────────────────────────────────────────────
 
+
 @app.get("/v1/operator/memory")
 async def operator_memory_get():
     """Return the current operator memory state."""
     try:
         from swarmz_runtime.operator.memory import get_operator_memory
+
         return get_operator_memory().load().to_dict()
     except Exception as exc:
         return {"error": str(exc)}
@@ -823,6 +826,7 @@ async def operator_memory_greet():
     """Return a context-aware greeting for the operator."""
     try:
         from swarmz_runtime.operator.memory import get_operator_memory
+
         return {"greeting": get_operator_memory().greet()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -835,8 +839,9 @@ async def operator_memory_introduce(payload: dict):
     if not name:
         return {"error": "name is required"}
     try:
-        from swarmz_runtime.operator.memory import get_operator_memory
         from swarmz_runtime.operator.lock import get_operator_lock
+        from swarmz_runtime.operator.memory import get_operator_memory
+
         entry = get_operator_memory().introduce(name)
         operator_key = str(payload.get("operator_key", "")).strip()
         if operator_key:
@@ -851,6 +856,7 @@ async def operator_lock_status():
     """Return operator lock binding status. Always accessible — no key required."""
     try:
         from swarmz_runtime.operator.lock import get_operator_lock
+
         return get_operator_lock().status()
     except Exception as exc:
         return {"error": str(exc)}
@@ -864,6 +870,7 @@ async def operator_memory_note(payload: dict):
         return {"error": "note is required"}
     try:
         from swarmz_runtime.operator.memory import get_operator_memory
+
         entry = get_operator_memory().add_note(note)
         return {"ok": True, **entry.to_dict()}
     except Exception as exc:
@@ -878,6 +885,7 @@ async def operator_memory_milestone(payload: dict):
         return {"error": "milestone is required"}
     try:
         from swarmz_runtime.operator.memory import get_operator_memory
+
         entry = get_operator_memory().record_milestone(milestone)
         return {"ok": True, **entry.to_dict()}
     except Exception as exc:
@@ -886,12 +894,14 @@ async def operator_memory_milestone(payload: dict):
 
 # ── Kernel Shift ──────────────────────────────────────────────────────────────
 
+
 @app.post("/v1/kernel/shift")
 async def kernel_shift(payload: dict):
     """Apply a kernel shift to override bridge routing."""
     operator_key = str(payload.get("operator_key", "")).strip()
     try:
         from swarmz_runtime.kernel.shift import ShiftConfig, get_kernel_shift
+
         config = ShiftConfig(
             primary_tier=str(payload.get("primary_tier", "cortex")),
             fallback_chain=list(payload.get("fallback_chain", [])),
@@ -909,6 +919,7 @@ async def kernel_config():
     """Return the current effective kernel config."""
     try:
         from swarmz_runtime.kernel.shift import get_kernel_shift
+
         return {"ok": True, "active_config": get_kernel_shift().active_config()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -919,6 +930,7 @@ async def kernel_history():
     """Return all kernel shift history entries."""
     try:
         from swarmz_runtime.kernel.shift import get_kernel_shift
+
         return {"ok": True, "history": get_kernel_shift().shift_history()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -931,6 +943,7 @@ async def kernel_rollback(payload: dict):
     n = int(payload.get("n", 1))
     try:
         from swarmz_runtime.kernel.shift import get_kernel_shift
+
         active = get_kernel_shift().rollback(n, operator_key)
         return {"ok": True, "active_config": active}
     except Exception as exc:
@@ -939,11 +952,13 @@ async def kernel_rollback(payload: dict):
 
 # ── Seal Matrix ───────────────────────────────────────────────────────────────
 
+
 @app.get("/v1/seal/status")
 async def seal_status():
     """Return the seal level for every registered action."""
     try:
         from swarmz_runtime.governance.seal_matrix import get_seal_matrix
+
         return {"ok": True, "registry": get_seal_matrix().status()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -959,6 +974,7 @@ async def seal_approve(payload: dict):
         return {"error": "action is required"}
     try:
         from swarmz_runtime.governance.seal_matrix import get_seal_matrix
+
         result = get_seal_matrix().approve(action, operator_key, provided_hash)
         return result.to_dict()
     except Exception as exc:
@@ -970,6 +986,7 @@ async def seal_pending():
     """Return actions currently awaiting second dual approval."""
     try:
         from swarmz_runtime.governance.seal_matrix import get_seal_matrix
+
         return {"ok": True, "pending": get_seal_matrix().pending()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -977,11 +994,17 @@ async def seal_pending():
 
 # ── Command Fusion ────────────────────────────────────────────────────────────
 
+
 @app.post("/v1/fusion/execute")
 async def fusion_execute(payload: dict):
     """Execute a FusionScript with dependency-aware parallel step dispatch."""
     try:
-        from swarmz_runtime.doctrine.command_fusion import FusionScript, FusionStep, get_command_fusion
+        from swarmz_runtime.doctrine.command_fusion import (
+            FusionScript,
+            FusionStep,
+            get_command_fusion,
+        )
+
         steps_raw = payload.get("steps", [])
         steps = [FusionStep.from_dict(s) for s in steps_raw]
         script = FusionScript(
@@ -1000,6 +1023,7 @@ async def fusion_status(fusion_id: str):
     """Return status of a specific fusion run."""
     try:
         from swarmz_runtime.doctrine.command_fusion import get_command_fusion
+
         result = get_command_fusion()._read_result(fusion_id)
         if result is None:
             return {"error": f"fusion {fusion_id} not found"}
@@ -1013,6 +1037,7 @@ async def fusion_history():
     """Return all past fusion runs."""
     try:
         from swarmz_runtime.doctrine.command_fusion import get_command_fusion
+
         return {"ok": True, "history": get_command_fusion().history()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -1022,16 +1047,19 @@ async def fusion_history():
 async def fusion_presets():
     """Return the built-in FORGE, DEPLOY, IGNITE fusion presets."""
     from swarmz_runtime.doctrine.command_fusion import PRESETS
+
     return {"ok": True, "presets": PRESETS}
 
 
 # ── ZERO-POINT FORM — Override ─────────────────────────────────────────────────
+
 
 @app.post("/v1/zeropoint/override")
 async def zeropoint_apply(payload: dict):
     """Apply a system-wide override. SOVEREIGN seal required."""
     try:
         from swarmz_runtime.zeropoint.override import get_zero_point_override
+
         override = get_zero_point_override().apply(
             subsystem=str(payload.get("subsystem", "")),
             parameter=str(payload.get("parameter", "")),
@@ -1050,6 +1078,7 @@ async def zeropoint_list():
     """List all overrides with active/expired status."""
     try:
         from swarmz_runtime.zeropoint.override import get_zero_point_override
+
         return {"ok": True, "overrides": get_zero_point_override().list_overrides()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -1060,6 +1089,7 @@ async def zeropoint_expire(override_id: str):
     """Manually expire an override before its TTL."""
     try:
         from swarmz_runtime.zeropoint.override import get_zero_point_override
+
         found = get_zero_point_override().expire(override_id)
         return {"ok": found, "override_id": override_id}
     except Exception as exc:
@@ -1071,6 +1101,7 @@ async def zeropoint_status():
     """Return active override summary grouped by subsystem."""
     try:
         from swarmz_runtime.zeropoint.override import get_zero_point_override
+
         return {"ok": True, **get_zero_point_override().status_summary()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -1078,11 +1109,13 @@ async def zeropoint_status():
 
 # ── ZERO-POINT FORM — Quantum Doctrine ────────────────────────────────────────
 
+
 @app.post("/v1/quantum/snapshot")
 async def quantum_snapshot(payload: dict):
     """Save current doctrine state as a named quantum state."""
     try:
         from swarmz_runtime.zeropoint.quantum import get_quantum_doctrine
+
         state = get_quantum_doctrine().snapshot(str(payload.get("name", "")))
         return {"ok": True, **state.to_dict()}
     except Exception as exc:
@@ -1094,6 +1127,7 @@ async def quantum_states():
     """List all saved quantum states."""
     try:
         from swarmz_runtime.zeropoint.quantum import get_quantum_doctrine
+
         return {"ok": True, "states": get_quantum_doctrine().list_states()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -1104,6 +1138,7 @@ async def quantum_collapse(payload: dict):
     """Collapse to a named quantum state (additive restore)."""
     try:
         from swarmz_runtime.zeropoint.quantum import get_quantum_doctrine
+
         result = get_quantum_doctrine().collapse(
             name=str(payload.get("name", "")),
             operator_key=str(payload.get("operator_key", "")),
@@ -1118,6 +1153,7 @@ async def quantum_history():
     """Return all quantum collapse events."""
     try:
         from swarmz_runtime.zeropoint.quantum import get_quantum_doctrine
+
         return {"ok": True, "history": get_quantum_doctrine().collapse_history()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -1125,11 +1161,13 @@ async def quantum_history():
 
 # ── ZERO-POINT FORM — Autonomy Engine ─────────────────────────────────────────
 
+
 @app.post("/v1/autonomy/propose")
 async def autonomy_propose(payload: dict):
     """Submit an action proposal to the operator queue."""
     try:
         from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+
         proposal = get_autonomy_engine().propose(
             title=str(payload.get("title", "")),
             steps=list(payload.get("steps", [])),
@@ -1145,6 +1183,7 @@ async def autonomy_queue():
     """Return all pending proposals awaiting operator decision."""
     try:
         from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+
         return {"ok": True, "queue": get_autonomy_engine().pending_queue()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -1155,6 +1194,7 @@ async def autonomy_approve(proposal_id: str, payload: dict):
     """Operator approves a proposal — dispatches via CommandFusion."""
     try:
         from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+
         result = get_autonomy_engine().approve(
             proposal_id=proposal_id,
             operator_key=str(payload.get("operator_key", "")),
@@ -1169,6 +1209,7 @@ async def autonomy_reject(proposal_id: str, payload: dict):
     """Operator rejects a proposal — discards without execution."""
     try:
         from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+
         result = get_autonomy_engine().reject(
             proposal_id=proposal_id,
             reason=str(payload.get("reason", "")),
@@ -1183,6 +1224,7 @@ async def autonomy_history():
     """Return all proposals with their final status."""
     try:
         from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+
         return {"ok": True, "history": get_autonomy_engine().history()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -1435,9 +1477,7 @@ def set_shadow_mode(payload: ShadowModeRequest):
     state["shadow_mode"] = {
         "enabled": bool(payload.enabled),
         "lane": payload.lane,
-        "last_activation": (
-            datetime.now(UTC).isoformat() if payload.enabled else None
-        ),
+        "last_activation": (datetime.now(UTC).isoformat() if payload.enabled else None),
     }
     _write_command_center_state(state)
     return {"ok": True, "shadow_mode": state["shadow_mode"]}
@@ -1484,9 +1524,7 @@ def evolve_shadow(payload: OrganismEvolveRequest):
     next_index = min(current_index + 1, len(tiers) - 1)
     shadow["tier"] = tiers[next_index]
     shadow["tier_index"] = next_index
-    shadow["risk_precision"] = min(
-        0.99, round(float(shadow.get("risk_precision", 0.35)) + 0.08, 2)
-    )
+    shadow["risk_precision"] = min(0.99, round(float(shadow.get("risk_precision", 0.35)) + 0.08, 2))
     shadow["tactical_authority"] = (
         "policy_bounded_autonomy" if next_index >= 4 else "operator_approval"
     )
@@ -1508,9 +1546,7 @@ def evolve_shadow(payload: OrganismEvolveRequest):
 @app.post("/v1/command-center/loop/tick")
 def tick_autonomy_loop(payload: LoopTickRequest):
     state = _read_command_center_state()
-    loop = state.setdefault(
-        "autonomy_loop", _default_command_center_state()["autonomy_loop"]
-    )
+    loop = state.setdefault("autonomy_loop", _default_command_center_state()["autonomy_loop"])
     loop["tick_count"] = int(loop.get("tick_count", 0)) + 1
     loop["last_tick"] = datetime.now(UTC).isoformat()
     loop["last_cycle_label"] = payload.cycle_label
@@ -1528,15 +1564,11 @@ def tick_autonomy_loop(payload: LoopTickRequest):
 @app.post("/v1/command-center/evolution/promote")
 def promote_partner(payload: EvolutionPromoteRequest):
     state = _read_command_center_state()
-    evo = state.setdefault(
-        "evolution_tree", _default_command_center_state()["evolution_tree"]
-    )
+    evo = state.setdefault("evolution_tree", _default_command_center_state()["evolution_tree"])
     tiers = evo.get("tiers", ["seed", "scout", "operator", "architect", "sovereign"])
     partners = evo.setdefault("partners", [])
 
-    partner = next(
-        (p for p in partners if p.get("partner_id") == payload.partner_id), None
-    )
+    partner = next((p for p in partners if p.get("partner_id") == payload.partner_id), None)
     if partner is None:
         partner = {"partner_id": payload.partner_id, "tier": tiers[0], "xp": 0}
         partners.append(partner)
@@ -1568,9 +1600,7 @@ def marketplace_list(status: str | None = Query(default=None)):
     marketplace = state.setdefault("marketplace", {"missions": []})
     missions = marketplace.setdefault("missions", [])
     if status:
-        missions = [
-            m for m in missions if str(m.get("status", "")).lower() == status.lower()
-        ]
+        missions = [m for m in missions if str(m.get("status", "")).lower() == status.lower()]
     return {"ok": True, "missions": missions, "count": len(missions)}
 
 
@@ -1646,7 +1676,10 @@ def _engine_mission_by_id(mission_id: str) -> dict[str, Any] | None:
     except Exception:
         return None
     for mission in missions:
-        if str(mission.get("mission_id", "")) == mission_id or str(mission.get("id", "")) == mission_id:
+        if (
+            str(mission.get("mission_id", "")) == mission_id
+            or str(mission.get("id", "")) == mission_id
+        ):
             return mission
     return None
 
@@ -1656,9 +1689,7 @@ def api_dispatch_mission(payload: ApiMissionDispatchRequest):
     mission_payload = payload.payload if isinstance(payload.payload, dict) else {}
     category = _normalize_mission_category(str(payload.type))
     goal = str(
-        mission_payload.get("prompt")
-        or mission_payload.get("goal")
-        or f"{category} mission"
+        mission_payload.get("prompt") or mission_payload.get("goal") or f"{category} mission"
     )
     constraints = mission_payload.get("constraints")
     if not isinstance(constraints, dict):
@@ -1958,9 +1989,7 @@ def sovereign_dispatch(body: SovereignDispatch):
     missions_file = DATA_DIR / "missions.jsonl"
     audit_file = DATA_DIR / "audit.jsonl"
     _append_jsonl(missions_file, mission)
-    _append_jsonl(
-        audit_file, {"ts": ts, "event": "sovereign_dispatch", "mission_id": mission_id}
-    )
+    _append_jsonl(audit_file, {"ts": ts, "event": "sovereign_dispatch", "mission_id": mission_id})
     return {
         "ok": True,
         "mission_id": mission_id,
@@ -2042,21 +2071,24 @@ except ImportError:
 
 # --- WorldSpace routes ---
 
+
 @app.post("/v1/worldspace/add")
 async def worldspace_add(payload: dict):
     """Add entry to WorldSpace. body: {subject, scale, content, tags?, depth?}"""
     try:
         import uuid as _uuid
-        from datetime import datetime, timezone
-        from swarmz_runtime.intelligence.worldspace import WorldSpaceEntry, get_world_space
+        from datetime import datetime
+
         from swarmz_runtime.intelligence.cosmic import ScaleLevel
+        from swarmz_runtime.intelligence.worldspace import WorldSpaceEntry, get_world_space
+
         entry = WorldSpaceEntry(
             entry_id=payload.get("entry_id") or _uuid.uuid4().hex[:16],
             subject=payload.get("subject", ""),
             scale=ScaleLevel(payload.get("scale", "human")),
             content=payload.get("content", ""),
             connections=payload.get("connections", []),
-            timestamp=payload.get("timestamp") or datetime.now(timezone.utc).isoformat(),
+            timestamp=payload.get("timestamp") or datetime.now(UTC).isoformat(),
             operator=payload.get("operator", "Regan Harris"),
             tags=payload.get("tags", []),
             depth=payload.get("depth", "SURFACE"),
@@ -2072,6 +2104,7 @@ async def worldspace_search(q: str = "", scale: str | None = None):
     """Search WorldSpace entries. ?q=...&scale=..."""
     try:
         from swarmz_runtime.intelligence.worldspace import get_world_space
+
         results = get_world_space().search(q, scale)
         return {"ok": True, "results": [r.to_dict() for r in results], "count": len(results)}
     except Exception as exc:
@@ -2083,6 +2116,7 @@ async def worldspace_connect(payload: dict):
     """Connect two WorldSpace entries. body: {entry_a, entry_b, relationship}"""
     try:
         from swarmz_runtime.intelligence.worldspace import get_world_space
+
         result = get_world_space().connect(
             payload.get("entry_a", ""),
             payload.get("entry_b", ""),
@@ -2098,6 +2132,7 @@ async def worldspace_synthesize(payload: dict):
     """Synthesize multiple entries. body: {entry_ids: [...]}"""
     try:
         from swarmz_runtime.intelligence.worldspace import get_world_space
+
         result = get_world_space().synthesize(payload.get("entry_ids", []))
         return {"ok": True, "synthesis": result.to_dict()}
     except Exception as exc:
@@ -2109,6 +2144,7 @@ async def worldspace_map():
     """Return full WorldSpace knowledge graph."""
     try:
         from swarmz_runtime.intelligence.worldspace import get_world_space
+
         return {"ok": True, "graph": get_world_space().map()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -2119,6 +2155,7 @@ async def worldspace_export():
     """Export full WorldSpace as portable archive."""
     try:
         from swarmz_runtime.intelligence.worldspace import get_world_space
+
         return {"ok": True, "export": get_world_space().export()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -2126,13 +2163,19 @@ async def worldspace_export():
 
 # --- Cosmic Intelligence routes ---
 
+
 @app.post("/v1/intelligence/cosmic/query")
 async def cosmic_query(payload: dict):
     """Single-scale cosmic reasoning. body: {prompt, scale, mode}"""
     try:
         from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+
         ci = get_cosmic_intelligence()
-        resp = ci.query(payload.get("prompt", ""), payload.get("scale", "human"), payload.get("mode", "strategic"))
+        resp = ci.query(
+            payload.get("prompt", ""),
+            payload.get("scale", "human"),
+            payload.get("mode", "strategic"),
+        )
         return {"ok": True, "response": resp.to_dict()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -2143,8 +2186,13 @@ async def cosmic_deep_query(payload: dict):
     """Multi-scale cosmic reasoning. body: {prompt, scales: [...], mode}"""
     try:
         from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+
         ci = get_cosmic_intelligence()
-        resp = await ci.deep_query(payload.get("prompt", ""), payload.get("scales", ["human", "cosmic"]), payload.get("mode", "strategic"))
+        resp = await ci.deep_query(
+            payload.get("prompt", ""),
+            payload.get("scales", ["human", "cosmic"]),
+            payload.get("mode", "strategic"),
+        )
         return {"ok": True, "response": resp.to_dict()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -2155,8 +2203,13 @@ async def cosmic_timeline(payload: dict):
     """Generate a timeline artifact. body: {subject, start_year, end_year}"""
     try:
         from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+
         ci = get_cosmic_intelligence()
-        result = ci.timeline(payload.get("subject", ""), int(payload.get("start_year", 0)), int(payload.get("end_year", 2026)))
+        result = ci.timeline(
+            payload.get("subject", ""),
+            int(payload.get("start_year", 0)),
+            int(payload.get("end_year", 2026)),
+        )
         return {"ok": True, "timeline": result.to_dict()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -2167,8 +2220,13 @@ async def cosmic_compare(payload: dict):
     """Compare two subjects at a given scale. body: {subject_a, subject_b, scale}"""
     try:
         from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+
         ci = get_cosmic_intelligence()
-        result = ci.compare(payload.get("subject_a", ""), payload.get("subject_b", ""), payload.get("scale", "human"))
+        result = ci.compare(
+            payload.get("subject_a", ""),
+            payload.get("subject_b", ""),
+            payload.get("scale", "human"),
+        )
         return {"ok": True, "comparison": result.to_dict()}
     except Exception as exc:
         return {"error": str(exc)}
@@ -2176,18 +2234,22 @@ async def cosmic_compare(payload: dict):
 
 # --- Artifact Renderer routes ---
 
+
 @app.get("/v1/artifacts/{artifact_id}/render/{format}")
 async def artifact_render_get(artifact_id: str, format: str):
     """Render an artifact to HTML using format-specific template."""
     try:
         from swarmz_runtime.artifacts.renderer import get_renderer
+
         r = get_renderer()
         # List existing renders for this artifact+format
         renders = [x for x in r.list_renders(artifact_id) if x.format == format]
         if renders:
             from pathlib import Path
+
             html = Path(renders[-1].output_path).read_text(encoding="utf-8")
             from fastapi.responses import HTMLResponse
+
             return HTMLResponse(content=html)
         return {"ok": False, "error": "No render found. POST to /v1/artifacts/render first."}
     except Exception as exc:
@@ -2199,6 +2261,7 @@ async def artifact_list_renders(artifact_id: str):
     """List all rendered outputs for an artifact."""
     try:
         from swarmz_runtime.artifacts.renderer import get_renderer
+
         renders = get_renderer().list_renders(artifact_id)
         return {"ok": True, "artifact_id": artifact_id, "renders": [r.to_dict() for r in renders]}
     except Exception as exc:
@@ -2210,6 +2273,7 @@ async def artifact_render_direct(payload: dict):
     """Render content directly to HTML. body: {content, format, title?, artifact_id?, scale?, depth?}"""
     try:
         from swarmz_runtime.artifacts.renderer import get_renderer
+
         r = get_renderer()
         content = payload.get("content", "")
         fmt = payload.get("format", "html")
@@ -2232,12 +2296,14 @@ async def artifact_template_serve(name: str):
     """Serve a raw HTML template file."""
     try:
         from pathlib import Path
+
         template_path = Path("swarmz_runtime/artifacts/templates") / f"{name}"
         if not template_path.suffix:
             template_path = template_path.with_suffix(".html")
         if not template_path.exists():
             return {"ok": False, "error": f"Template '{name}' not found"}
         from fastapi.responses import HTMLResponse
+
         return HTMLResponse(content=template_path.read_text(encoding="utf-8"))
     except Exception as exc:
         return {"error": str(exc)}
@@ -2245,6 +2311,7 @@ async def artifact_template_serve(name: str):
 
 try:
     from nexusmon_artifact_vault import fuse_artifact_vault as _fuse_vault
+
     _fuse_vault(app)
     logger.info("Artifact vault fused into runtime kernel server.")
 except Exception as _vault_fuse_err:

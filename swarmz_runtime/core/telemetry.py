@@ -4,6 +4,7 @@
 import json
 import os
 import threading
+from datetime import UTC, datetime
 from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any
@@ -25,12 +26,13 @@ def verbose_log(*args: Any) -> None:
     if _verbose:
         print("[telemetry]", *args)
 
+
 def _append(path: Path, obj: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     line = json.dumps(obj, separators=(",", ":"))
-    with _lock:
-        with path.open("a", encoding="utf-8") as f:
-            f.write(line + "\n")
+    with _lock, path.open("a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
 
 def record_event(name: str, payload: dict[str, Any] | None = None) -> None:
     evt = {
@@ -41,6 +43,8 @@ def record_event(name: str, payload: dict[str, Any] | None = None) -> None:
     _append(TELEMETRY_FILE, evt)
     verbose_log("event", name, payload)
 
+
+def record_duration(name: str, duration_ms: float, context: dict[str, Any] | None = None) -> None:
 def record_duration(
     name: str, duration_ms: float, context: dict[str, Any] | None = None
 ) -> None:
@@ -53,6 +57,8 @@ def record_duration(
     _append(RUNTIME_METRICS_FILE, evt)
     verbose_log("duration", name, f"{duration_ms:.3f}ms", context)
 
+
+def record_failure(name: str, error: str, context: dict[str, Any] | None = None) -> None:
 def record_failure(
     name: str, error: str, context: dict[str, Any] | None = None
 ) -> None:
@@ -64,6 +70,7 @@ def record_failure(
     }
     _append(TELEMETRY_FILE, evt)
     verbose_log("failure", name, error, context)
+
 
 def last_event() -> dict[str, Any] | None:
     if not TELEMETRY_FILE.exists():
@@ -82,6 +89,7 @@ def last_event() -> dict[str, Any] | None:
             return None
     except Exception:
         return None
+
 
 def avg_duration(name: str, max_samples: int = 100) -> float | None:
     if not RUNTIME_METRICS_FILE.exists():

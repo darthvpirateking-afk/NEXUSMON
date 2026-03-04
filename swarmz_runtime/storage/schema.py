@@ -1,20 +1,21 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
+from typing import Any
+
+from pydantic import BaseModel, Field
 
 
-class MissionCategory(str, Enum):
+class MissionCategory(StrEnum):
     COIN = "coin"
     FORGE = "forge"
     LIBRARY = "library"
     SANCTUARY = "sanctuary"
 
 
-class MissionStatus(str, Enum):
+class MissionStatus(StrEnum):
     PENDING = "pending"
     ACTIVE = "active"
     COMPLETED = "completed"
@@ -22,7 +23,7 @@ class MissionStatus(str, Enum):
     SUSPENDED = "suspended"
 
 
-class VisibilityLevel(str, Enum):
+class VisibilityLevel(StrEnum):
     DIM = "dim"
     VISIBLE = "visible"
     BRIGHT = "bright"
@@ -33,15 +34,15 @@ class Mission(BaseModel):
     id: str
     goal: str
     category: MissionCategory
-    constraints: Dict[str, Any] = Field(default_factory=dict)
-    expiry: Optional[datetime] = None
+    constraints: dict[str, Any] = Field(default_factory=dict)
+    expiry: datetime | None = None
     status: MissionStatus = MissionStatus.PENDING
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     leverage_score: float = 0.0
     revisit_interval: int = 3600
-    operator_public_key: Optional[str] = None
-    mode: Optional[str] = None  # nexusmon operator mode: strategic | combat | guardian
+    operator_public_key: str | None = None
+    mode: str | None = None  # nexusmon operator mode: strategic | combat | guardian
 
 
 class CrossLayerScores(BaseModel):
@@ -70,7 +71,7 @@ class Omen(BaseModel):
 
 class Rune(BaseModel):
     id: str
-    template: Dict[str, Any]
+    template: dict[str, Any]
     confidence: float
     success_count: int
     created_at: datetime
@@ -80,8 +81,8 @@ class Rune(BaseModel):
 class AuditEntry(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
     event_type: str
-    mission_id: Optional[str] = None
-    details: Dict[str, Any] = Field(default_factory=dict)
+    mission_id: str | None = None
+    details: dict[str, Any] = Field(default_factory=dict)
     visibility: VisibilityLevel = VisibilityLevel.VISIBLE
 
 

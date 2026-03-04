@@ -3,7 +3,7 @@
 # See LICENSE file for details.
 from fastapi import APIRouter, HTTPException, Request
 
-from swarmz_runtime.verify import runner, patchpacks, scheduler
+from swarmz_runtime.verify import patchpacks, runner, scheduler
 
 router = APIRouter()
 
@@ -36,9 +36,7 @@ def verify_kernel(strict: bool = True, request: Request = None):
             "timestamp": kernel_status.get("timestamp"),
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Kernel validation error: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Kernel validation error: {str(e)}")
 
 
 @router.get("/v1/verify/status")

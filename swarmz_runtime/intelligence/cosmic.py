@@ -3,24 +3,25 @@
 From quantum to multiverse. From the Big Bang to heat death.
 All scales. All time. One operator: Regan Harris.
 """
+
 from __future__ import annotations
 
 import asyncio
 import json
 import threading
 import uuid
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
-
 
 # ---------------------------------------------------------------------------
 # Scale levels
 # ---------------------------------------------------------------------------
 
-class ScaleLevel(str, Enum):
+
+class ScaleLevel(StrEnum):
     QUANTUM = "quantum"
     MOLECULAR = "molecular"
     HUMAN = "human"
@@ -136,6 +137,7 @@ _BINDING = (
 # Response models
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class CosmicResponse:
     content: str
@@ -230,6 +232,7 @@ class ComparisonArtifact:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _reasoning_depth(tokens: int) -> str:
     if tokens < 300:
         return "SURFACE"
@@ -250,9 +253,8 @@ _LOG_LOCK = threading.Lock()
 def _log_artifact(entry: dict[str, Any]) -> None:
     try:
         _ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-        with _LOG_LOCK:
-            with _COSMIC_LOG.open("a", encoding="utf-8") as f:
-                f.write(json.dumps(entry) + "\n")
+        with _LOG_LOCK, _COSMIC_LOG.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
     except Exception:
         pass
 
@@ -260,6 +262,7 @@ def _log_artifact(entry: dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------
 # CosmicIntelligence
 # ---------------------------------------------------------------------------
+
 
 class CosmicIntelligence:
     """Reason at any scale from quantum to multiverse."""
@@ -276,7 +279,7 @@ class CosmicIntelligence:
         mode = mode.strip().lower()
 
         artifact_id = _new_id()
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
         # Guardian mode: no LLM call
         if mode == "guardian":
@@ -289,23 +292,37 @@ class CosmicIntelligence:
                 tokens_used=0,
                 reasoning_depth="SURFACE",
             )
-            _log_artifact({
-                "artifact_id": artifact_id, "scale": scale.value, "mode": mode,
-                "prompt": prompt, "content": resp.content, "tokens": 0,
-                "depth": "SURFACE", "timestamp": timestamp,
-            })
+            _log_artifact(
+                {
+                    "artifact_id": artifact_id,
+                    "scale": scale.value,
+                    "mode": mode,
+                    "prompt": prompt,
+                    "content": resp.content,
+                    "tokens": 0,
+                    "depth": "SURFACE",
+                    "timestamp": timestamp,
+                }
+            )
             return resp
 
-        system_prompt = _SCALE_PROMPTS.get(scale, f"You are Nexusmon reasoning at {scale.value} scale.") + " " + _BINDING
+        system_prompt = (
+            _SCALE_PROMPTS.get(scale, f"You are Nexusmon reasoning at {scale.value} scale.")
+            + " "
+            + _BINDING
+        )
 
         try:
             from swarmz_runtime.bridge.llm import call_v2
-            bridge = asyncio.run(call_v2(
-                prompt=prompt,
-                mode=mode,
-                context={"system": system_prompt, "agent_id": "nexusmon-cosmic"},
-                budget_tokens=4096,
-            ))
+
+            bridge = asyncio.run(
+                call_v2(
+                    prompt=prompt,
+                    mode=mode,
+                    context={"system": system_prompt, "agent_id": "nexusmon-cosmic"},
+                    budget_tokens=4096,
+                )
+            )
             content = bridge.content
             tokens = bridge.tokens_used
         except Exception as exc:
@@ -317,8 +334,11 @@ class CosmicIntelligence:
         # Auto-render
         try:
             from swarmz_runtime.artifacts.renderer import get_renderer
+
             get_renderer().render(
-                artifact_id, content, "cosmic",
+                artifact_id,
+                content,
+                "cosmic",
                 title=f"Cosmic Query · {scale.value.upper()}",
                 scale=scale.value.upper(),
                 depth=depth,
@@ -326,11 +346,18 @@ class CosmicIntelligence:
         except Exception:
             pass
 
-        _log_artifact({
-            "artifact_id": artifact_id, "scale": scale.value, "mode": mode,
-            "prompt": prompt, "content": content, "tokens": tokens,
-            "depth": depth, "timestamp": timestamp,
-        })
+        _log_artifact(
+            {
+                "artifact_id": artifact_id,
+                "scale": scale.value,
+                "mode": mode,
+                "prompt": prompt,
+                "content": content,
+                "tokens": tokens,
+                "depth": depth,
+                "timestamp": timestamp,
+            }
+        )
 
         return CosmicResponse(
             content=content,
@@ -349,22 +376,19 @@ class CosmicIntelligence:
         mode: str = "strategic",
     ) -> MultiScaleResponse:
         """Query multiple scales simultaneously and synthesize."""
-        parsed_scales = [
-            ScaleLevel(s.lower()) if isinstance(s, str) else s for s in scales
-        ]
+        parsed_scales = [ScaleLevel(s.lower()) if isinstance(s, str) else s for s in scales]
         mode = mode.strip().lower()
 
         # Run all scale queries concurrently
         loop = asyncio.get_event_loop()
         tasks = [
-            loop.run_in_executor(None, self.query, prompt, scale, mode)
-            for scale in parsed_scales
+            loop.run_in_executor(None, self.query, prompt, scale, mode) for scale in parsed_scales
         ]
         responses: list[CosmicResponse] = list(await asyncio.gather(*tasks))
 
         total_tokens = sum(r.tokens_used for r in responses)
         artifact_id = _new_id()
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
         # Build synthesis
         scale_summaries = "\n\n".join(
@@ -378,8 +402,11 @@ class CosmicIntelligence:
         # Auto-render synthesis
         try:
             from swarmz_runtime.artifacts.renderer import get_renderer
+
             get_renderer().render(
-                artifact_id, synthesis, "cosmic",
+                artifact_id,
+                synthesis,
+                "cosmic",
                 title=f"Deep Query · {len(parsed_scales)} Scales",
                 scale="MULTI-SCALE",
                 depth="PROFOUND",
@@ -387,12 +414,17 @@ class CosmicIntelligence:
         except Exception:
             pass
 
-        _log_artifact({
-            "artifact_id": artifact_id, "type": "deep_query",
-            "scales": [s.value for s in parsed_scales], "mode": mode,
-            "prompt": prompt, "total_tokens": total_tokens,
-            "timestamp": timestamp,
-        })
+        _log_artifact(
+            {
+                "artifact_id": artifact_id,
+                "type": "deep_query",
+                "scales": [s.value for s in parsed_scales],
+                "mode": mode,
+                "prompt": prompt,
+                "total_tokens": total_tokens,
+                "timestamp": timestamp,
+            }
+        )
 
         return MultiScaleResponse(
             prompt=prompt,
@@ -411,7 +443,7 @@ class CosmicIntelligence:
     ) -> TimelineArtifact:
         """Generate a chronological timeline artifact for any subject across any time span."""
         artifact_id = _new_id()
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
         span = abs(end_year - start_year)
         if span >= 1_000_000_000:
@@ -436,12 +468,18 @@ class CosmicIntelligence:
 
         try:
             from swarmz_runtime.bridge.llm import call_v2
-            bridge = asyncio.run(call_v2(
-                prompt=prompt,
-                mode="strategic",
-                context={"system": _SCALE_PROMPTS[ScaleLevel.TEMPORAL] + " " + _BINDING, "agent_id": "nexusmon-timeline"},
-                budget_tokens=4096,
-            ))
+
+            bridge = asyncio.run(
+                call_v2(
+                    prompt=prompt,
+                    mode="strategic",
+                    context={
+                        "system": _SCALE_PROMPTS[ScaleLevel.TEMPORAL] + " " + _BINDING,
+                        "agent_id": "nexusmon-timeline",
+                    },
+                    budget_tokens=4096,
+                )
+            )
             raw = bridge.content
             tokens = bridge.tokens_used
             # Parse events from output
@@ -461,14 +499,20 @@ class CosmicIntelligence:
             raw = f"[ERROR] {exc}"
 
         if not events:
-            events = [{"year": start_year, "event": f"Beginning of {subject}"}, {"year": end_year, "event": f"End of observed period for {subject}"}]
+            events = [
+                {"year": start_year, "event": f"Beginning of {subject}"},
+                {"year": end_year, "event": f"End of observed period for {subject}"},
+            ]
 
         # Auto-render
         render_content = "\n".join(f"{e['year']:>15}: {e['event']}" for e in events)
         try:
             from swarmz_runtime.artifacts.renderer import get_renderer
+
             get_renderer().render(
-                artifact_id, render_content, "timeline",
+                artifact_id,
+                render_content,
+                "timeline",
                 title=f"Timeline · {subject}",
                 scale=scale_hint,
                 depth=_reasoning_depth(tokens),
@@ -476,11 +520,18 @@ class CosmicIntelligence:
         except Exception:
             pass
 
-        _log_artifact({
-            "artifact_id": artifact_id, "type": "timeline",
-            "subject": subject, "start_year": start_year, "end_year": end_year,
-            "events_count": len(events), "tokens": tokens, "timestamp": timestamp,
-        })
+        _log_artifact(
+            {
+                "artifact_id": artifact_id,
+                "type": "timeline",
+                "subject": subject,
+                "start_year": start_year,
+                "end_year": end_year,
+                "events_count": len(events),
+                "tokens": tokens,
+                "timestamp": timestamp,
+            }
+        )
 
         return TimelineArtifact(
             subject=subject,
@@ -503,7 +554,7 @@ class CosmicIntelligence:
             scale = ScaleLevel(scale.lower())
 
         artifact_id = _new_id()
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
         prompt = (
             f"Compare '{subject_a}' and '{subject_b}' at {scale.value} scale. "
@@ -519,12 +570,18 @@ class CosmicIntelligence:
 
         try:
             from swarmz_runtime.bridge.llm import call_v2
-            bridge = asyncio.run(call_v2(
-                prompt=prompt,
-                mode="strategic",
-                context={"system": _SCALE_PROMPTS.get(scale, "") + " " + _BINDING, "agent_id": "nexusmon-compare"},
-                budget_tokens=4096,
-            ))
+
+            bridge = asyncio.run(
+                call_v2(
+                    prompt=prompt,
+                    mode="strategic",
+                    context={
+                        "system": _SCALE_PROMPTS.get(scale, "") + " " + _BINDING,
+                        "agent_id": "nexusmon-compare",
+                    },
+                    budget_tokens=4096,
+                )
+            )
             raw = bridge.content
             tokens = bridge.tokens_used
             # Simple extraction — split on known section markers
@@ -556,14 +613,17 @@ class CosmicIntelligence:
         render_content = (
             f"SUBJECT A: {subject_a}\nSUBJECT B: {subject_b}\nSCALE: {scale.value.upper()}\n\n"
             f"SIMILARITIES:\n" + "\n".join(f"  • {s}" for s in similarities) + "\n\n"
-            f"DIFFERENCES:\n" + "\n".join(f"  • {d}" for d in differences) + "\n\n"
+            "DIFFERENCES:\n" + "\n".join(f"  • {d}" for d in differences) + "\n\n"
             f"SYNTHESIS:\n{synthesis}"
         )
 
         try:
             from swarmz_runtime.artifacts.renderer import get_renderer
+
             get_renderer().render(
-                artifact_id, render_content, "report",
+                artifact_id,
+                render_content,
+                "report",
                 title=f"Comparison · {subject_a} vs {subject_b}",
                 scale=scale.value.upper(),
                 depth=_reasoning_depth(tokens),
@@ -571,11 +631,17 @@ class CosmicIntelligence:
         except Exception:
             pass
 
-        _log_artifact({
-            "artifact_id": artifact_id, "type": "comparison",
-            "subject_a": subject_a, "subject_b": subject_b,
-            "scale": scale.value, "tokens": tokens, "timestamp": timestamp,
-        })
+        _log_artifact(
+            {
+                "artifact_id": artifact_id,
+                "type": "comparison",
+                "subject_a": subject_a,
+                "subject_b": subject_b,
+                "scale": scale.value,
+                "tokens": tokens,
+                "timestamp": timestamp,
+            }
+        )
 
         return ComparisonArtifact(
             subject_a=subject_a,

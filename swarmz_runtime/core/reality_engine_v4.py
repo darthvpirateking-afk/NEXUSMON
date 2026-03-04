@@ -1,11 +1,11 @@
 # SWARMZ Reality-Engine v4
 # Multi-Physics Layering
 
-from typing import Dict, Any
+from typing import Any
 
 
 class PhysicsLayer:
-    def __init__(self, name: str, properties: Dict[str, Any]):
+    def __init__(self, name: str, properties: dict[str, Any]):
         self.name = name
         self.properties = properties
 
@@ -18,7 +18,7 @@ class RealityEngineV4:
         """Add a new physics layer."""
         self.layers.append(layer)
 
-    def adapt_to_layer(self, layer_name: str, entity: Dict[str, Any]) -> Dict[str, Any]:
+    def adapt_to_layer(self, layer_name: str, entity: dict[str, Any]) -> dict[str, Any]:
         """Adapt an entity to a specific physics layer's properties and constraints.
 
         Merges the layer's property overrides into the entity dict and returns
@@ -37,7 +37,7 @@ class RealityEngineV4:
         adapted["active_layer"] = layer_name
         return adapted
 
-    def get_layer_properties(self, layer_name: str) -> Dict[str, Any]:
+    def get_layer_properties(self, layer_name: str) -> dict[str, Any]:
         """Retrieve properties of a specific physics layer."""
         layer = next((l for l in self.layers if l.name == layer_name), None)
         if not layer:

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import threading
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from .config import get_budget_config
 
@@ -58,8 +59,7 @@ class CostTracker:
         mode_limit = get_mode_token_limit(mode)
         if requested_tokens > mode_limit:
             raise BudgetExceededError(
-                f"Mode token budget exceeded for '{mode}': "
-                f"{requested_tokens} > {mode_limit}."
+                f"Mode token budget exceeded for '{mode}': {requested_tokens} > {mode_limit}."
             )
 
         budgets = self._budget_provider()
@@ -68,9 +68,7 @@ class CostTracker:
         global_limit = int(budgets.get("global_max_tokens", 0))
 
         if requested_tokens < 1:
-            raise BudgetExceededError(
-                f"Requested tokens must be >= 1, got {requested_tokens}."
-            )
+            raise BudgetExceededError(f"Requested tokens must be >= 1, got {requested_tokens}.")
         if requested_tokens > per_call_limit:
             raise BudgetExceededError(
                 f"Per-call token budget exceeded: {requested_tokens} > {per_call_limit}."

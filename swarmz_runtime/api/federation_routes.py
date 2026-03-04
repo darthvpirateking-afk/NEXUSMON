@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -15,7 +15,7 @@ _ecosystem = OperatorEcosystem(Path(__file__).resolve().parent.parent.parent)
 class CreateOrganismRequest(BaseModel):
     name: str
     owner_id: str
-    config_json: Dict[str, Any] = Field(default_factory=dict)
+    config_json: dict[str, Any] = Field(default_factory=dict)
 
 
 class LifecycleRequest(BaseModel):
@@ -51,7 +51,7 @@ def list_organisms():
 
 
 @router.post("/federation/organisms/{organism_id}/pause")
-def pause_organism(organism_id: str, payload: Optional[LifecycleRequest] = None):
+def pause_organism(organism_id: str, payload: LifecycleRequest | None = None):
     reason = payload.reason if payload else "operator_command"
     row = _manager.pause_organism(organism_id, reason=reason)
     if not row:
@@ -60,7 +60,7 @@ def pause_organism(organism_id: str, payload: Optional[LifecycleRequest] = None)
 
 
 @router.post("/federation/organisms/{organism_id}/retire")
-def retire_organism(organism_id: str, payload: Optional[LifecycleRequest] = None):
+def retire_organism(organism_id: str, payload: LifecycleRequest | None = None):
     reason = payload.reason if payload else "operator_retire"
     row = _manager.retire_organism(organism_id, reason=reason)
     if not row:

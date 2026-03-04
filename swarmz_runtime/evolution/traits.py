@@ -1,10 +1,10 @@
 """NEXUSMON Trait registry. Traits only increase — additive law."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict
 
-from .stage import EvolutionStage, STAGE_DEFS, STAGE_ORDER
+from .stage import STAGE_DEFS, STAGE_ORDER, EvolutionStage
 
 
 @dataclass
@@ -14,14 +14,14 @@ class TraitDefinition:
     evolution_multiplier: float
 
 
-TRAIT_REGISTRY: Dict[str, TraitDefinition] = {
-    "curiosity":      TraitDefinition("curiosity",      EvolutionStage.ORIGIN,          1.10),
-    "loyalty":        TraitDefinition("loyalty",        EvolutionStage.ORIGIN,          1.05),
-    "aggression":     TraitDefinition("aggression",     EvolutionStage.EMBODIMENT,      1.20),
-    "patience":       TraitDefinition("patience",       EvolutionStage.EMBODIMENT,      1.10),
-    "creativity":     TraitDefinition("creativity",     EvolutionStage.EXECUTION_FRAME, 1.30),
-    "autonomy":       TraitDefinition("autonomy",       EvolutionStage.EXECUTION_FRAME, 1.25),
-    "protectiveness": TraitDefinition("protectiveness", EvolutionStage.MONARCH_SHELL,   1.40),
+TRAIT_REGISTRY: dict[str, TraitDefinition] = {
+    "curiosity": TraitDefinition("curiosity", EvolutionStage.ORIGIN, 1.10),
+    "loyalty": TraitDefinition("loyalty", EvolutionStage.ORIGIN, 1.05),
+    "aggression": TraitDefinition("aggression", EvolutionStage.EMBODIMENT, 1.20),
+    "patience": TraitDefinition("patience", EvolutionStage.EMBODIMENT, 1.10),
+    "creativity": TraitDefinition("creativity", EvolutionStage.EXECUTION_FRAME, 1.30),
+    "autonomy": TraitDefinition("autonomy", EvolutionStage.EXECUTION_FRAME, 1.25),
+    "protectiveness": TraitDefinition("protectiveness", EvolutionStage.MONARCH_SHELL, 1.40),
 }
 
 
@@ -35,10 +35,10 @@ def unlocked_traits(stage: EvolutionStage) -> list[str]:
 
 
 def apply_trait_gain(
-    trait_scores: Dict[str, float],
+    trait_scores: dict[str, float],
     stage: EvolutionStage,
     base_gain: float,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Award trait points to all unlocked traits. Traits never decrease."""
     updated = dict(trait_scores)
     for name in unlocked_traits(stage):

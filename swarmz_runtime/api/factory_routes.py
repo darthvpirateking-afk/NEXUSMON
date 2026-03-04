@@ -1,9 +1,10 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any
 
 from swarmz_runtime.factory import engine
 
@@ -12,7 +13,7 @@ router = APIRouter()
 
 class ArtifactExecutionRequest(BaseModel):
     artifact_id: str
-    parameters: Dict[str, Any] = {}
+    parameters: dict[str, Any] = {}
     operator_key: str
     safe_mode: bool = True
 

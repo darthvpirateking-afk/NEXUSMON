@@ -18,9 +18,7 @@ class GraphExecutor:
 
     def execute_node(self, node_id):
         node = self.graph.get(node_id)
-        if node and all(
-            self.graph[dep]["state"] == "completed" for dep in node["dependencies"]
-        ):
+        if node and all(self.graph[dep]["state"] == "completed" for dep in node["dependencies"]):
             node["state"] = "completed"
             return f"Node {node_id} executed"
         return f"Node {node_id} cannot be executed"
@@ -31,11 +29,7 @@ class GraphMonitor:
         self.graph = graph
 
     def get_active_nodes(self):
-        return [
-            node_id
-            for node_id, data in self.graph.items()
-            if data["state"] == "pending"
-        ]
+        return [node_id for node_id, data in self.graph.items() if data["state"] == "pending"]
 
 
 class GraphReporter:

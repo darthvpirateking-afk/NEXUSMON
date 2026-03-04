@@ -6,8 +6,8 @@
 import logging
 import threading
 from collections import deque
-from datetime import datetime, timezone
-from typing import Any, Deque, Dict, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 from fastapi import APIRouter, Query
 
@@ -17,31 +17,31 @@ router = APIRouter()
 
 # ── In-memory runtime state ───────────────────────────────────────────────────
 _LOCK = threading.Lock()
-_STATE: Dict[str, Any] = {
+_STATE: dict[str, Any] = {
     "status": "running",
-    "started_at": datetime.now(timezone.utc).isoformat(),
+    "started_at": datetime.now(UTC).isoformat(),
     "stopped_at": None,
     "restart_count": 0,
-    "last_heartbeat": datetime.now(timezone.utc).isoformat(),
+    "last_heartbeat": datetime.now(UTC).isoformat(),
 }
 
 # ── In-memory log ring (deque for O(1) append/pop) ───────────────────────────
 _LOG_RING_MAX = 500
-_LOG_RING: Deque[Dict[str, Any]] = deque(maxlen=_LOG_RING_MAX)
+_LOG_RING: deque[dict[str, Any]] = deque(maxlen=_LOG_RING_MAX)
 
 
 def _ts() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _append_log(
     level: str,
     source: str,
     message: str,
-    mission_id: Optional[str] = None,
-    details: Optional[Dict[str, Any]] = None,
+    mission_id: str | None = None,
+    details: dict[str, Any] | None = None,
 ) -> None:
-    entry: Dict[str, Any] = {
+    entry: dict[str, Any] = {
         "timestamp": _ts(),
         "level": level.upper(),
         "source": source,
@@ -56,7 +56,7 @@ def _append_log(
 # ── Runtime state helpers ─────────────────────────────────────────────────────
 
 
-def _get_state() -> Dict[str, Any]:
+def _get_state() -> dict[str, Any]:
     with _LOCK:
         return dict(_STATE)
 
@@ -76,7 +76,7 @@ def _set_status(status: str) -> None:
 
 
 @router.post("/start")
-def start_runtime() -> Dict[str, Any]:
+def start_runtime() -> dict[str, Any]:
     """Start the SWARMZ runtime."""
     _set_status("running")
     _append_log("INFO", "system_control", "Runtime started via API")
@@ -84,7 +84,7 @@ def start_runtime() -> Dict[str, Any]:
 
 
 @router.post("/stop")
-def stop_runtime() -> Dict[str, Any]:
+def stop_runtime() -> dict[str, Any]:
     """Stop the SWARMZ runtime."""
     _set_status("stopped")
     _append_log("INFO", "system_control", "Runtime stopped via API")
@@ -92,7 +92,7 @@ def stop_runtime() -> Dict[str, Any]:
 
 
 @router.post("/restart")
-def restart_runtime() -> Dict[str, Any]:
+def restart_runtime() -> dict[str, Any]:
     """Restart the SWARMZ runtime."""
     with _LOCK:
         _STATE["status"] = "restarting"
@@ -109,7 +109,7 @@ def restart_runtime() -> Dict[str, Any]:
 
 
 @router.get("/status")
-def get_runtime_status() -> Dict[str, Any]:
+def get_runtime_status() -> dict[str, Any]:
     """Get current runtime status."""
     state = _get_state()
     return {
@@ -125,7 +125,7 @@ def get_runtime_status() -> Dict[str, Any]:
 
 
 @router.get("/heartbeat")
-def get_heartbeat() -> Dict[str, Any]:
+def get_heartbeat() -> dict[str, Any]:
     """Return current heartbeat / liveness status."""
     with _LOCK:
         _STATE["last_heartbeat"] = _ts()
@@ -142,10 +142,10 @@ def get_heartbeat() -> Dict[str, Any]:
 def get_logs(
     limit: int = Query(default=50, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
-    level: Optional[str] = Query(default=None),
-    source: Optional[str] = Query(default=None),
-    mission_id: Optional[str] = Query(default=None),
-) -> Dict[str, Any]:
+    level: str | None = Query(default=None),
+    source: str | None = Query(default=None),
+    mission_id: str | None = Query(default=None),
+) -> dict[str, Any]:
     """Return kernel log entries with optional filtering."""
     with _LOCK:
         entries = list(_LOG_RING)

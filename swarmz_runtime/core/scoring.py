@@ -1,10 +1,10 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import Dict, Any, List
+from typing import Any
 
 
-def calculate_leverage_score(mission: Dict[str, Any]) -> float:
+def calculate_leverage_score(mission: dict[str, Any]) -> float:
     category = mission.get("category", "forge")
     constraints = mission.get("constraints", {})
 
@@ -21,7 +21,7 @@ def calculate_leverage_score(mission: Dict[str, Any]) -> float:
     return max(0, min(100, score))
 
 
-def rank_missions(missions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def rank_missions(missions: list[dict[str, Any]]) -> list[dict[str, Any]]:
     scored = []
     for mission in missions:
         score = calculate_leverage_score(mission)
@@ -31,7 +31,7 @@ def rank_missions(missions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return sorted(scored, key=lambda x: x["leverage_score"], reverse=True)
 
 
-def calculate_expected_value(mission: Dict[str, Any]) -> float:
+def calculate_expected_value(mission: dict[str, Any]) -> float:
     category = mission.get("category", "forge")
 
     value_map = {"coin": 10.0, "forge": 5.0, "library": 2.0, "sanctuary": 1.0}
@@ -39,7 +39,7 @@ def calculate_expected_value(mission: Dict[str, Any]) -> float:
     return value_map.get(category, 0.0)
 
 
-def should_execute(mission: Dict[str, Any]) -> bool:
+def should_execute(mission: dict[str, Any]) -> bool:
     ev = calculate_expected_value(mission)
     is_research = mission.get("category") == "library"
 

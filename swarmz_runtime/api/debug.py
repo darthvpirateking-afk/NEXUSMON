@@ -8,25 +8,28 @@ Provides storage health checks and diagnostic info accessible at
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Callable, Dict
+from typing import Any
 
 from fastapi import APIRouter
+
 from swarmz_runtime.core.engine import SwarmzEngine
 from swarmz_runtime.storage.jsonl_utils import read_jsonl
 
 router = APIRouter()
 
-get_engine: Callable[[], SwarmzEngine] = lambda: SwarmzEngine()
+
+def get_engine() -> SwarmzEngine:
+    return SwarmzEngine()
 
 
 @router.get("/storage_check")
-def storage_check() -> Dict[str, Any]:
+def storage_check() -> dict[str, Any]:
     """Return a diagnostic summary of all JSONL / JSON storage files."""
     engine = get_engine()
     db = engine.db
     data_dir = db.data_dir
 
-    def _check_jsonl(path: Path) -> Dict[str, Any]:
+    def _check_jsonl(path: Path) -> dict[str, Any]:
         if not path.exists():
             return {"exists": False, "rows": 0, "size_bytes": 0}
         rows = read_jsonl(path)
@@ -36,7 +39,7 @@ def storage_check() -> Dict[str, Any]:
             "size_bytes": path.stat().st_size,
         }
 
-    def _check_json(path: Path) -> Dict[str, Any]:
+    def _check_json(path: Path) -> dict[str, Any]:
         if not path.exists():
             return {"exists": False, "size_bytes": 0}
         try:

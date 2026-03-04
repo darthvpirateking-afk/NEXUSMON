@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List
 
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
@@ -15,8 +14,8 @@ class FusionRegisterRequest(BaseModel):
     owner: str = "operator"
     source: str = "operator_input"
     summary: str
-    tags: List[str] = Field(default_factory=list)
-    linked_docs: List[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    linked_docs: list[str] = Field(default_factory=list)
 
 
 @router.post("/fusion/register")

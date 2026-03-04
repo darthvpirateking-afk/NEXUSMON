@@ -11,15 +11,15 @@ these recommendations into missions or external orchestrator calls.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 
 def compute_autoscale_recommendations(
-    overview: Dict[str, Any],
+    overview: dict[str, Any],
     target_cpu: float = 0.6,
     max_cpu: float = 0.85,
     min_cpu: float = 0.15,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Compute simple autoscaling-style hints from an infra overview.
 
     Rules (intentionally simple and explanation-first):
@@ -42,14 +42,14 @@ def compute_autoscale_recommendations(
             "nodes": [],
         }
 
-    plan_nodes: List[Dict[str, Any]] = []
+    plan_nodes: list[dict[str, Any]] = []
     hot = 0
     cold = 0
 
     for node in nodes:
         node_id = str(node.get("node_id") or "unknown")
         avg_cpu = node.get("avg_cpu")
-        entry: Dict[str, Any] = {"node_id": node_id, "avg_cpu": avg_cpu}
+        entry: dict[str, Any] = {"node_id": node_id, "avg_cpu": avg_cpu}
 
         # Nodes without CPU data are left as "unknown".
         if not isinstance(avg_cpu, (int, float)):

@@ -17,7 +17,7 @@ class BattleChip:
     visual_effect: str
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "BattleChip":
+    def from_dict(cls, payload: dict[str, Any]) -> BattleChip:
         return cls(
             chip_id=str(payload.get("id", "")).strip(),
             category=str(payload.get("category", "unknown")).strip(),
@@ -30,7 +30,9 @@ class BattleChip:
             visual_effect=str(payload.get("visual_effect", "none")),
         )
 
-    def execute(self, stats: dict[str, float], current_form: str, monarch_mode: bool) -> dict[str, Any]:
+    def execute(
+        self, stats: dict[str, float], current_form: str, monarch_mode: bool
+    ) -> dict[str, Any]:
         return {
             "chip": self.chip_id,
             "category": self.category,

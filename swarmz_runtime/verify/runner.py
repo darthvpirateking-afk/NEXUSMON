@@ -4,7 +4,7 @@
 import json
 import time
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 from swarmz_runtime.verify import provenance
 
@@ -27,7 +27,7 @@ def _read_jsonl(path: Path) -> list:
     return rows
 
 
-def replay_audit(audit_path: Path | None = None) -> Dict[str, Any]:
+def replay_audit(audit_path: Path | None = None) -> dict[str, Any]:
     audit_path = audit_path or (DATA_DIR / "audit.jsonl")
     entries = _read_jsonl(audit_path)
     state = {
@@ -46,7 +46,7 @@ def replay_audit(audit_path: Path | None = None) -> Dict[str, Any]:
     return state
 
 
-def verify_invariants(data_dir: Path = DATA_DIR) -> Dict[str, Any]:
+def verify_invariants(data_dir: Path = DATA_DIR) -> dict[str, Any]:
     missions = _read_jsonl(data_dir / "missions.jsonl")
     seen = set()
     dupes = []
@@ -69,7 +69,7 @@ def verify_invariants(data_dir: Path = DATA_DIR) -> Dict[str, Any]:
     }
 
 
-def run_verify() -> Dict[str, Any]:
+def run_verify() -> dict[str, Any]:
     started = time.time()
     replay_state = replay_audit()
     invariants = verify_invariants()
@@ -90,7 +90,7 @@ def run_verify() -> Dict[str, Any]:
     return report
 
 
-def run_status() -> Dict[str, Any]:
+def run_status() -> dict[str, Any]:
     chain_ok, count = provenance.verify_chain()
     latest_report = None
     reports = sorted(VERIFY_DIR.glob("report-*.json"))
@@ -103,7 +103,7 @@ def run_status() -> Dict[str, Any]:
     }
 
 
-def verify_kernel_integrity(strict: bool = True) -> Dict[str, Any]:
+def verify_kernel_integrity(strict: bool = True) -> dict[str, Any]:
     """Perform strict kernel integrity validation."""
     started = time.time()
     issues = []

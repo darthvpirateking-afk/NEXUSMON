@@ -1,15 +1,16 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
 
 from galileo.run import run_galileo
 from galileo.storage import ensure_storage
 from swarmz_runtime.api.galileo_storage_shim import (
-    read_hypotheses,
     read_experiments,
+    read_hypotheses,
     read_runs,
 )
 
@@ -23,11 +24,9 @@ class GalileoRunBody(BaseModel):
 
 
 @router.post("/run")
-def galileo_run(body: GalileoRunBody) -> Dict[str, Any]:
+def galileo_run(body: GalileoRunBody) -> dict[str, Any]:
     ensure_storage()
-    result = run_galileo(
-        domain=body.domain, seed=body.seed, n_hypotheses=body.n_hypotheses
-    )
+    result = run_galileo(domain=body.domain, seed=body.seed, n_hypotheses=body.n_hypotheses)
 
     # Expect run_galileo to return a dict-like result.
     return {
@@ -39,8 +38,8 @@ def galileo_run(body: GalileoRunBody) -> Dict[str, Any]:
 
 @router.get("/hypotheses")
 def galileo_hypotheses(
-    domain: Optional[str] = None, status: Optional[str] = None
-) -> List[Dict[str, Any]]:
+    domain: str | None = None, status: str | None = None
+) -> list[dict[str, Any]]:
     ensure_storage()
     items = read_hypotheses()
     if domain:
@@ -51,7 +50,7 @@ def galileo_hypotheses(
 
 
 @router.get("/experiments")
-def galileo_experiments(status: Optional[str] = None) -> List[Dict[str, Any]]:
+def galileo_experiments(status: str | None = None) -> list[dict[str, Any]]:
     ensure_storage()
     items = read_experiments()
     if status:
@@ -60,7 +59,7 @@ def galileo_experiments(status: Optional[str] = None) -> List[Dict[str, Any]]:
 
 
 @router.get("/runs/{run_id}")
-def galileo_run_get(run_id: str) -> Dict[str, Any]:
+def galileo_run_get(run_id: str) -> dict[str, Any]:
     ensure_storage()
     items = read_runs()
     for r in items:

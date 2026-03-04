@@ -81,6 +81,4 @@ class AvatarOmegaPlus(AvatarOmega):
 
     def orchestrate_formations(self, formation_type: str):
         """Orchestrate emergent formations visually."""
-        return (
-            f"Orchestrating {formation_type} formation in cosmology: {self.cosmology}"
-        )
+        return f"Orchestrating {formation_type} formation in cosmology: {self.cosmology}"
