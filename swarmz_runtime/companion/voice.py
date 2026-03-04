@@ -51,6 +51,45 @@ _TIER_LABEL: dict[str, str] = {
     "guardian": "MONITOR",
 }
 
+# ---------------------------------------------------------------------------
+# Cosmic keyword routing
+# ---------------------------------------------------------------------------
+
+_COSMIC_KEYWORDS: frozenset[str] = frozenset([
+    "universe", "cosmos", "galaxy", "star", "planet", "history",
+    "civilization", "ancient", "future", "time", "quantum", "physics",
+    "evolution", "earth", "space", "dimension", "reality", "consciousness",
+    "existence", "origin", "creation", "past", "timeline", "scale",
+    "multiverse", "biology", "chemistry", "nature",
+])
+
+_KEYWORD_SCALE_MAP: list[tuple[frozenset[str], str]] = [
+    (frozenset({"quantum", "particle", "wave", "superposition", "entanglement"}), "quantum"),
+    (frozenset({"history", "ancient", "civilization", "empire", "dynasty"}), "civilizational"),
+    (frozenset({"galaxy", "galactic", "milky"}), "galactic"),
+    (frozenset({"star", "stellar", "supernova", "neutron"}), "stellar"),
+    (frozenset({"universe", "cosmos", "cosmic", "big bang", "dark matter", "dark energy"}), "cosmic"),
+    (frozenset({"past", "future", "timeline", "deep time", "billion years"}), "temporal"),
+    (frozenset({"multiverse", "string theory", "bubble universe"}), "multiversal"),
+    (frozenset({"planet", "earth", "geology", "ecology"}), "planetary"),
+    (frozenset({"biology", "chemistry", "molecule", "cell"}), "molecular"),
+]
+
+
+def _is_cosmic_prompt(prompt: str, mode: str) -> bool:
+    if mode != "strategic":
+        return False
+    prompt_lower = prompt.lower()
+    return any(kw in prompt_lower for kw in _COSMIC_KEYWORDS)
+
+
+def _detect_scale(prompt: str) -> str:
+    prompt_lower = prompt.lower()
+    for keyword_set, scale in _KEYWORD_SCALE_MAP:
+        if any(kw in prompt_lower for kw in keyword_set):
+            return scale
+    return "human"
+
 
 @dataclass
 class CompanionResponse:
@@ -59,15 +98,25 @@ class CompanionResponse:
     tier_used: str
     tokens: int
     latency_ms: float
+    scale_used: str | None = None
+    depth: str | None = None
+    worldspace_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        d: dict[str, Any] = {
             "reply": self.reply,
             "mode": self.mode,
             "tier_used": self.tier_used,
             "tokens": self.tokens,
             "latency_ms": round(self.latency_ms, 2),
         }
+        if self.scale_used is not None:
+            d["scale_used"] = self.scale_used
+        if self.depth is not None:
+            d["depth"] = self.depth
+        if self.worldspace_id is not None:
+            d["worldspace_id"] = self.worldspace_id
+        return d
 
 
 def _store_artifact(response: CompanionResponse, prompt: str) -> None:
@@ -142,6 +191,51 @@ async def generate_response(
         )
         _store_artifact(response, prompt)
         return response
+
+    # Cosmic routing — strategic + cosmic keywords → CosmicIntelligence
+    if _is_cosmic_prompt(prompt, mode):
+        try:
+            from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+            scale = _detect_scale(prompt)
+            ci = get_cosmic_intelligence()
+            cosmic_resp = ci.query(prompt, scale, mode)
+            latency_ms = (time.perf_counter() - start) * 1000.0
+
+            # Auto-add to WorldSpace
+            ws_id: str | None = None
+            try:
+                import uuid as _uuid
+                from swarmz_runtime.intelligence.worldspace import WorldSpaceEntry, get_world_space
+                from swarmz_runtime.intelligence.cosmic import ScaleLevel
+                ws_entry = WorldSpaceEntry(
+                    entry_id=_uuid.uuid4().hex[:16],
+                    subject=prompt[:120],
+                    scale=ScaleLevel(scale),
+                    content=cosmic_resp.content,
+                    connections=[],
+                    timestamp=datetime.now(timezone.utc).isoformat(),
+                    operator="Regan Harris",
+                    tags=[scale, mode],
+                    depth=cosmic_resp.reasoning_depth,
+                )
+                ws_id = get_world_space().add(ws_entry)
+            except Exception:
+                pass
+
+            response = CompanionResponse(
+                reply=cosmic_resp.content,
+                mode=mode,
+                tier_used="CORTEX",
+                tokens=cosmic_resp.tokens_used,
+                latency_ms=latency_ms,
+                scale_used=scale,
+                depth=cosmic_resp.reasoning_depth,
+                worldspace_id=ws_id,
+            )
+            _store_artifact(response, prompt)
+            return response
+        except Exception:
+            pass  # Fall through to standard bridge on any cosmic routing error
 
     from swarmz_runtime.bridge.llm import call_v2
     from swarmz_runtime.bridge.mode import GuardianCallBlocked

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{TITLE}}</title>
+<style>
+  body { background:#0D1117; color:#F0F6FC; font-family:Consolas,'Courier New',monospace; padding:36px 44px; max-width:900px; margin:0 auto; line-height:1.7; }
+  h1 { color:#00B4D8; font-size:1.25rem; margin-bottom:10px; }
+  .badges { display:flex; gap:8px; margin-bottom:24px; }
+  .badge { padding:2px 12px; border-radius:4px; font-size:0.76rem; font-weight:700; letter-spacing:0.06em; }
+  .bs { background:#00B4D8; color:#0D1117; } .bd { background:#8957E5; color:#F0F6FC; }
+  .content { font-size:0.9rem; white-space:pre-wrap; border-left:3px solid #00B4D8; padding-left:18px; margin:20px 0; }
+  .meta { color:#8B949E; font-size:0.76rem; border-top:1px solid #21262D; padding-top:12px; margin-top:20px; }
+  footer { margin-top:20px; text-align:center; color:#30363D; font-size:0.70rem; }
+</style>
+</head>
+<body>
+<h1>{{TITLE}}</h1>
+<div class="badges"><span class="badge bs">{{SCALE}}</span><span class="badge bd">{{DEPTH}}</span></div>
+<div class="content">{{CONTENT}}</div>
+<div class="meta">Operator: {{OPERATOR}} &nbsp;|&nbsp; {{TIMESTAMP}} &nbsp;|&nbsp; {{ARTIFACT_ID}}</div>
+<footer>◈ NEXUSMON · REPORT · v2.1.0</footer>
+</body>
+</html>

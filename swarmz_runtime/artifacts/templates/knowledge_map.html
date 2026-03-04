@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --bg: #0D1117;
+    --surface: #161B22;
+    --border: #21262D;
+    --cyan: #00B4D8;
+    --purple: #8957E5;
+    --gold: #FFD700;
+    --text: #F0F6FC;
+    --muted: #8B949E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: Consolas, 'Courier New', monospace; overflow: hidden; }
+  h2 { position: absolute; top: 16px; left: 20px; color: var(--cyan); font-size: 1rem; letter-spacing: 0.06em; z-index: 10; }
+  .sub { position: absolute; top: 42px; left: 20px; color: var(--muted); font-size: 0.76rem; z-index: 10; }
+  #graph { width: 100vw; height: 100vh; }
+  .node circle { stroke: #0D1117; stroke-width: 2; cursor: pointer; }
+  .node text { fill: var(--text); font-size: 10px; pointer-events: none; }
+  .link { stroke: #21262D; stroke-opacity: 0.5; }
+  #tooltip {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: var(--text);
+    max-width: 280px;
+    pointer-events: none;
+    display: none;
+    z-index: 100;
+  }
+  .legend { position: absolute; bottom: 20px; left: 20px; font-size: 0.72rem; color: var(--muted); }
+  .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  footer { position: absolute; bottom: 10px; right: 20px; color: #30363D; font-size: 0.68rem; }
+</style>
+</head>
+<body>
+<h2>WORLD SPACE · KNOWLEDGE MAP</h2>
+<div class="sub">{{SCALE}} · {{TIMESTAMP}}</div>
+<svg id="graph"></svg>
+<div id="tooltip"></div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#00B4D8"></div>quantum</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4EF2C5"></div>molecular / human</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FFB020"></div>civilizational / planetary</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FF6B35"></div>stellar / galactic</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#8957E5"></div>cosmic / multiversal</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FFD700"></div>temporal</div>
+</div>
+<footer>◈ NEXUSMON · WORLD SPACE · v2.1.0</footer>
+<script>
+const SCALE_COLORS = {
+  quantum: '#00B4D8', molecular: '#4EF2C5', human: '#4EF2C5',
+  civilizational: '#FFB020', planetary: '#FFB020',
+  stellar: '#FF6B35', galactic: '#FF6B35',
+  cosmic: '#8957E5', multiversal: '#8957E5',
+  temporal: '#FFD700',
+};
+function nodeColor(scale) { return SCALE_COLORS[scale] || '#8B949E'; }
+
+// Graph data injected as JSON in CONTENT placeholder
+let graphData = { nodes: [], edges: [] };
+try {
+  const raw = `{{CONTENT}}`;
+  graphData = JSON.parse(raw);
+} catch(e) {}
+
+const nodes = (graphData.nodes || []).map(n => ({ ...n }));
+const links = (graphData.edges || []).map(e => ({
+  source: e.entry_a || e.source,
+  target: e.entry_b || e.target,
+  relationship: e.relationship || '',
+}));
+
+const svg = d3.select('#graph');
+const w = window.innerWidth, h = window.innerHeight;
+svg.attr('width', w).attr('height', h);
+const g = svg.append('g');
+
+svg.call(d3.zoom().on('zoom', e => g.attr('transform', e.transform)));
+
+const sim = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links).id(d => d.id).distance(80))
+  .force('charge', d3.forceManyBody().strength(-120))
+  .force('center', d3.forceCenter(w / 2, h / 2));
+
+const link = g.append('g').selectAll('line').data(links).join('line')
+  .attr('class', 'link').attr('stroke-width', 1.2);
+
+const node = g.append('g').selectAll('g').data(nodes).join('g')
+  .attr('class', 'node')
+  .call(d3.drag()
+    .on('start', (e, d) => { if (!e.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+    .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+    .on('end', (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
+
+node.append('circle')
+  .attr('r', d => 6 + Math.min((d.connection_count || 0) * 2, 16))
+  .attr('fill', d => nodeColor(d.scale))
+  .attr('fill-opacity', 0.85)
+  .on('mouseover', (e, d) => {
+    const t = document.getElementById('tooltip');
+    t.style.display = 'block';
+    t.style.left = (e.pageX + 12) + 'px';
+    t.style.top = (e.pageY - 10) + 'px';
+    t.innerHTML = `<strong style="color:#00B4D8">${d.label || d.id}</strong><br>Scale: ${d.scale}<br>Depth: ${d.depth}<br>Connections: ${d.connection_count || 0}`;
+  })
+  .on('mouseout', () => { document.getElementById('tooltip').style.display = 'none'; });
+
+node.append('text').attr('x', 14).attr('y', 4)
+  .text(d => (d.label || d.id || '').substring(0, 24));
+
+sim.on('tick', () => {
+  link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+  node.attr('transform', d => `translate(${d.x},${d.y})`);
+});
+</script>
+</body>
+</html>

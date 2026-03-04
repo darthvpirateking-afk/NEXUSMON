@@ -29,7 +29,7 @@ AI organism. You build it additively. You never overwrite. You never drift.
 Location:  e:\NEXUSMON-main\NEXUSMON-main-backup-20260227-224154\
 Branch:    evolution/evolution_controller_install
 Stack:     Python 3.11 · FastAPI · Pydantic v2 · LiteLLM · React · Vite · TypeScript strict
-Tests:     pytest (operator runs manually) · last clean: 1156 passed, 1 skipped, 0 failed
+Tests:     pytest (operator runs manually) · last clean: 1483 passed, 20 skipped, 0 failed
 ```
 
 ---
@@ -266,8 +266,11 @@ Enforced in `swarmz_runtime/bridge/mode.py`. Never bypass.
 | EF — Execution Frame | ✅ | SwarmCoordinator, ShadowExecutor, CombatProtocol, FederationCouncil, cockpit wiring |
 | MS — Monarch Shell | ✅ | KernelShift, SealMatrix, CommandFusion, OperatorMemory — 14 endpoints, MonarchPage |
 | ZP — Zero-Point Form | ✅ | ZeroPointOverride, QuantumDoctrine, AutonomyEngine — 13 endpoints, ZeroPointPage |
+| v2.1.0 — Artifact Intelligence Engine | ✅ | ArtifactRenderer (8 routes) · CosmicIntelligence (10 scales, 4 routes) · WorldSpace (6 routes) · Cosmic voice routing · 8 HTML templates (D3.js knowledge map) · CosmicPage cockpit · Cosmic XP + COSMIC SIGHT unlock — 107 new tests |
 
-**Last test run: 1483 passed, 1 skipped, 0 failed**
+**Next: v2.2.0 — Deployment + Mobile**
+
+**Last test run: 1483 passed, 20 skipped, 0 failed**
 
 ---
 

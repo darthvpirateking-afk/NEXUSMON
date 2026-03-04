@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<style>
+  :root {
+    --bg: #0D1117;
+    --surface: #161B22;
+    --border: #21262D;
+    --cyan: #00B4D8;
+    --purple: #8957E5;
+    --gold: #FFD700;
+    --text: #F0F6FC;
+    --muted: #8B949E;
+    --dim: #30363D;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Consolas, 'Courier New', monospace;
+    padding: 40px 48px;
+    max-width: 960px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+  }
+  h1 {
+    color: var(--cyan);
+    font-size: 1.4rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+  .badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 14px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .badge-scale { background: var(--cyan); color: #0D1117; }
+  .badge-depth { background: var(--purple); color: var(--text); }
+  .badge-format { background: var(--gold); color: #0D1117; }
+  .content {
+    margin: 28px 0;
+    font-size: 0.93rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border-left: 3px solid var(--cyan);
+    padding-left: 20px;
+  }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .meta {
+    color: var(--muted);
+    font-size: 0.78rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .meta span strong { color: var(--text); }
+  footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--dim);
+    text-align: center;
+    color: var(--dim);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+  footer span { color: var(--cyan); }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>{{TITLE}}</h1>
+  <div class="badges">
+    <span class="badge badge-scale">{{SCALE}}</span>
+    <span class="badge badge-depth">{{DEPTH}}</span>
+    <span class="badge badge-format">COSMIC REPORT</span>
+  </div>
+</div>
+<div class="content">{{CONTENT}}</div>
+<hr class="divider">
+<div class="meta">
+  <span>Operator: <strong>{{OPERATOR}}</strong></span>
+  <span>Artifact: <strong>{{ARTIFACT_ID}}</strong></span>
+  <span>Rendered: <strong>{{TIMESTAMP}}</strong></span>
+</div>
+<footer>
+  <span>◈</span> NEXUSMON &middot; ARTIFACT INTELLIGENCE ENGINE &middot; v2.1.0 <span>◈</span>
+</footer>
+</body>
+</html>

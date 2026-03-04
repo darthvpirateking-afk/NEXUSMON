@@ -101,6 +101,95 @@ def _check_advance(agent_id: str) -> None:
         _check_advance(agent_id)
 
 
+# ---------------------------------------------------------------------------
+# Cosmic XP table
+# ---------------------------------------------------------------------------
+
+_COSMIC_XP_TABLE: dict[tuple[str, str | None], int] = {
+    ("query", "SURFACE"): 100,
+    ("query", "DEEP"): 250,
+    ("query", "PROFOUND"): 500,
+    ("deep_query", None): 750,
+    ("timeline", None): 200,
+    ("worldspace_add", None): 50,
+    ("worldspace_connect", None): 75,
+    ("worldspace_synthesize", None): 300,
+}
+
+_COSMIC_TRAIT_GAINS: dict[str, dict[str, int]] = {
+    "query": {"curiosity": 3},
+    "deep_query": {"curiosity": 3, "creativity": 2},
+    "timeline": {"curiosity": 2},
+    "worldspace_synthesize": {"creativity": 2},
+}
+
+_COSMIC_SIGHT_THRESHOLD = 10
+
+
+def award_cosmic_xp(
+    agent_id: str,
+    action: str,
+    depth: str | None = None,
+    year_span: int | None = None,
+) -> EvolutionState:
+    """Award XP for a cosmic intelligence action. Additive. Tracks COSMIC SIGHT unlock."""
+    # Determine XP amount
+    key = (action, depth)
+    xp = _COSMIC_XP_TABLE.get(key)
+    if xp is None:
+        xp = _COSMIC_XP_TABLE.get((action, None), 0)
+
+    # Trait gains
+    trait_deltas: dict[str, int] = dict(_COSMIC_TRAIT_GAINS.get(action, {}))
+    if depth == "PROFOUND":
+        trait_deltas["patience"] = trait_deltas.get("patience", 0) + 1
+    if year_span is not None and abs(year_span) >= 1_000_000_000:
+        trait_deltas["autonomy"] = trait_deltas.get("autonomy", 0) + 2
+
+    with _LOCK:
+        if agent_id not in _STATES:
+            _STATES[agent_id] = _load_state(agent_id)
+        state = _STATES[agent_id]
+
+        # Track cosmic_query_count for COSMIC SIGHT
+        cosmic_count = state.trait_scores.get("cosmic_query_count", 0)
+        if action in ("query", "deep_query"):
+            cosmic_count += 1
+            state.trait_scores["cosmic_query_count"] = cosmic_count
+
+        # Apply trait deltas directly
+        for trait, delta in trait_deltas.items():
+            if trait == "cosmic_query_count":
+                continue
+            state.trait_scores[trait] = state.trait_scores.get(trait, 0.0) + delta
+
+        if xp > 0:
+            state.xp += xp
+            state.history.append({
+                "event": "cosmic_xp_awarded",
+                "action": action,
+                "depth": depth,
+                "amount": xp,
+                "total_xp": state.xp,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            })
+
+        # COSMIC SIGHT unlock
+        if cosmic_count >= _COSMIC_SIGHT_THRESHOLD and not state.trait_scores.get("cosmic_sight"):
+            state.trait_scores["cosmic_sight"] = True
+            state.history.append({
+                "event": "cosmic_sight_unlocked",
+                "cosmic_query_count": cosmic_count,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            })
+
+        _persist(state)
+
+    if xp > 0:
+        _check_advance(agent_id)
+    return get_state(agent_id)
+
+
 def award_xp(agent_id: str, amount: int, source: str) -> EvolutionState:
     """Award XP to agent, grow traits, check stage advance. All additive."""
     if amount <= 0:

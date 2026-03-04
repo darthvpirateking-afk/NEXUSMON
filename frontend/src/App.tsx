@@ -28,6 +28,7 @@ import { NexusmonConsolePage } from "./pages/NexusmonConsolePage";
 import { NexusmonPage } from "./pages/NexusmonPage";
 import { MonarchPage } from "./pages/MonarchPage";
 import { ZeroPointPage } from "./pages/ZeroPointPage";
+import { CosmicPage } from "./pages/CosmicPage";
 import { systemApi } from "./api/system";
 import { colors, spacing, radii, typography, shadows } from "./theme/cosmicTokens";
 
@@ -54,7 +55,8 @@ type PageId =
   | "chat"
   | "console"
   | "monarch"
-  | "zeropoint";
+  | "zeropoint"
+  | "cosmic";
 
 interface NavItem {
   id: PageId;
@@ -79,6 +81,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "console",   icon: "⬡",  label: "Console" },
   { id: "monarch",   icon: "✸",  label: "Monarch" },
   { id: "zeropoint", icon: "◈",  label: "Zero-Point" },
+  { id: "cosmic",    icon: "✦",  label: "Cosmic" },
 ];
 
 export default function App() {
@@ -236,6 +239,8 @@ function PageContent({ activePage }: { activePage: PageId }) {
       return <MonarchPage />;
     case "zeropoint":
       return <ZeroPointPage />;
+    case "cosmic":
+      return <CosmicPage />;
     default:
       return <NexusmonEntityPanel />;
   }

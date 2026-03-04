@@ -3490,6 +3490,207 @@ if os.path.exists(frontend_build) and os.path.exists(frontend_assets):
         return FileResponse(index)
 
 
+# --- WorldSpace routes ---
+
+@app.post("/v1/worldspace/add", operation_id="nexus_worldspace_add")
+async def worldspace_add(payload: dict):
+    """Add entry to WorldSpace. body: {subject, scale, content, tags?, depth?}"""
+    try:
+        import uuid as _uuid
+        from datetime import datetime as _dt, timezone as _tz
+        from swarmz_runtime.intelligence.worldspace import WorldSpaceEntry, get_world_space
+        from swarmz_runtime.intelligence.cosmic import ScaleLevel
+        entry = WorldSpaceEntry(
+            entry_id=payload.get("entry_id") or _uuid.uuid4().hex[:16],
+            subject=payload.get("subject", ""),
+            scale=ScaleLevel(payload.get("scale", "human")),
+            content=payload.get("content", ""),
+            connections=payload.get("connections", []),
+            timestamp=payload.get("timestamp") or _dt.now(_tz.utc).isoformat(),
+            operator=payload.get("operator", "Regan Harris"),
+            tags=payload.get("tags", []),
+            depth=payload.get("depth", "SURFACE"),
+        )
+        eid = get_world_space().add(entry)
+        return {"ok": True, "entry_id": eid}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/worldspace/search", operation_id="nexus_worldspace_search")
+async def worldspace_search(q: str = "", scale: str | None = None):
+    """Search WorldSpace entries. ?q=...&scale=..."""
+    try:
+        from swarmz_runtime.intelligence.worldspace import get_world_space
+        results = get_world_space().search(q, scale)
+        return {"ok": True, "results": [r.to_dict() for r in results], "count": len(results)}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/worldspace/connect", operation_id="nexus_worldspace_connect")
+async def worldspace_connect(payload: dict):
+    """Connect two WorldSpace entries. body: {entry_a, entry_b, relationship}"""
+    try:
+        from swarmz_runtime.intelligence.worldspace import get_world_space
+        result = get_world_space().connect(
+            payload.get("entry_a", ""),
+            payload.get("entry_b", ""),
+            payload.get("relationship", "related"),
+        )
+        return result
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/worldspace/synthesize", operation_id="nexus_worldspace_synthesize")
+async def worldspace_synthesize(payload: dict):
+    """Synthesize multiple entries. body: {entry_ids: [...]}"""
+    try:
+        from swarmz_runtime.intelligence.worldspace import get_world_space
+        result = get_world_space().synthesize(payload.get("entry_ids", []))
+        return {"ok": True, "synthesis": result.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/worldspace/map", operation_id="nexus_worldspace_map")
+async def worldspace_map():
+    """Return full WorldSpace knowledge graph."""
+    try:
+        from swarmz_runtime.intelligence.worldspace import get_world_space
+        return {"ok": True, "graph": get_world_space().map()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/worldspace/export", operation_id="nexus_worldspace_export")
+async def worldspace_export():
+    """Export full WorldSpace as portable archive."""
+    try:
+        from swarmz_runtime.intelligence.worldspace import get_world_space
+        return {"ok": True, "export": get_world_space().export()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+# --- Cosmic Intelligence routes ---
+
+@app.post("/v1/intelligence/cosmic/query", operation_id="nexus_cosmic_query")
+async def cosmic_query(payload: dict):
+    """Single-scale cosmic reasoning. body: {prompt, scale, mode}"""
+    try:
+        from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+        ci = get_cosmic_intelligence()
+        resp = ci.query(payload.get("prompt", ""), payload.get("scale", "human"), payload.get("mode", "strategic"))
+        return {"ok": True, "response": resp.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/intelligence/cosmic/deep-query", operation_id="nexus_cosmic_deep_query")
+async def cosmic_deep_query(payload: dict):
+    """Multi-scale cosmic reasoning. body: {prompt, scales: [...], mode}"""
+    try:
+        from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+        ci = get_cosmic_intelligence()
+        resp = await ci.deep_query(payload.get("prompt", ""), payload.get("scales", ["human", "cosmic"]), payload.get("mode", "strategic"))
+        return {"ok": True, "response": resp.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/intelligence/cosmic/timeline", operation_id="nexus_cosmic_timeline")
+async def cosmic_timeline(payload: dict):
+    """Generate a timeline artifact. body: {subject, start_year, end_year}"""
+    try:
+        from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+        ci = get_cosmic_intelligence()
+        result = ci.timeline(payload.get("subject", ""), int(payload.get("start_year", 0)), int(payload.get("end_year", 2026)))
+        return {"ok": True, "timeline": result.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/intelligence/cosmic/compare", operation_id="nexus_cosmic_compare")
+async def cosmic_compare(payload: dict):
+    """Compare two subjects at a given scale. body: {subject_a, subject_b, scale}"""
+    try:
+        from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+        ci = get_cosmic_intelligence()
+        result = ci.compare(payload.get("subject_a", ""), payload.get("subject_b", ""), payload.get("scale", "human"))
+        return {"ok": True, "comparison": result.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+# --- Artifact Renderer routes ---
+
+@app.get("/v1/artifacts/{artifact_id}/render/{format}", operation_id="nexus_artifact_render_get")
+async def artifact_render_get(artifact_id: str, format: str):
+    """Render an artifact to HTML using format-specific template."""
+    try:
+        from swarmz_runtime.artifacts.renderer import get_renderer
+        renders = [x for x in get_renderer().list_renders(artifact_id) if x.format == format]
+        if renders:
+            from pathlib import Path as _Path
+            html = _Path(renders[-1].output_path).read_text(encoding="utf-8")
+            from fastapi.responses import HTMLResponse
+            return HTMLResponse(content=html)
+        return {"ok": False, "error": "No render found. POST to /v1/artifacts/render first."}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/artifacts/{artifact_id}/renders", operation_id="nexus_artifact_list_renders")
+async def artifact_list_renders(artifact_id: str):
+    """List all rendered outputs for an artifact."""
+    try:
+        from swarmz_runtime.artifacts.renderer import get_renderer
+        renders = get_renderer().list_renders(artifact_id)
+        return {"ok": True, "artifact_id": artifact_id, "renders": [r.to_dict() for r in renders]}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/artifacts/render", operation_id="nexus_artifact_render_direct")
+async def artifact_render_direct(payload: dict):
+    """Render content directly to HTML. body: {content, format, title?, artifact_id?, scale?, depth?}"""
+    try:
+        from swarmz_runtime.artifacts.renderer import get_renderer
+        r = get_renderer()
+        content = payload.get("content", "")
+        fmt = payload.get("format", "html")
+        title = payload.get("title", "NEXUSMON Artifact")
+        scale = payload.get("scale", "—")
+        depth = payload.get("depth", "—")
+        operator = payload.get("operator", "Regan Harris")
+        artifact_id = payload.get("artifact_id")
+        if artifact_id:
+            result = r.render(artifact_id, content, fmt, title, scale, depth, operator)
+        else:
+            result = r.render_direct(content, fmt, title, scale, depth, operator)
+        return {"ok": True, "render": result.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/artifacts/templates/{name}", operation_id="nexus_artifact_template_serve")
+async def artifact_template_serve(name: str):
+    """Serve a raw HTML template file."""
+    try:
+        from pathlib import Path as _Path
+        template_path = _Path("swarmz_runtime/artifacts/templates") / name
+        if not template_path.suffix:
+            template_path = template_path.with_suffix(".html")
+        if not template_path.exists():
+            return {"ok": False, "error": f"Template '{name}' not found"}
+        from fastapi.responses import HTMLResponse
+        return HTMLResponse(content=template_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
 # --- Main Entry Point ---
 def main():
     """Main entry point for the web server."""

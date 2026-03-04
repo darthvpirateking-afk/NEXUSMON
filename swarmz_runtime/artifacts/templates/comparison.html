@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<style>
+  :root {
+    --bg: #0D1117;
+    --surface: #161B22;
+    --border: #21262D;
+    --cyan: #00B4D8;
+    --purple: #8957E5;
+    --gold: #FFD700;
+    --text: #F0F6FC;
+    --muted: #8B949E;
+    --dim: #30363D;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Consolas, 'Courier New', monospace;
+    padding: 36px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 { color: var(--cyan); font-size: 1.25rem; margin-bottom: 8px; letter-spacing: 0.04em; }
+  .badges { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+  .badge {
+    display: inline-block; padding: 2px 12px; border-radius: 4px;
+    font-size: 0.76rem; font-weight: 700; letter-spacing: 0.06em;
+  }
+  .badge-scale { background: var(--cyan); color: #0D1117; }
+  .badge-depth { background: var(--purple); color: var(--text); }
+  .badge-format { background: var(--gold); color: #0D1117; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 180px 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .col-title {
+    color: var(--cyan);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+  .col-center .col-title { color: var(--gold); text-align: center; }
+  .col-right .col-title { color: var(--purple); }
+  .col-content {
+    font-size: 0.86rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--purple);
+    border-radius: 8px;
+    padding: 20px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-bottom: 24px;
+  }
+  .synthesis-title {
+    color: var(--purple);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .meta { color: var(--muted); font-size: 0.76rem; border-top: 1px solid var(--border); padding-top: 12px; }
+  footer { margin-top: 24px; text-align: center; color: var(--dim); font-size: 0.70rem; letter-spacing: 0.08em; }
+  footer span { color: var(--cyan); }
+</style>
+</head>
+<body>
+<h1>{{TITLE}}</h1>
+<div class="badges">
+  <span class="badge badge-scale">{{SCALE}}</span>
+  <span class="badge badge-depth">{{DEPTH}}</span>
+  <span class="badge badge-format">COMPARISON</span>
+</div>
+<div class="grid">
+  <div class="col col-left">
+    <div class="col-title">Subject A</div>
+    <div class="col-content">{{CONTENT}}</div>
+  </div>
+  <div class="col col-center">
+    <div class="col-title">Similarities</div>
+    <div class="col-content" style="text-align:center; color: #FFD700;">See synthesis below</div>
+  </div>
+  <div class="col col-right">
+    <div class="col-title">Subject B</div>
+    <div class="col-content">See synthesis below</div>
+  </div>
+</div>
+<div class="synthesis">
+  <div class="synthesis-title">◈ DEEP STRUCTURE SYNTHESIS</div>
+  {{CONTENT}}
+</div>
+<div class="meta">
+  Operator: {{OPERATOR}} &nbsp;|&nbsp; {{TIMESTAMP}} &nbsp;|&nbsp; Artifact: {{ARTIFACT_ID}}
+</div>
+<footer><span>◈</span> NEXUSMON &middot; COMPARISON ENGINE &middot; v2.1.0 <span>◈</span></footer>
+</body>
+</html>

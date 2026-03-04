@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<style>
+  :root {
+    --bg: #0D1117;
+    --surface: #161B22;
+    --border: #21262D;
+    --cyan: #00B4D8;
+    --purple: #8957E5;
+    --gold: #FFD700;
+    --text: #F0F6FC;
+    --muted: #8B949E;
+    --dim: #30363D;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Consolas, 'Courier New', monospace;
+    padding: 40px 48px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 { color: var(--cyan); font-size: 1.3rem; margin-bottom: 6px; letter-spacing: 0.04em; }
+  .sub { color: var(--muted); font-size: 0.82rem; margin-bottom: 32px; }
+  .badge {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 4px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    margin-right: 8px;
+    margin-bottom: 16px;
+  }
+  .badge-scale { background: var(--cyan); color: #0D1117; }
+  .badge-depth { background: var(--purple); color: var(--text); }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 40px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--cyan), var(--purple));
+  }
+  .event {
+    position: relative;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateX(-10px);
+    animation: slideIn 0.4s ease forwards;
+  }
+  .event::before {
+    content: '';
+    position: absolute;
+    left: -34px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .event-year {
+    color: var(--gold);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .event-desc {
+    color: var(--text);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  @keyframes slideIn {
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .event:nth-child(1)  { animation-delay: 0.05s; }
+  .event:nth-child(2)  { animation-delay: 0.10s; }
+  .event:nth-child(3)  { animation-delay: 0.15s; }
+  .event:nth-child(4)  { animation-delay: 0.20s; }
+  .event:nth-child(5)  { animation-delay: 0.25s; }
+  .event:nth-child(6)  { animation-delay: 0.30s; }
+  .event:nth-child(7)  { animation-delay: 0.35s; }
+  .event:nth-child(8)  { animation-delay: 0.40s; }
+  .event:nth-child(9)  { animation-delay: 0.45s; }
+  .event:nth-child(10) { animation-delay: 0.50s; }
+  .event:nth-child(11) { animation-delay: 0.55s; }
+  .event:nth-child(12) { animation-delay: 0.60s; }
+  .event:nth-child(13) { animation-delay: 0.65s; }
+  .event:nth-child(14) { animation-delay: 0.70s; }
+  .event:nth-child(15) { animation-delay: 0.75s; }
+
+  .meta { color: var(--muted); font-size: 0.76rem; margin-top: 32px; border-top: 1px solid var(--border); padding-top: 14px; }
+  footer { margin-top: 28px; text-align: center; color: var(--dim); font-size: 0.70rem; letter-spacing: 0.08em; }
+  footer span { color: var(--cyan); }
+</style>
+</head>
+<body>
+<h1>{{TITLE}}</h1>
+<div class="sub">Timeline · {{SCALE}}</div>
+<span class="badge badge-scale">{{SCALE}}</span>
+<span class="badge badge-depth">{{DEPTH}}</span>
+<div class="timeline" id="timeline-root">
+  <!-- Events injected by renderer as pre-formatted text in CONTENT -->
+  <div class="event"><div class="event-year">—</div><div class="event-desc" style="white-space:pre-wrap">{{CONTENT}}</div></div>
+</div>
+<div class="meta">
+  Operator: {{OPERATOR}} &nbsp;|&nbsp; {{TIMESTAMP}} &nbsp;|&nbsp; {{ARTIFACT_ID}}
+</div>
+<footer><span>◈</span> NEXUSMON &middot; TIMELINE ENGINE &middot; v2.1.0 <span>◈</span></footer>
+</body>
+</html>
