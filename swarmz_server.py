@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, WebSocket
 from fastapi.responses import (
     FileResponse,
@@ -47,6 +48,8 @@ from addons.security import (
     security_status_snapshot,
 )
 from timeline_store import load_timeline, get_stats
+
+load_dotenv()
 
 try:
     from swarmz import SwarmzCore

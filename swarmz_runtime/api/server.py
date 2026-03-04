@@ -14,6 +14,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -62,6 +63,8 @@ from .system_primitives_routes import router as system_primitives_routes_router
 from .template_sync_routes import router as template_sync_routes_router
 
 logger = logging.getLogger("swarmz.server")
+
+load_dotenv()
 
 # ---- cheap constants only (NO orchestrator creation here) ----
 BASE_DIR = Path(__file__).resolve().parent

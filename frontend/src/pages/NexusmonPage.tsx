@@ -10,12 +10,16 @@ import { NexusmonEntityPanel } from "../components/NexusmonEntityPanel";
 import { EvolutionPanel } from "../components/EvolutionPanel";
 import { SwarmPanel } from "../components/SwarmPanel";
 import { FederationPanel } from "../components/FederationPanel";
+import { OperatorMemoryPanel } from "../components/OperatorMemoryPanel";
 
 export function NexusmonPage() {
   const [mode, setMode] = useState<NexusmonMode>("strategic");
 
   return (
     <section style={styles.wrapper}>
+      <div style={styles.operatorRow}>
+        <OperatorMemoryPanel />
+      </div>
       <div style={styles.layout}>
         <div style={styles.column}>
           <NexusmonEntityPanel />
@@ -45,6 +49,9 @@ const styles: Record<string, CSSProperties> = {
     gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
     gap: spacing.lg,
     alignItems: "start",
+  },
+  operatorRow: {
+    gridColumn: "1 / -1",
   },
   bottomRow: {
     display: "grid",

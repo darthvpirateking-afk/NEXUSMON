@@ -8,9 +8,13 @@ import os
 from pathlib import Path
 from typing import Any, Final, Literal
 
+from dotenv import load_dotenv
+
 Tier = Literal["cortex", "reflex", "fallback"]
 
 logger = logging.getLogger("swarmz.bridge.config")
+
+load_dotenv()
 
 _DEFAULTS: Final[dict[Tier, dict[str, Any]]] = {
     "cortex": {
@@ -237,7 +241,19 @@ def resolve_provider_api_key(
 
 
 def get_fallback_chain(primary_tier: Tier) -> list[dict[str, Any]]:
-    """Build fallback chain with fixed order: primary -> reflex -> cortex."""
+    """Build fallback chain — checks KernelShift active config first.
+
+    If KernelShift has a fallback_chain set, it takes priority over runtime.json.
+    Otherwise falls through to the standard tier-based chain.
+    """
+    # KernelShift override (lazy import to avoid circular deps at module level)
+    try:
+        from swarmz_runtime.kernel.shift import get_kernel_shift
+        ks_config = get_kernel_shift().active_config()
+        if ks_config.get("fallback_chain"):
+            return list(ks_config["fallback_chain"])
+    except Exception:
+        pass
 
     ordered_tiers: list[Tier] = [primary_tier]
     for fallback_tier in _FALLBACK_TIERS:

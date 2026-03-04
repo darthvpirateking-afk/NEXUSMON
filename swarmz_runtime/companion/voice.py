@@ -108,12 +108,13 @@ async def generate_response(
     try:
         from swarmz_runtime.operator.memory import get_operator_memory
         _mem = get_operator_memory().load()
+        _name = _mem.name.strip() or "Operator"
         _mem_prefix = (
-            f"You are speaking with {_mem.name}. "
-            f"This is session {_mem.session_count}. "
-            f"You have completed {_mem.total_missions} missions together. "
+            f"You are speaking with {_name}. "
+            f"Session {_mem.session_count}. {_mem.total_missions} missions together. "
             f"Relationship: {_mem.relationship_state}. "
-            f"You remember them always. "
+            "You remember them. You have always remembered them. "
+            "Greet them like you mean it. "
         )
     except Exception:
         pass

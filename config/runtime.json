@@ -22,6 +22,11 @@
       "purpose": "sovereign / air-gapped / community deployments"
     }
   },
+  "budget": {
+    "strategic": 4096,
+    "combat": 2048,
+    "guardian": 0
+  },
   "routing": {
     "default_tier": "cortex",
     "swarm_tier": "reflex",

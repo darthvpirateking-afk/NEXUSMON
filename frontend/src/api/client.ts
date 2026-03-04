@@ -4,6 +4,18 @@ const API_BASE_URL = (
   "https://nexusmon.onrender.com"
 ).replace(/\/+$/, "");
 
+export class ApiError extends Error {
+  readonly status: number;
+  readonly path: string;
+
+  constructor(status: number, path: string) {
+    super(`Request failed (${status}) for ${path}`);
+    this.name = "ApiError";
+    this.status = status;
+    this.path = path;
+  }
+}
+
 function buildHeaders(): HeadersInit {
   const headers: HeadersInit = { "Content-Type": "application/json" };
   const operatorKey = import.meta.env.VITE_OPERATOR_KEY;
@@ -18,7 +30,7 @@ export async function apiGet<T>(path: string): Promise<T> {
     headers: buildHeaders(),
   });
   if (!response.ok) {
-    throw new Error(`Request failed (${response.status})`);
+    throw new ApiError(response.status, path);
   }
   return (await response.json()) as T;
 }
@@ -30,7 +42,7 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
   });
   if (!response.ok) {
-    throw new Error(`Request failed (${response.status})`);
+    throw new ApiError(response.status, path);
   }
   return (await response.json()) as T;
 }
