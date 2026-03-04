@@ -5,6 +5,7 @@ import json
 import os
 import threading
 from datetime import UTC, datetime
+from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any
 
@@ -17,11 +18,9 @@ RUNTIME_METRICS_FILE = DATA_DIR / "runtime_metrics.jsonl"
 _verbose = os.getenv("SWARMZ_VERBOSE", "0") not in {"0", "false", "False", None}
 _lock = threading.Lock()
 
-
 def set_verbose(enabled: bool) -> None:
     global _verbose
     _verbose = bool(enabled)
-
 
 def verbose_log(*args: Any) -> None:
     if _verbose:
@@ -46,6 +45,9 @@ def record_event(name: str, payload: dict[str, Any] | None = None) -> None:
 
 
 def record_duration(name: str, duration_ms: float, context: dict[str, Any] | None = None) -> None:
+def record_duration(
+    name: str, duration_ms: float, context: dict[str, Any] | None = None
+) -> None:
     evt = {
         "ts": datetime.now(UTC).isoformat(),
         "type": name,
@@ -57,6 +59,9 @@ def record_duration(name: str, duration_ms: float, context: dict[str, Any] | Non
 
 
 def record_failure(name: str, error: str, context: dict[str, Any] | None = None) -> None:
+def record_failure(
+    name: str, error: str, context: dict[str, Any] | None = None
+) -> None:
     evt = {
         "ts": datetime.now(UTC).isoformat(),
         "type": name,
