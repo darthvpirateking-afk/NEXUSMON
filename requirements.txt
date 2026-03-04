@@ -10,13 +10,10 @@ litellm>=1.60.0
 pydantic>=2.0.0
 python-multipart>=0.0.22
 aiofiles>=23.0.0
-firecrawl-py>=0.0.8
 requests>=2.31.0
 jsonschema>=4.20.0
 python-dotenv>=1.0.1
-
-# OpenTelemetry for distributed tracing
 opentelemetry-api>=1.20.0
 opentelemetry-sdk>=1.20.0
 opentelemetry-exporter-otlp>=1.20.0
-opentelemetry-instrumentation>=0.50b0
+opentelemetry-instrumentation
