@@ -24,11 +24,7 @@ services:
       # A fresh random value is generated automatically on first deploy.
       - key: JWT_SECRET
         generateValue: true
-    disk:
-      name: nexusmon-data
-      # Matches the working directory Render uses for Python services.
-      mountPath: /opt/render/project/src/data
-      sizeGB: 1
+    # disk removed — requires paid plan; data stored in /tmp for free tier
 
   # ── Static frontend ──────────────────────────────────────────────────────
   - type: web
