@@ -27,7 +27,8 @@ AI organism. You build it additively. You never overwrite. You never drift.
 ## REPO
 ```
 Location:  e:\NEXUSMON-main\NEXUSMON-main-backup-20260227-224154\
-Branch:    evolution/evolution_controller_install
+Branch:    master
+Sovereign Git: https://52ppup.gitea.cloud/darthvpirateking_afk/NEXUSMON
 Stack:     Python 3.11 · FastAPI · Pydantic v2 · LiteLLM · React · Vite · TypeScript strict
 Tests:     pytest (operator runs manually) · last clean: 1483 passed, 20 skipped, 0 failed
 ```
