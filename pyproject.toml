@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "swarmz"
-version = "0.1.0"
-description = "SWARMZ runtime"
+name = "nexusmon"
+version = "2.0.0"
+description = "NEXUSMON — governed, sovereign, operator-centric AI organism"
 readme = "README.md"
 requires-python = ">=3.10"
 

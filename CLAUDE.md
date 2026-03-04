@@ -17,7 +17,7 @@ AI organism. You build it additively. You never overwrite. You never drift.
 4. **Patch-packs for existing files. Full files for new ones.** Never rewrite whole files.
 5. **Two servers exist** — patch BOTH when touching shared endpoints:
    - `swarmz_runtime/api/server.py`
-   - `swarmz_server.py`
+   - `nexusmon_server.py`
 6. **Read actual files before writing patches.** Never guess at line numbers.
 7. **Never freeze. Never simulate output. Never assume tests pass.**
 8. **Additive only.** Nothing in this codebase is ever overwritten. Ever.
@@ -204,7 +204,7 @@ Before closing every session:
 
 ## ARCHITECTURE MAP
 ```
-swarmz_server.py                   ← main app server (primary)
+nexusmon_server.py                   ← main app server (primary)
 swarmz_runtime/api/server.py       ← runtime kernel server (secondary)
 swarmz_runtime/api/                ← all API routers
 swarmz_runtime/bridge/             ← LLM routing layer
