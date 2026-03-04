@@ -30,8 +30,10 @@ services:
       mountPath: /opt/render/project/src/data
       sizeGB: 1
 
-  # ── Static frontend (web/) ────────────────────────────────────────────────
+  # ── Static frontend ──────────────────────────────────────────────────────
   - type: web
     name: nexusmon-web
     runtime: static
     autoDeploy: true
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
