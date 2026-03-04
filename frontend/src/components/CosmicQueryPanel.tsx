@@ -51,7 +51,7 @@ export function CosmicQueryPanel({ onAddToWorldSpace }: Props) {
 
   const handleRenderView = () => {
     if (!activeResponse) return;
-    const artifactId = "artifact_id" in activeResponse ? activeResponse.artifact_id : activeResponse.artifact_id;
+    const artifactId = activeResponse.artifact_id;
     setRenderSrc(`/v1/artifacts/${artifactId}/render/cosmic`);
   };
 
