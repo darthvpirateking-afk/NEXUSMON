@@ -73,6 +73,10 @@ def test_build_litellm_model_prefix_mapping() -> None:
         bridge_config.build_litellm_model("groq", "llama-3.1-70b-versatile")
         == "groq/llama-3.1-70b-versatile"
     )
+    assert (
+        bridge_config.build_litellm_model("ollama", "llama3.1:8b")
+        == "ollama/llama3.1:8b"
+    )
 
     with pytest.raises(ValueError, match="Unknown provider"):
         bridge_config.build_litellm_model("vllm", "local")

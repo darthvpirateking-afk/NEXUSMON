@@ -6,20 +6,26 @@
   "config_version": 2,
   "llm": {
     "cortex": {
-      "provider": "openai",
-      "model": "gpt-4o",
-      "purpose": "deep reasoning, codegen, mission engine, evolution"
+      "provider": "ollama",
+      "model": "llama3.1:8b",
+      "endpoint": "http://localhost:11434",
+      "base_url": "http://localhost:11434",
+      "purpose": "local sovereign reasoning via Ollama"
     },
     "reflex": {
-      "provider": "groq",
-      "model": "llama-3.1-70b-versatile",
-      "purpose": "swarm routing, planning, fast ops, agent chatter"
+      "provider": "ollama",
+      "model": "llama3.1:8b",
+      "endpoint": "http://localhost:11434",
+      "base_url": "http://localhost:11434",
+      "purpose": "fast local routing via Ollama"
     },
     "fallback": {
-      "provider": "vllm",
-      "enabled": false,
-      "base_url": "http://localhost:8000/v1",
-      "purpose": "sovereign / air-gapped / community deployments"
+      "provider": "ollama",
+      "model": "llama3.1:8b",
+      "enabled": true,
+      "endpoint": "http://localhost:11434",
+      "base_url": "http://localhost:11434",
+      "purpose": "local fallback chain via Ollama"
     }
   },
   "budget": {

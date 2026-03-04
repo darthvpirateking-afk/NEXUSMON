@@ -53,6 +53,7 @@ _FALLBACK_TIERS: Final[tuple[Tier, Tier]] = ("reflex", "cortex")
 _PROVIDER_ENV_DEFAULTS: Final[dict[str, str]] = {
     "openai": "OPENAI_API_KEY",
     "groq": "GROQ_API_KEY",
+    "ollama": "OLLAMA_API_KEY",
 }
 
 
@@ -184,6 +185,8 @@ def build_litellm_model(provider: str, model: str) -> str:
         return f"openai/{normalized_model}"
     if normalized_provider == "groq":
         return f"groq/{normalized_model}"
+    if normalized_provider == "ollama":
+        return f"ollama/{normalized_model}"
     raise ValueError(f"Unknown provider: {provider}")
 
 

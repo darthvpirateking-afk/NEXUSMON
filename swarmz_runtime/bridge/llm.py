@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import logging
+import os
 import threading
 import time
 from collections import OrderedDict
@@ -225,6 +226,31 @@ def _candidate_label(candidate: dict[str, Any]) -> str:
     return f"{provider}/{model}"
 
 
+def _resolve_api_base(provider: str, candidate: dict[str, Any]) -> str | None:
+    """Resolve optional provider endpoint for OpenAI-compatible backends."""
+    normalized_provider = provider.strip().lower()
+
+    if normalized_provider == "vllm":
+        base_url = candidate.get("base_url")
+        if isinstance(base_url, str) and base_url.strip():
+            return base_url.strip()
+        return None
+
+    if normalized_provider == "ollama":
+        endpoint = candidate.get("endpoint")
+        if isinstance(endpoint, str) and endpoint.strip():
+            return endpoint.strip()
+        base_url = candidate.get("base_url")
+        if isinstance(base_url, str) and base_url.strip():
+            return base_url.strip()
+        env_endpoint = os.environ.get("OLLAMA_ENDPOINT", "").strip()
+        if env_endpoint:
+            return env_endpoint
+        return "http://localhost:11434"
+
+    return None
+
+
 def _completion_attempt(
     candidate: dict[str, Any],
     messages: list[dict[str, str]],
@@ -249,6 +275,9 @@ def _completion_attempt(
     call_kwargs = dict(kwargs)
     if api_key:
         call_kwargs.setdefault("api_key", api_key)
+    api_base = _resolve_api_base(provider, candidate)
+    if api_base:
+        call_kwargs.setdefault("api_base", api_base)
 
     response = _get_litellm_module().completion(
         model=litellm_model,
@@ -284,6 +313,9 @@ async def _acompletion_attempt(
     call_kwargs = dict(kwargs)
     if api_key:
         call_kwargs.setdefault("api_key", api_key)
+    api_base = _resolve_api_base(provider, candidate)
+    if api_base:
+        call_kwargs.setdefault("api_base", api_base)
 
     response = await _get_litellm_module().acompletion(
         model=litellm_model,
@@ -442,10 +474,9 @@ async def call_v2(
             call_kwargs: dict[str, Any] = {}
             if isinstance(api_key, str) and api_key:
                 call_kwargs["api_key"] = api_key
-            if provider == "vllm":
-                base_url = candidate.get("base_url")
-                if isinstance(base_url, str) and base_url:
-                    call_kwargs["api_base"] = base_url
+            api_base = _resolve_api_base(provider, candidate)
+            if api_base:
+                call_kwargs["api_base"] = api_base
             start = time.perf_counter()
             response = await _get_litellm_module().acompletion(
                 model=litellm_model,
