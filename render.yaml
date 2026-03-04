@@ -34,5 +34,4 @@ services:
   - type: web
     name: nexusmon-web
     runtime: static
-    region: oregon
     autoDeploy: true
