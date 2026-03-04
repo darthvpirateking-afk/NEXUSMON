@@ -1,50 +1,48 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone
-from pathlib import Path
-import uuid
-import time
-import json
 import hashlib
+import json
+import time
+import uuid
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
-from swarmz_runtime.core import telemetry
-from swarmz_runtime.storage.db import Database
-from swarmz_runtime.storage.schema import (
-    Mission,
-    AuditEntry,
-    Rune,
-    MissionStatus,
-    VisibilityLevel,
-)
-from swarmz_runtime.core.scoring import calculate_leverage_score, should_execute
-from swarmz_runtime.core.authority import validate_transaction
-from swarmz_runtime.core.learning import LearningEngine
-from swarmz_runtime.core.prediction import ProphetEngine
-from swarmz_runtime.core.resonance import ResonanceDetector
-from swarmz_runtime.core.cadence import CadenceEngine
-from swarmz_runtime.core.maintenance import MaintenanceScheduler
-from swarmz_runtime.core.visibility import VisibilityManager
-from swarmz_runtime.core.brain import BrainMapping
+from core.counterfactual_engine import CounterfactualEngine
+from core.divergence_engine import DivergenceEngine
+from core.entropy_monitor import EntropyMonitor
 from core.evolution_memory import EvolutionMemory
 from core.operator_anchor import load_or_create_anchor, verify_fingerprint
 from core.perf_ledger import PerfLedger
+from core.phase_engine import PhaseEngine
+from core.relevance_engine import RelevanceEngine
 from core.trajectory_engine import TrajectoryEngine
 from core.world_model import WorldModel
-from core.divergence_engine import DivergenceEngine
-from core.entropy_monitor import EntropyMonitor
-from core.counterfactual_engine import CounterfactualEngine
-from core.relevance_engine import RelevanceEngine
-from core.phase_engine import PhaseEngine
+from swarmz_runtime.core import telemetry
+from swarmz_runtime.core.authority import validate_transaction
+from swarmz_runtime.core.brain import BrainMapping
+from swarmz_runtime.core.cadence import CadenceEngine
+from swarmz_runtime.core.learning import LearningEngine
+from swarmz_runtime.core.maintenance import MaintenanceScheduler
+from swarmz_runtime.core.prediction import ProphetEngine
+from swarmz_runtime.core.resonance import ResonanceDetector
+from swarmz_runtime.core.scoring import calculate_leverage_score, should_execute
+from swarmz_runtime.core.visibility import VisibilityManager
 from swarmz_runtime.meta import MetaSelector
 from swarmz_runtime.meta.task_matrix import NextTaskMatrix
+from swarmz_runtime.storage.db import Database
+from swarmz_runtime.storage.schema import (
+    AuditEntry,
+    Mission,
+    MissionStatus,
+    Rune,
+    VisibilityLevel,
+)
 
 
 class SwarmzEngine:
-    def __init__(
-        self, data_dir: str = "data", brain_config: Optional[Dict[str, Any]] = None
-    ):
+    def __init__(self, data_dir: str = "data", brain_config: dict[str, Any] | None = None):
         self.data_dir = data_dir
         self.db = Database(data_dir)
         self.anchor = load_or_create_anchor(data_dir)
@@ -125,9 +123,9 @@ class SwarmzEngine:
         self,
         goal: str,
         category: str,
-        constraints: Dict[str, Any],
+        constraints: dict[str, Any],
         mode: str | None = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         active_missions = self.db.get_active_missions()
         if len(active_missions) >= self.max_active_missions:
             return {
@@ -187,9 +185,7 @@ class SwarmzEngine:
             "created_at": mission.created_at.isoformat(),
         }
 
-    def run_mission(
-        self, mission_id: str, operator_key: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def run_mission(self, mission_id: str, operator_key: str | None = None) -> dict[str, Any]:
         start = time.perf_counter()
         telemetry.verbose_log("run_mission:start", mission_id)
         mission = self.db.get_mission(mission_id)
@@ -228,14 +224,15 @@ class SwarmzEngine:
         # mode drives tier selection hard: strategic->cortex, combat->reflex, guardian->blocked
         bridge_result: str | None = None
         if mission_mode and mission_goal:
+            import asyncio
+
             from swarmz_runtime.bridge import call_v2
             from swarmz_runtime.bridge.mode import GuardianCallBlocked, NexusmonMode
-            import asyncio
 
             try:
                 _mode = NexusmonMode(mission_mode)
                 try:
-                    loop = asyncio.get_running_loop()
+                    asyncio.get_running_loop()
                     # Already inside an async context - schedule as task
                     import concurrent.futures
 
@@ -245,13 +242,9 @@ class SwarmzEngine:
                             call_v2(
                                 prompt=mission_goal,
                                 mode=_mode,
-                                context={
-                                    "system": "You are NEXUSMON executing a mission."
-                                },
+                                context={"system": "You are NEXUSMON executing a mission."},
                                 budget_tokens=int(
-                                    (mission.get("constraints") or {}).get(
-                                        "budget_tokens", 2048
-                                    )
+                                    (mission.get("constraints") or {}).get("budget_tokens", 2048)
                                 ),
                             ),
                         )
@@ -262,13 +255,9 @@ class SwarmzEngine:
                         call_v2(
                             prompt=mission_goal,
                             mode=_mode,
-                            context={
-                                "system": "You are NEXUSMON executing a mission."
-                            },
+                            context={"system": "You are NEXUSMON executing a mission."},
                             budget_tokens=int(
-                                (mission.get("constraints") or {}).get(
-                                    "budget_tokens", 2048
-                                )
+                                (mission.get("constraints") or {}).get("budget_tokens", 2048)
                             ),
                         )
                     )
@@ -311,8 +300,7 @@ class SwarmzEngine:
         )
         constraints = mission.get("constraints") or {}
         cost_estimate = float(
-            constraints.get("cost_estimate", constraints.get("estimated_cost", 0.0))
-            or 0.0
+            constraints.get("cost_estimate", constraints.get("estimated_cost", 0.0)) or 0.0
         )
         previous_avg = (
             self.evolution.strategy_average(inputs_hash, selected_strategy)
@@ -437,16 +425,15 @@ class SwarmzEngine:
             }
             try:
                 from swarmz_runtime.evolution.engine import award_xp as _award_xp
+
                 _award_xp("nexusmon", max(1, int(roi * 100)), f"mission:{mission_id}")
             except Exception:
                 pass
             total_runtime_ms = (time.perf_counter() - start) * 1000.0
             if learning_active:
-                score = self.evolution.compute_score(
-                    True, total_runtime_ms, cost_estimate
-                )
+                score = self.evolution.compute_score(True, total_runtime_ms, cost_estimate)
                 self.evolution.append_record(
-                    datetime.now(timezone.utc),
+                    datetime.now(UTC),
                     mission.get("category", ""),
                     inputs_hash,
                     selected_strategy,
@@ -473,12 +460,8 @@ class SwarmzEngine:
                 agent_work_time=total_runtime_ms,
                 agent_wait_time=0.0,
             )
-            self.trajectory.after_outcome(
-                True, score_record, total_runtime_ms, selected_strategy
-            )
-            self._log_value_impact(
-                mission_id, total_runtime_ms, True, cost_estimate, constraints
-            )
+            self.trajectory.after_outcome(True, score_record, total_runtime_ms, selected_strategy)
+            self._log_value_impact(mission_id, total_runtime_ms, True, cost_estimate, constraints)
             self.counterfactual.evaluate(
                 mission_id,
                 inputs_hash,
@@ -496,9 +479,7 @@ class SwarmzEngine:
                 True,
                 total_runtime_ms,
             )
-            self.phase.after_outcome(
-                True, score_record, total_runtime_ms, selected_strategy
-            )
+            self.phase.after_outcome(True, score_record, total_runtime_ms, selected_strategy)
             self._record_duration(
                 "run_mission", start, {"mission_id": mission_id, "status": "completed"}
             )
@@ -521,11 +502,9 @@ class SwarmzEngine:
             self.db.log_audit(audit)
             total_runtime_ms = (time.perf_counter() - start) * 1000.0
             if learning_active:
-                score = self.evolution.compute_score(
-                    False, total_runtime_ms, cost_estimate
-                )
+                score = self.evolution.compute_score(False, total_runtime_ms, cost_estimate)
                 self.evolution.append_record(
-                    datetime.now(timezone.utc),
+                    datetime.now(UTC),
                     mission.get("category", ""),
                     inputs_hash,
                     selected_strategy,
@@ -552,12 +531,8 @@ class SwarmzEngine:
                 agent_work_time=total_runtime_ms,
                 agent_wait_time=0.0,
             )
-            self.trajectory.after_outcome(
-                False, score_record, total_runtime_ms, selected_strategy
-            )
-            self._log_value_impact(
-                mission_id, total_runtime_ms, False, cost_estimate, constraints
-            )
+            self.trajectory.after_outcome(False, score_record, total_runtime_ms, selected_strategy)
+            self._log_value_impact(mission_id, total_runtime_ms, False, cost_estimate, constraints)
             self.counterfactual.evaluate(
                 mission_id,
                 inputs_hash,
@@ -575,9 +550,7 @@ class SwarmzEngine:
                 False,
                 total_runtime_ms,
             )
-            self.phase.after_outcome(
-                False, score_record, total_runtime_ms, selected_strategy
-            )
+            self.phase.after_outcome(False, score_record, total_runtime_ms, selected_strategy)
             self._record_duration(
                 "run_mission", start, {"mission_id": mission_id, "status": "failed"}
             )
@@ -585,7 +558,7 @@ class SwarmzEngine:
             return {"status": "failed", "mission_id": mission_id}
 
     def _record_duration(
-        self, name: str, start: float, context: Optional[Dict[str, Any]] = None
+        self, name: str, start: float, context: dict[str, Any] | None = None
     ) -> None:
         duration_ms = (time.perf_counter() - start) * 1000.0
         telemetry.record_duration(name, duration_ms, context or {})
@@ -596,46 +569,40 @@ class SwarmzEngine:
         runtime_ms: float,
         success: bool,
         cost_estimate: float,
-        constraints: Dict[str, Any],
+        constraints: dict[str, Any],
     ) -> None:
         value_file = Path(self.data_dir) / "value_ledger.jsonl"
         value_file.parent.mkdir(parents=True, exist_ok=True)
         entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "mission_id": mission_id,
             "time_spent": runtime_ms,
             "direct_money_change": (
-                float(constraints.get("direct_money_change", 0.0))
-                if constraints
-                else 0.0
+                float(constraints.get("direct_money_change", 0.0)) if constraints else 0.0
             ),
             "future_option_value": (
-                float(constraints.get("future_option_value", 0.0))
-                if constraints
-                else 0.0
+                float(constraints.get("future_option_value", 0.0)) if constraints else 0.0
             ),
             "energy_cost": runtime_ms * 0.001 + (0.5 if not success else 0.0),
             "success": success,
-            "project": (
-                constraints.get("project", "unknown") if constraints else "unknown"
-            ),
+            "project": (constraints.get("project", "unknown") if constraints else "unknown"),
         }
         with open(value_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, separators=(",", ":")) + "\n")
 
-    def list_missions(self, status: Optional[str] = None) -> list:
+    def list_missions(self, status: str | None = None) -> list:
         missions = self.db.load_all_missions()
         if status:
             missions = [m for m in missions if m["status"] == status]
         return missions
 
-    def approve_mission(self, mission_id: str, operator_key: str) -> Dict[str, Any]:
+    def approve_mission(self, mission_id: str, operator_key: str) -> dict[str, Any]:
         if operator_key != self.operator_key:
             return {"error": "Invalid operator key"}
 
         return self.run_mission(mission_id, operator_key=operator_key)
 
-    def get_health(self) -> Dict[str, Any]:
+    def get_health(self) -> dict[str, Any]:
         active_missions = self.db.get_active_missions()
         state = self.db.load_state()
 
@@ -652,10 +619,10 @@ class SwarmzEngine:
     def get_predictions(self) -> list:
         return self.prophet.analyze_failures()
 
-    def get_runes(self) -> Dict[str, Any]:
+    def get_runes(self) -> dict[str, Any]:
         return self.db.load_runes()
 
-    def schedule_maintenance(self) -> Dict[str, Any]:
+    def schedule_maintenance(self) -> dict[str, Any]:
         modules = ["engine", "scoring", "learning", "prediction"]
 
         for module in modules:
@@ -671,11 +638,11 @@ class SwarmzEngine:
 
         return {"scheduled_tasks": len(tasks), "tasks": tasks}
 
-    def route_task(self, task_type: str) -> Dict[str, Any]:
+    def route_task(self, task_type: str) -> dict[str, Any]:
         """Route a task type to the appropriate brain/model."""
         return self.brain.route(task_type)
 
-    def get_brain_status(self) -> Dict[str, Any]:
+    def get_brain_status(self) -> dict[str, Any]:
         """Return current brain mapping and auto_mode status."""
         return {
             "auto_mode": self.brain.auto_mode,
@@ -683,7 +650,7 @@ class SwarmzEngine:
             "routing_table": self.brain.get_routing_table(),
         }
 
-    def get_scoreboard(self) -> Dict[str, Any]:
+    def get_scoreboard(self) -> dict[str, Any]:
         perf_stats = {
             "perf_file": str(self.perf_ledger.file),
         }
@@ -697,12 +664,8 @@ class SwarmzEngine:
             "performance": perf_stats,
             "counterfactual": {
                 "snapshots_file": str(Path(self.data_dir) / "decision_snapshots.jsonl"),
-                "counterfactual_log": str(
-                    Path(self.data_dir) / "counterfactual_log.jsonl"
-                ),
-                "quality_report": str(
-                    Path(self.data_dir) / "decision_quality_report.txt"
-                ),
+                "counterfactual_log": str(Path(self.data_dir) / "counterfactual_log.jsonl"),
+                "quality_report": str(Path(self.data_dir) / "decision_quality_report.txt"),
             },
             "phase": {
                 "history": str(Path(self.data_dir) / "phase_history.jsonl"),
@@ -712,14 +675,10 @@ class SwarmzEngine:
             },
         }
 
-    def get_counterfactual_overview(self, limit: int = 50) -> Dict[str, Any]:
+    def get_counterfactual_overview(self, limit: int = 50) -> dict[str, Any]:
         lim = max(1, min(limit, 200))
-        snapshots = self._tail_jsonl(
-            Path(self.data_dir) / "decision_snapshots.jsonl", lim
-        )
-        counterfactuals = self._tail_jsonl(
-            Path(self.data_dir) / "counterfactual_log.jsonl", lim
-        )
+        snapshots = self._tail_jsonl(Path(self.data_dir) / "decision_snapshots.jsonl", lim)
+        counterfactuals = self._tail_jsonl(Path(self.data_dir) / "counterfactual_log.jsonl", lim)
         return {
             "snapshots": snapshots,
             "counterfactuals": counterfactuals,
@@ -727,13 +686,11 @@ class SwarmzEngine:
             "uncertainty": getattr(self.evolution, "_uncertainty", {}),
         }
 
-    def get_phase_overview(self, limit: int = 100) -> Dict[str, Any]:
+    def get_phase_overview(self, limit: int = 100) -> dict[str, Any]:
         lim = max(1, min(limit, 300))
         history = self._tail_jsonl(Path(self.data_dir) / "phase_history.jsonl", lim)
         patterns_path = Path(self.data_dir) / "phase_patterns.json"
-        interventions = self._tail_jsonl(
-            Path(self.data_dir) / "phase_interventions.jsonl", 100
-        )
+        interventions = self._tail_jsonl(Path(self.data_dir) / "phase_interventions.jsonl", 100)
         patterns = {}
         try:
             if patterns_path.exists():
@@ -751,7 +708,7 @@ class SwarmzEngine:
             return []
         rows = []
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 for line in f:
                     if line.strip():
                         try:
@@ -798,8 +755,8 @@ class SwarmzEngine:
         return True
 
     def execute_operator_command(
-        self, command: str, parameters: Dict[str, Any], operator_key: str
-    ) -> Dict[str, Any]:
+        self, command: str, parameters: dict[str, Any], operator_key: str
+    ) -> dict[str, Any]:
         """Execute precision operator commands."""
         if not self.validate_operator_sovereignty(operator_key, command):
             return {"error": "Sovereignty validation failed"}
@@ -839,24 +796,24 @@ class SwarmzEngine:
             self.db.log_audit(audit)
             return {"error": str(e)}
 
-    def _cmd_shutdown(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _cmd_shutdown(self, params: dict[str, Any]) -> dict[str, Any]:
         """Shutdown the runtime gracefully."""
         # Implementation would handle graceful shutdown
         return {"status": "shutdown_initiated", "message": "Runtime shutdown initiated"}
 
-    def _cmd_restart(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _cmd_restart(self, params: dict[str, Any]) -> dict[str, Any]:
         """Restart the runtime."""
         return {"status": "restart_initiated", "message": "Runtime restart initiated"}
 
-    def _cmd_status(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _cmd_status(self, params: dict[str, Any]) -> dict[str, Any]:
         """Get detailed runtime status."""
         return self.get_scoreboard()
 
-    def _cmd_maintenance(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _cmd_maintenance(self, params: dict[str, Any]) -> dict[str, Any]:
         """Run maintenance tasks."""
         return self.schedule_maintenance()
 
-    def _cmd_reset_learning(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _cmd_reset_learning(self, params: dict[str, Any]) -> dict[str, Any]:
         """Reset learning state (requires confirmation)."""
         if not params.get("confirmed", False):
             return {"error": "Reset learning requires confirmation parameter"}
@@ -865,15 +822,13 @@ class SwarmzEngine:
         self.evolution.reset()
         return {"status": "learning_reset", "message": "Learning state has been reset"}
 
-    def _cmd_export_data(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _cmd_export_data(self, params: dict[str, Any]) -> dict[str, Any]:
         """Export runtime data."""
-        export_path = params.get(
-            "path", f"swarmz_export_{datetime.now().isoformat()}.json"
-        )
+        export_path = params.get("path", f"swarmz_export_{datetime.now().isoformat()}.json")
         # Implementation would export data
         return {"status": "export_initiated", "path": export_path}
 
-    def _cmd_import_data(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _cmd_import_data(self, params: dict[str, Any]) -> dict[str, Any]:
         """Import runtime data."""
         import_path = params.get("path")
         if not import_path:
@@ -882,7 +837,7 @@ class SwarmzEngine:
         # Implementation would import data
         return {"status": "import_completed", "path": import_path}
 
-    def get_sovereignty_status(self, operator_key: str) -> Dict[str, Any]:
+    def get_sovereignty_status(self, operator_key: str) -> dict[str, Any]:
         """Get sovereignty status for operator."""
         is_valid = operator_key == self.operator_key
         anchor_valid = verify_fingerprint(self.anchor)
@@ -900,8 +855,8 @@ class SwarmzEngine:
         return datetime.now().isoformat()
 
     def make_sovereign_decision(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], options: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """
         Make a sovereign decision using the complete lattice flow.
         THE THING WITHOUT A NAME - Meta-selector governs all layers.
@@ -909,8 +864,8 @@ class SwarmzEngine:
         return self.meta_selector.select(context, options)
 
     def process_task_matrix(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], options: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """
         Process through the NEXT TASK MATRIX to generate unified ignition-state vector.
 
@@ -928,7 +883,7 @@ class SwarmzEngine:
         """
         return self.task_matrix.process_task_matrix(context, options)
 
-    def execute_kernel_ignition(self, ignition_state: Dict[str, Any]) -> Dict[str, Any]:
+    def execute_kernel_ignition(self, ignition_state: dict[str, Any]) -> dict[str, Any]:
         """
         IGNITION PHASE 3 — RUNTIME KERNEL IGNITION BLOCK
         (clean, compressed, operator-grade, safe)
@@ -953,7 +908,7 @@ class SwarmzEngine:
         # Extract ignition components
         unified_vector = ignition_state.get("unified_vector", np.zeros(9))
         cockpit_signal = ignition_state.get("cockpit_signal", {})
-        kernel_path = ignition_state.get("kernel_path", {})
+        ignition_state.get("kernel_path", {})
         layer_states = ignition_state.get("layer_states", {})
         meta_coherence = ignition_state.get("meta_coherence", 0)
 
@@ -995,10 +950,8 @@ class SwarmzEngine:
         )
 
         # STEP 3: SHAPE → SPACE-SHAPING geometry
-        space_shaping = layer_states.get("space_shaping", {})
-        geometry_vector = unified_vector[
-            5
-        ]  # SPACE-SHAPING is index 5 in weighted hierarchy
+        layer_states.get("space_shaping", {})
+        geometry_vector = unified_vector[5]  # SPACE-SHAPING is index 5 in weighted hierarchy
         geometry_shape = {
             "vector_component": float(geometry_vector),
             "directionality": "convergent" if geometry_vector > 0.7 else "divergent",
@@ -1019,9 +972,7 @@ class SwarmzEngine:
             "purity_level": restraint_state.get("ignition_value", 0),
             "boundaries_enforced": restraint_state.get("constraints_applied", []),
             "architectural_integrity": (
-                "MAINTAINED"
-                if restraint_state.get("ignition_value", 0) > 0.6
-                else "COMPROMISED"
+                "MAINTAINED" if restraint_state.get("ignition_value", 0) > 0.6 else "COMPROMISED"
             ),
         }
         ignition_result["sequence_steps"].append(
@@ -1039,9 +990,7 @@ class SwarmzEngine:
             "archetypal_resonance": mythical_state.get("ignition_value", 0),
             "field_strength": unified_vector[2],  # MYTHICAL WAY is index 2
             "alignment_quality": (
-                "HARMONIC"
-                if mythical_state.get("ignition_value", 0) > 0.8
-                else "RESONANT"
+                "HARMONIC" if mythical_state.get("ignition_value", 0) > 0.8 else "RESONANT"
             ),
         }
         ignition_result["sequence_steps"].append(
@@ -1113,8 +1062,7 @@ class SwarmzEngine:
             "ignition_state": "COMPLETE",
             "vector_integrity": np.all(np.isfinite(unified_vector)),
             "sequence_integrity": all(
-                step["status"] == "COMPLETE"
-                for step in ignition_result["sequence_steps"]
+                step["status"] == "COMPLETE" for step in ignition_result["sequence_steps"]
             ),
             "sovereign_governance": "ACTIVE",
             "operator_control": "ENGAGED",
@@ -1141,7 +1089,7 @@ class SwarmzEngine:
 
         return ignition_result
 
-    def get_lattice_status(self) -> Dict[str, Any]:
+    def get_lattice_status(self) -> dict[str, Any]:
         """
         Get the status of the sovereign lattice flow system.
         """
@@ -1162,8 +1110,8 @@ class SwarmzEngine:
         }
 
     def apply_sovereign_control(
-        self, context: Dict[str, Any], decision_type: str
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], decision_type: str
+    ) -> dict[str, Any]:
         """
         Apply sovereign control through the lattice flow for critical decisions.
         """
@@ -1191,8 +1139,8 @@ class SwarmzEngine:
         return sovereign_decision
 
     def _generate_decision_options(
-        self, context: Dict[str, Any], decision_type: str
-    ) -> List[Dict[str, Any]]:
+        self, context: dict[str, Any], decision_type: str
+    ) -> list[dict[str, Any]]:
         """
         Generate decision options based on context and type.
         """
@@ -1246,8 +1194,6 @@ class SwarmzEngine:
             ]
         else:
             # Default options
-            options = [
-                {"id": f"option_{i}", "type": "default", "index": i} for i in range(3)
-            ]
+            options = [{"id": f"option_{i}", "type": "default", "index": i} for i in range(3)]
 
         return options

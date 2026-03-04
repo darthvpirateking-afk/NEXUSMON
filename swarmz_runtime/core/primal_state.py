@@ -1,9 +1,7 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
-_SLATE_PATH = (
-    Path(__file__).resolve().parent.parent.parent / "config" / "primal_state_slate.json"
-)
+_SLATE_PATH = Path(__file__).resolve().parent.parent.parent / "config" / "primal_state_slate.json"
 
 
 def load_primal_state_slate() -> dict:

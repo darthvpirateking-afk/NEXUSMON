@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
@@ -15,20 +15,20 @@ _runtime = SystemPrimitivesRuntime(Path(__file__).resolve().parent.parent.parent
 
 class ConstraintSolveRequest(BaseModel):
     mission_type: str
-    constraints: Dict[str, Any] = Field(default_factory=dict)
-    facts: Dict[str, Any] = Field(default_factory=dict)
+    constraints: dict[str, Any] = Field(default_factory=dict)
+    facts: dict[str, Any] = Field(default_factory=dict)
 
 
 class MissionCompileRequest(BaseModel):
     intent: str
     mission_type: str
-    constraints: Dict[str, Any] = Field(default_factory=dict)
-    context: Dict[str, Any] = Field(default_factory=dict)
+    constraints: dict[str, Any] = Field(default_factory=dict)
+    context: dict[str, Any] = Field(default_factory=dict)
 
 
 class RealitySyncPushRequest(BaseModel):
     event_type: str
-    payload: Dict[str, Any] = Field(default_factory=dict)
+    payload: dict[str, Any] = Field(default_factory=dict)
     source: str = "runtime"
 
 
@@ -38,13 +38,13 @@ class RealitySyncDrainRequest(BaseModel):
 
 class OperatorOverrideRequest(BaseModel):
     command: str
-    args: Dict[str, Any] = Field(default_factory=dict)
+    args: dict[str, Any] = Field(default_factory=dict)
     operator_approved: bool = False
     reason: str = "operator_shell"
 
 
 class ContractValidateRequest(BaseModel):
-    action: Dict[str, Any] = Field(default_factory=dict)
+    action: dict[str, Any] = Field(default_factory=dict)
     regime: str = "default"
 
 
@@ -80,9 +80,7 @@ def compile_mission(payload: MissionCompileRequest):
 def push_reality_event(payload: RealitySyncPushRequest):
     return {
         "ok": True,
-        "event": _runtime.push_reality_event(
-            payload.event_type, payload.payload, payload.source
-        ),
+        "event": _runtime.push_reality_event(payload.event_type, payload.payload, payload.source),
     }
 
 

@@ -1,27 +1,31 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any, Optional, Callable
-from swarmz_runtime.core.engine import SwarmzEngine
+
 from swarmz_runtime.bridge.mode import NexusmonMode
+from swarmz_runtime.core.engine import SwarmzEngine
 
 router = APIRouter()
 
-get_engine: Callable[[], SwarmzEngine] = lambda: SwarmzEngine()
+
+def get_engine() -> SwarmzEngine:
+    return SwarmzEngine()
 
 
 class CreateMissionRequest(BaseModel):
     goal: str
     category: str
-    constraints: Dict[str, Any] = {}
-    mode: Optional[NexusmonMode] = None  # strategic | combat | guardian
+    constraints: dict[str, Any] = {}
+    mode: NexusmonMode | None = None  # strategic | combat | guardian
 
 
 class RunMissionRequest(BaseModel):
     mission_id: str
-    operator_key: Optional[str] = None
+    operator_key: str | None = None
 
 
 class ApproveMissionRequest(BaseModel):
@@ -53,13 +57,13 @@ def run_mission(request: RunMissionRequest):
 
 
 @router.get("/list")
-def list_missions(status: Optional[str] = None):
+def list_missions(status: str | None = None):
     missions = get_engine().list_missions(status=status)
     return {"missions": missions, "count": len(missions)}
 
 
 @router.get("")
-def list_missions_root(status: Optional[str] = None):
+def list_missions_root(status: str | None = None):
     return list_missions(status=status)
 
 

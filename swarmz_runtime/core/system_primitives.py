@@ -4,12 +4,12 @@ import hashlib
 import json
 import secrets
 from collections import deque
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from threading import RLock
-from typing import Any, Deque, Dict, List, Optional
+from typing import Any
 
-ERROR_TAXONOMY: Dict[str, Dict[str, str]] = {
+ERROR_TAXONOMY: dict[str, dict[str, str]] = {
     "constraint_violation": {
         "severity": "high",
         "category": "policy",
@@ -39,12 +39,12 @@ ERROR_TAXONOMY: Dict[str, Dict[str, str]] = {
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def classify_error(
-    code: str, message: str, details: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    code: str, message: str, details: dict[str, Any] | None = None
+) -> dict[str, Any]:
     meta = ERROR_TAXONOMY.get(code, ERROR_TAXONOMY["unknown_error"])
     return {
         "code": code if code in ERROR_TAXONOMY else "unknown_error",
@@ -58,13 +58,11 @@ def classify_error(
 
 class RealTimeConstraintSolver:
     def __init__(self) -> None:
-        self._cache: Dict[str, Dict[str, Any]] = {}
+        self._cache: dict[str, dict[str, Any]] = {}
         self._lock = RLock()
 
     @staticmethod
-    def _key(
-        mission_type: str, constraints: Dict[str, Any], facts: Dict[str, Any]
-    ) -> str:
+    def _key(mission_type: str, constraints: dict[str, Any], facts: dict[str, Any]) -> str:
         payload = {
             "mission_type": mission_type,
             "constraints": constraints,
@@ -74,8 +72,8 @@ class RealTimeConstraintSolver:
         return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
     def evaluate(
-        self, mission_type: str, constraints: Dict[str, Any], facts: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, mission_type: str, constraints: dict[str, Any], facts: dict[str, Any]
+    ) -> dict[str, Any]:
         k = self._key(mission_type, constraints, facts)
         with self._lock:
             if k in self._cache:
@@ -83,7 +81,7 @@ class RealTimeConstraintSolver:
                 cached["cache_hit"] = True
                 return cached
 
-        violations: List[str] = []
+        violations: list[str] = []
         budget_cap = float(constraints.get("budget_cap", 0) or 0)
         planned_spend = float(facts.get("planned_spend", 0) or 0)
         autonomy = int(facts.get("autonomy_level", 0) or 0)
@@ -118,13 +116,13 @@ class DecisionLedger:
     def append(
         self,
         *,
-        state_snapshot: Dict[str, Any],
+        state_snapshot: dict[str, Any],
         regime: str,
-        scores: Dict[str, Any],
+        scores: dict[str, Any],
         chosen_action: str,
-        suppression_reason: Optional[str],
+        suppression_reason: str | None,
         config_checksum: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         row = {
             "decision_id": f"dec-{secrets.token_hex(6)}",
             "state_snapshot": state_snapshot,
@@ -153,14 +151,14 @@ class ContractValidator:
         "sync_template",
     }
 
-    def validate(self, action: Dict[str, Any]) -> Dict[str, Any]:
-        violations: List[str] = []
+    def validate(self, action: dict[str, Any]) -> dict[str, Any]:
+        violations: list[str] = []
 
         if not isinstance(action, dict):
             violations.append("action_must_be_object")
             return {"allowed": False, "violations": violations}
 
-        unknown_fields = [k for k in action.keys() if k not in self.ALLOWED_TOP_LEVEL]
+        unknown_fields = [k for k in action if k not in self.ALLOWED_TOP_LEVEL]
         if unknown_fields:
             violations.append(f"unknown_fields:{','.join(sorted(unknown_fields))}")
 
@@ -204,9 +202,7 @@ class ContractValidator:
             if not bool(meta.get("weaver_validated", False)):
                 violations.append("weaver_validation_required")
             source = str(meta.get("source", "")).strip().lower()
-            if source.startswith("companion") and not bool(
-                meta.get("weaver_validated", False)
-            ):
+            if source.startswith("companion") and not bool(meta.get("weaver_validated", False)):
                 violations.append("companion_bypass_forbidden")
 
         return {
@@ -221,9 +217,9 @@ class MissionCompiler:
     def compile_mission(
         intent: str,
         mission_type: str,
-        constraints: Dict[str, Any],
-        context: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        constraints: dict[str, Any],
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
         if not intent.strip():
             raise ValueError("intent_required")
 
@@ -251,17 +247,17 @@ class MissionCompiler:
 
 class RealitySyncLayer:
     def __init__(self) -> None:
-        self._queue: Deque[Dict[str, Any]] = deque()
+        self._queue: deque[dict[str, Any]] = deque()
         self._lock = RLock()
-        self._state_projection: Dict[str, Any] = {
+        self._state_projection: dict[str, Any] = {
             "events_seen": 0,
             "last_event_type": None,
             "by_type": {},
         }
 
     def push(
-        self, event_type: str, payload: Dict[str, Any], source: str = "runtime"
-    ) -> Dict[str, Any]:
+        self, event_type: str, payload: dict[str, Any], source: str = "runtime"
+    ) -> dict[str, Any]:
         event = {
             "event_id": f"evt-{secrets.token_hex(6)}",
             "event_type": event_type,
@@ -273,16 +269,14 @@ class RealitySyncLayer:
             self._queue.append(event)
         return event
 
-    def drain(self, max_items: int = 100) -> Dict[str, Any]:
-        consumed: List[Dict[str, Any]] = []
+    def drain(self, max_items: int = 100) -> dict[str, Any]:
+        consumed: list[dict[str, Any]] = []
         with self._lock:
             for _ in range(max(1, min(max_items, len(self._queue)))):
                 item = self._queue.popleft()
                 consumed.append(item)
                 by_type = self._state_projection.setdefault("by_type", {})
-                by_type[item["event_type"]] = (
-                    int(by_type.get(item["event_type"], 0)) + 1
-                )
+                by_type[item["event_type"]] = int(by_type.get(item["event_type"], 0)) + 1
                 self._state_projection["events_seen"] = (
                     int(self._state_projection.get("events_seen", 0)) + 1
                 )
@@ -295,7 +289,7 @@ class RealitySyncLayer:
             "drained_at": _now(),
         }
 
-    def projection(self) -> Dict[str, Any]:
+    def projection(self) -> dict[str, Any]:
         with self._lock:
             return dict(self._state_projection)
 
@@ -304,11 +298,11 @@ class OperatorOverrideShell:
     def __init__(self) -> None:
         self._lock = RLock()
         self._frozen = False
-        self._max_autonomy_override: Optional[int] = None
+        self._max_autonomy_override: int | None = None
 
     def execute(
-        self, command: str, args: Dict[str, Any], operator_approved: bool, reason: str
-    ) -> Dict[str, Any]:
+        self, command: str, args: dict[str, Any], operator_approved: bool, reason: str
+    ) -> dict[str, Any]:
         if not operator_approved:
             return {
                 "ok": False,
@@ -356,7 +350,7 @@ class OperatorOverrideShell:
             "executed_at": _now(),
         }
 
-    def state(self) -> Dict[str, Any]:
+    def state(self) -> dict[str, Any]:
         with self._lock:
             return {
                 "frozen": self._frozen,
@@ -386,7 +380,7 @@ class SystemPrimitivesRuntime:
         raw = self._runtime_config_file.read_text(encoding="utf-8")
         return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
-    def _append_event(self, event_type: str, payload: Dict[str, Any]) -> None:
+    def _append_event(self, event_type: str, payload: dict[str, Any]) -> None:
         row = {
             "event_id": f"log-{secrets.token_hex(6)}",
             "event_type": event_type,
@@ -397,8 +391,8 @@ class SystemPrimitivesRuntime:
             fh.write(json.dumps(row) + "\n")
 
     def solve_constraints(
-        self, mission_type: str, constraints: Dict[str, Any], facts: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, mission_type: str, constraints: dict[str, Any], facts: dict[str, Any]
+    ) -> dict[str, Any]:
         decision = self.solver.evaluate(mission_type, constraints, facts)
         self._append_event("constraints_evaluated", decision)
         return decision
@@ -407,13 +401,11 @@ class SystemPrimitivesRuntime:
         self,
         intent: str,
         mission_type: str,
-        constraints: Dict[str, Any],
-        context: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        constraints: dict[str, Any],
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
         try:
-            compiled = self.compiler.compile_mission(
-                intent, mission_type, constraints, context
-            )
+            compiled = self.compiler.compile_mission(intent, mission_type, constraints, context)
         except Exception as exc:
             error = classify_error(
                 "compile_failed",
@@ -426,31 +418,27 @@ class SystemPrimitivesRuntime:
         return {"ok": True, "compiled": compiled}
 
     def push_reality_event(
-        self, event_type: str, payload: Dict[str, Any], source: str
-    ) -> Dict[str, Any]:
+        self, event_type: str, payload: dict[str, Any], source: str
+    ) -> dict[str, Any]:
         event = self.sync.push(event_type, payload, source)
         self._append_event("reality_event_pushed", event)
         return event
 
-    def drain_reality_events(self, max_items: int) -> Dict[str, Any]:
+    def drain_reality_events(self, max_items: int) -> dict[str, Any]:
         drained = self.sync.drain(max_items)
         self._append_event("reality_events_drained", {"count": drained.get("count", 0)})
         return drained
 
     def execute_override(
-        self, command: str, args: Dict[str, Any], operator_approved: bool, reason: str
-    ) -> Dict[str, Any]:
+        self, command: str, args: dict[str, Any], operator_approved: bool, reason: str
+    ) -> dict[str, Any]:
         result = self.override_shell.execute(command, args, operator_approved, reason)
         self._append_event("operator_override", result)
         return result
 
-    def validate_contract(
-        self, action: Dict[str, Any], regime: str = "default"
-    ) -> Dict[str, Any]:
+    def validate_contract(self, action: dict[str, Any], regime: str = "default") -> dict[str, Any]:
         decision = self.validator.validate(action)
-        suppression_reason = (
-            None if decision["allowed"] else ";".join(decision["violations"])
-        )
+        suppression_reason = None if decision["allowed"] else ";".join(decision["violations"])
         ledger_row = self.decision_ledger.append(
             state_snapshot={
                 "override": self.override_shell.state(),
@@ -474,7 +462,7 @@ class SystemPrimitivesRuntime:
         self._append_event("contract_validated", out)
         return out
 
-    def snapshot(self) -> Dict[str, Any]:
+    def snapshot(self) -> dict[str, Any]:
         return {
             "override": self.override_shell.state(),
             "reality_projection": self.sync.projection(),

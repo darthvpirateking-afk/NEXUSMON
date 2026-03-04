@@ -1,7 +1,8 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import Dict, Any, List
+from typing import Any
+
 from swarmz_runtime.storage.db import Database
 
 
@@ -10,7 +11,7 @@ class ProphetEngine:
         self.db = db
         self.failure_patterns = {}
 
-    def analyze_failures(self) -> List[Dict[str, Any]]:
+    def analyze_failures(self) -> list[dict[str, Any]]:
         audit = self.db.load_audit_log(limit=1000)
         failures = [e for e in audit if e.get("event_type") == "mission_failed"]
 
@@ -36,13 +37,13 @@ class ProphetEngine:
 
         return sorted(prophecies, key=lambda x: x["likelihood"], reverse=True)
 
-    def _extract_failure_signature(self, failure: Dict[str, Any]) -> str:
+    def _extract_failure_signature(self, failure: dict[str, Any]) -> str:
         details = failure.get("details", {})
         reason = details.get("reason", "unknown")
         category = details.get("category", "unknown")
         return f"{category}:{reason}"
 
-    def predict_failure_risk(self, mission: Dict[str, Any]) -> float:
+    def predict_failure_risk(self, mission: dict[str, Any]) -> float:
         category = mission.get("category", "forge")
         signature = f"{category}:resource_limit"
 

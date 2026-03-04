@@ -3,9 +3,9 @@ from __future__ import annotations
 import hashlib
 import json
 import secrets
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class FusionRegistry:
@@ -19,13 +19,13 @@ class FusionRegistry:
 
     @staticmethod
     def _now() -> str:
-        return datetime.now(timezone.utc).isoformat()
+        return datetime.now(UTC).isoformat()
 
     @staticmethod
-    def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
+    def _read_jsonl(path: Path) -> list[dict[str, Any]]:
         if not path.exists():
             return []
-        rows: List[Dict[str, Any]] = []
+        rows: list[dict[str, Any]] = []
         with path.open("r", encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
@@ -38,13 +38,13 @@ class FusionRegistry:
         return rows
 
     @staticmethod
-    def _append_jsonl(path: Path, record: Dict[str, Any]) -> None:
+    def _append_jsonl(path: Path, record: dict[str, Any]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(record) + "\n")
 
     @staticmethod
-    def _hash_payload(prev_hash: str, payload: Dict[str, Any]) -> str:
+    def _hash_payload(prev_hash: str, payload: dict[str, Any]) -> str:
         normalized = json.dumps(payload, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256((prev_hash + normalized).encode("utf-8")).hexdigest()
 
@@ -54,9 +54,9 @@ class FusionRegistry:
         owner: str,
         source: str,
         summary: str,
-        tags: Optional[List[str]] = None,
-        linked_docs: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        tags: list[str] | None = None,
+        linked_docs: list[str] | None = None,
+    ) -> dict[str, Any]:
         rows = self._read_jsonl(self._registry)
         prev_hash = rows[-1]["hash"] if rows else "genesis"
 
@@ -76,10 +76,10 @@ class FusionRegistry:
         self._append_jsonl(self._registry, entry)
         return entry
 
-    def list_entries(self) -> List[Dict[str, Any]]:
+    def list_entries(self) -> list[dict[str, Any]]:
         return self._read_jsonl(self._registry)
 
-    def verify_chain(self) -> Dict[str, Any]:
+    def verify_chain(self) -> dict[str, Any]:
         rows = self._read_jsonl(self._registry)
         prev_hash = "genesis"
         for idx, row in enumerate(rows, start=1):
@@ -100,11 +100,11 @@ class FusionRegistry:
             "head_hash": prev_hash if rows else "genesis",
         }
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         rows = self._read_jsonl(self._registry)
-        by_owner: Dict[str, int] = {}
-        by_source: Dict[str, int] = {}
-        tags: Dict[str, int] = {}
+        by_owner: dict[str, int] = {}
+        by_source: dict[str, int] = {}
+        tags: dict[str, int] = {}
 
         for row in rows:
             payload = row.get("payload", {})

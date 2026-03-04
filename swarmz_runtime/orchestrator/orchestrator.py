@@ -3,13 +3,14 @@
 # See LICENSE file for details.
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import time
-import urllib.request
 import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # -----------------------------
 # Data models
@@ -30,7 +31,7 @@ class Agent:
     role: str
     goal: str
     backstory: str = ""
-    tools: List[str] = field(default_factory=list)
+    tools: list[str] = field(default_factory=list)
     verbose: bool = True
 
 
@@ -49,8 +50,8 @@ class Task:
 
 @dataclass
 class CrewResult:
-    tasks: List[Task]
-    outputs: List[Dict[str, Any]]
+    tasks: list[Task]
+    outputs: list[dict[str, Any]]
 
 
 # -----------------------------
@@ -73,9 +74,7 @@ class OpenAIResponsesClient:
     def __init__(self):
         self.api_key = os.getenv("OPENAI_API_KEY", "").strip()
         self.model = os.getenv("SWARMZ_MODEL", "gpt-4.1-mini").strip()
-        self.base_url = os.getenv(
-            "OPENAI_BASE_URL", "https://api.openai.com/v1"
-        ).rstrip("/")
+        self.base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
         self.timeout_s = int(os.getenv("SWARMZ_TIMEOUT_S", "60"))
         self.retries = int(os.getenv("SWARMZ_RETRIES", "2"))
 
@@ -83,7 +82,7 @@ class OpenAIResponsesClient:
         live_flag = os.getenv("SWARMZ_ENABLE_LIVE_LLM", "0")
         return bool(self.api_key) and live_flag not in {"0", "false", "False", ""}
 
-    def create_response(self, prompt: str) -> Dict[str, Any]:
+    def create_response(self, prompt: str) -> dict[str, Any]:
         url = f"{self.base_url}/responses"
         payload = {
             "model": self.model,
@@ -96,22 +95,18 @@ class OpenAIResponsesClient:
             "Authorization": f"Bearer {self.api_key}",
         }
 
-        last_err: Optional[str] = None
+        last_err: str | None = None
         for attempt in range(self.retries + 1):
             try:
-                req = urllib.request.Request(
-                    url, data=body, headers=headers, method="POST"
-                )
+                req = urllib.request.Request(url, data=body, headers=headers, method="POST")
                 with urllib.request.urlopen(req, timeout=self.timeout_s) as resp:
                     raw = resp.read().decode("utf-8", errors="replace")
                 return json.loads(raw)
 
             except urllib.error.HTTPError as e:
                 raw = ""
-                try:
+                with contextlib.suppress(Exception):
                     raw = e.read().decode("utf-8", errors="replace")
-                except Exception:
-                    pass
 
                 # Backoff for 429 / 5xx
                 if e.code in (429, 500, 502, 503, 504) and attempt < self.retries:
@@ -119,9 +114,7 @@ class OpenAIResponsesClient:
                     last_err = f"HTTP {e.code}: {raw or str(e)}"
                     continue
 
-                raise RuntimeError(
-                    f"OpenAI Responses HTTPError {e.code}: {raw or str(e)}"
-                ) from e
+                raise RuntimeError(f"OpenAI Responses HTTPError {e.code}: {raw or str(e)}") from e
 
             except urllib.error.URLError as e:
                 if attempt < self.retries:
@@ -137,12 +130,10 @@ class OpenAIResponsesClient:
                     continue
                 raise
 
-        raise RuntimeError(
-            f"OpenAI call failed after retries: {last_err or 'unknown error'}"
-        )
+        raise RuntimeError(f"OpenAI call failed after retries: {last_err or 'unknown error'}")
 
 
-def _extract_output_text(resp: Dict[str, Any]) -> str:
+def _extract_output_text(resp: dict[str, Any]) -> str:
     """
     Responses API returns:
       - top-level output_text (convenience)
@@ -155,7 +146,7 @@ def _extract_output_text(resp: Dict[str, Any]) -> str:
 
         out = resp.get("output")
         if isinstance(out, list):
-            parts: List[str] = []
+            parts: list[str] = []
             for item in out:
                 if not isinstance(item, dict):
                     continue
@@ -195,14 +186,14 @@ class Crew:
       - graph execution / parallelism
     """
 
-    def __init__(self, agents: List[Agent], tasks: List[Task], verbose: bool = True):
+    def __init__(self, agents: list[Agent], tasks: list[Task], verbose: bool = True):
         self.agents = {a.name: a for a in agents}
         self.tasks = tasks
         self.verbose = verbose
         self.llm = OpenAIResponsesClient()
 
     def kickoff(self) -> CrewResult:
-        outputs: List[Dict[str, Any]] = []
+        outputs: list[dict[str, Any]] = []
 
         for task in self.tasks:
             agent = self.agents.get(task.agent_name)
@@ -359,7 +350,7 @@ class Crew:
             )
 
 
-def crew_from_config(config: Dict[str, Any]) -> Crew:
+def crew_from_config(config: dict[str, Any]) -> Crew:
     """
     Build a Crew from a JSON-like config.
 
@@ -374,7 +365,7 @@ def crew_from_config(config: Dict[str, Any]) -> Crew:
     tasks_cfg = config.get("tasks", [])
     verbose = bool(config.get("verbose", True))
 
-    agents: List[Agent] = []
+    agents: list[Agent] = []
     for a in agents_cfg:
         agents.append(
             Agent(
@@ -387,7 +378,7 @@ def crew_from_config(config: Dict[str, Any]) -> Crew:
             )
         )
 
-    tasks: List[Task] = []
+    tasks: list[Task] = []
     for t in tasks_cfg:
         tasks.append(
             Task(

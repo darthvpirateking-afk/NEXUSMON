@@ -1,11 +1,12 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import Dict, Any
+from typing import Any
+
 from swarmz_runtime.storage.schema import CrossLayerScores, TransactionValidation
 
 
-def validate_transaction(mission: Dict[str, Any]) -> TransactionValidation:
+def validate_transaction(mission: dict[str, Any]) -> TransactionValidation:
     compute_cost = _evaluate_compute_cost(mission)
     maintainability = _evaluate_maintainability(mission)
     attention = _evaluate_attention(mission)
@@ -23,12 +24,7 @@ def validate_transaction(mission: Dict[str, Any]) -> TransactionValidation:
     )
 
     avg_score = (
-        compute_cost
-        + maintainability
-        + attention
-        + economic_value
-        + trust
-        + prediction_confidence
+        compute_cost + maintainability + attention + economic_value + trust + prediction_confidence
     ) / 6
 
     failing = avg_score < 30
@@ -44,7 +40,7 @@ def validate_transaction(mission: Dict[str, Any]) -> TransactionValidation:
     )
 
 
-def _evaluate_compute_cost(mission: Dict[str, Any]) -> float:
+def _evaluate_compute_cost(mission: dict[str, Any]) -> float:
     constraints = mission.get("constraints", {})
     max_tokens = constraints.get("max_tokens", 1000)
     max_time = constraints.get("max_time_seconds", 60)
@@ -61,7 +57,7 @@ def _evaluate_compute_cost(mission: Dict[str, Any]) -> float:
     return (token_score + time_score) / 2
 
 
-def _evaluate_maintainability(mission: Dict[str, Any]) -> float:
+def _evaluate_maintainability(mission: dict[str, Any]) -> float:
     goal = mission.get("goal", "")
     constraints = mission.get("constraints", {})
 
@@ -77,7 +73,7 @@ def _evaluate_maintainability(mission: Dict[str, Any]) -> float:
     return 80
 
 
-def _evaluate_attention(mission: Dict[str, Any]) -> float:
+def _evaluate_attention(mission: dict[str, Any]) -> float:
     constraints = mission.get("constraints", {})
     steps = constraints.get("max_steps", 3)
 
@@ -89,7 +85,7 @@ def _evaluate_attention(mission: Dict[str, Any]) -> float:
     return 90
 
 
-def _evaluate_economic_value(mission: Dict[str, Any]) -> float:
+def _evaluate_economic_value(mission: dict[str, Any]) -> float:
     category = mission.get("category", "forge")
 
     value_map = {"coin": 90, "forge": 70, "library": 50, "sanctuary": 40}
@@ -97,9 +93,9 @@ def _evaluate_economic_value(mission: Dict[str, Any]) -> float:
     return value_map.get(category, 50)
 
 
-def _evaluate_trust(mission: Dict[str, Any]) -> float:
+def _evaluate_trust(mission: dict[str, Any]) -> float:
     return 80
 
 
-def _evaluate_prediction_confidence(mission: Dict[str, Any]) -> float:
+def _evaluate_prediction_confidence(mission: dict[str, Any]) -> float:
     return 75

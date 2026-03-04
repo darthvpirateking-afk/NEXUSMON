@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 def read_jsonl(path: str | Path) -> list[dict]:
@@ -26,11 +26,11 @@ def read_jsonl(path: str | Path) -> list[dict]:
     if not path.exists():
         return []
 
-    records: List[Dict[str, Any]] = []
-    quarantined_lines: List[str] = []
+    records: list[dict[str, Any]] = []
+    quarantined_lines: list[str] = []
 
     try:
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             for lineno, raw in enumerate(fh, start=1):
                 line = raw.strip()
                 if not line:
@@ -48,7 +48,7 @@ def read_jsonl(path: str | Path) -> list[dict]:
     return records
 
 
-def write_jsonl(path: str | Path, records: List[Dict[str, Any]]) -> None:
+def write_jsonl(path: str | Path, records: list[dict[str, Any]]) -> None:
     """Overwrite a JSONL file with *records* (one JSON object per line).
 
     Creates parent directories if needed.  Never raises on missing dirs.
@@ -60,7 +60,7 @@ def write_jsonl(path: str | Path, records: List[Dict[str, Any]]) -> None:
             fh.write(json.dumps(rec, default=str) + "\n")
 
 
-def append_jsonl(path: str | Path, record: Dict[str, Any]) -> None:
+def append_jsonl(path: str | Path, record: dict[str, Any]) -> None:
     """Append a single record to a JSONL file.
 
     Creates parent directories and the file if needed.
@@ -71,7 +71,7 @@ def append_jsonl(path: str | Path, record: Dict[str, Any]) -> None:
         fh.write(json.dumps(record, default=str) + "\n")
 
 
-def _quarantine_log(path: Path, lines: List[str]) -> None:
+def _quarantine_log(path: Path, lines: list[str]) -> None:
     """Log quarantined lines to a sidecar .quarantine file."""
     q_path = path.with_suffix(path.suffix + ".quarantine")
     try:

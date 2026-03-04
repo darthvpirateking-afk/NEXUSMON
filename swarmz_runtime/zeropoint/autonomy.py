@@ -9,23 +9,24 @@ autonomy trait: reserved for ZERO-POINT FORM only.
 
 All proposals and decisions are persisted at artifacts/zeropoint/autonomy_queue.jsonl.
 """
+
 from __future__ import annotations
 
 import json
 import secrets
 import threading
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 _QUEUE_FILE = Path("artifacts/zeropoint/autonomy_queue.jsonl")
 _LOCK = threading.Lock()
-_AUTONOMY_ENGINE: "AutonomyEngine | None" = None
+_AUTONOMY_ENGINE: AutonomyEngine | None = None
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @dataclass
@@ -52,7 +53,7 @@ class Proposal:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "Proposal":
+    def from_dict(cls, d: dict[str, Any]) -> Proposal:
         return cls(
             proposal_id=str(d.get("proposal_id", "")),
             title=str(d.get("title", "")),
@@ -101,7 +102,8 @@ class AutonomyEngine:
             return None
         # Check for decision
         decisions = [
-            e for e in entries
+            e
+            for e in entries
             if e.get("proposal_id") == proposal_id and e.get("type") in ("approve", "reject")
         ]
         proposal = Proposal.from_dict(proposal_entry)
@@ -138,6 +140,7 @@ class AutonomyEngine:
     def approve(self, proposal_id: str, operator_key: str) -> dict[str, Any]:
         """Operator approves a proposal — dispatches via CommandFusion."""
         from swarmz_runtime.shadow.executor import validate_operator_key
+
         validate_operator_key(operator_key)
 
         proposal = self._get_proposal(proposal_id)
@@ -148,10 +151,14 @@ class AutonomyEngine:
 
         outcome: dict[str, Any] = {}
         try:
-            from swarmz_runtime.doctrine.command_fusion import (
-                CommandFusion, FusionScript, FusionStep, get_command_fusion
-            )
             import asyncio
+
+            from swarmz_runtime.doctrine.command_fusion import (
+                FusionScript,
+                FusionStep,
+                get_command_fusion,
+            )
+
             steps = [FusionStep.from_dict(s) for s in proposal.steps]
             script = FusionScript(
                 steps=steps,
@@ -163,12 +170,14 @@ class AutonomyEngine:
         except Exception as exc:
             outcome = {"error": str(exc)}
 
-        self._append_entry({
-            "type": "approve",
-            "proposal_id": proposal_id,
-            "decided_at": _now_iso(),
-            "outcome": outcome,
-        })
+        self._append_entry(
+            {
+                "type": "approve",
+                "proposal_id": proposal_id,
+                "decided_at": _now_iso(),
+                "outcome": outcome,
+            }
+        )
         return {"proposal_id": proposal_id, "status": "approved", "outcome": outcome}
 
     def reject(self, proposal_id: str, reason: str = "") -> dict[str, Any]:
@@ -179,30 +188,24 @@ class AutonomyEngine:
         if proposal.status != "pending":
             raise ValueError(f"Proposal '{proposal_id}' is already {proposal.status}")
 
-        self._append_entry({
-            "type": "reject",
-            "proposal_id": proposal_id,
-            "decided_at": _now_iso(),
-            "reason": reason.strip(),
-            "outcome": {"rejected": True, "reason": reason.strip()},
-        })
+        self._append_entry(
+            {
+                "type": "reject",
+                "proposal_id": proposal_id,
+                "decided_at": _now_iso(),
+                "reason": reason.strip(),
+                "outcome": {"rejected": True, "reason": reason.strip()},
+            }
+        )
         return {"proposal_id": proposal_id, "status": "rejected"}
 
     def pending_queue(self) -> list[dict[str, Any]]:
         """Return all proposals still awaiting operator decision."""
         entries = self._read_entries()
-        proposal_entries = {
-            e["proposal_id"]: e
-            for e in entries if e.get("type") == "propose"
-        }
-        decided = {
-            e["proposal_id"]
-            for e in entries if e.get("type") in ("approve", "reject")
-        }
+        proposal_entries = {e["proposal_id"]: e for e in entries if e.get("type") == "propose"}
+        decided = {e["proposal_id"] for e in entries if e.get("type") in ("approve", "reject")}
         return [
-            Proposal.from_dict(v).to_dict()
-            for k, v in proposal_entries.items()
-            if k not in decided
+            Proposal.from_dict(v).to_dict() for k, v in proposal_entries.items() if k not in decided
         ]
 
     def history(self) -> list[dict[str, Any]]:

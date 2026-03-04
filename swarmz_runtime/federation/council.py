@@ -8,14 +8,15 @@ Persistence: registration events and coordination snapshots are written to
 artifacts/federation/{federation_id}.jsonl (coordination) and
 artifacts/federation/registry.jsonl (agent registrations).
 """
+
 from __future__ import annotations
 
 import asyncio
 import json
 import threading
 import time
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -25,7 +26,7 @@ _REGISTRY_FILE = _ARTIFACTS_DIR / "registry.jsonl"
 
 
 def _utc() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _coord_path(federation_id: str) -> Path:
@@ -57,7 +58,7 @@ class AgentResult:
 
     agent_id: str
     mode: str
-    status: str           # "complete" | "error"
+    status: str  # "complete" | "error"
     output: str | None
     error: str | None
     tokens: int
@@ -159,9 +160,7 @@ class FederationCouncil:
         """
         with self._lock:
             if agent_id not in self._agents:
-                raise AgentNotFound(
-                    f"Agent '{agent_id}' is not registered in the federation."
-                )
+                raise AgentNotFound(f"Agent '{agent_id}' is not registered in the federation.")
             del self._agents[agent_id]
 
         _persist_line(_REGISTRY_FILE, {"_type": "deregister", "agent_id": agent_id, "at": _utc()})
@@ -201,10 +200,7 @@ class FederationCouncil:
             },
         )
 
-        tasks = [
-            self._dispatch_agent(reg, goal, budget_tokens)
-            for reg in agents_snapshot
-        ]
+        tasks = [self._dispatch_agent(reg, goal, budget_tokens) for reg in agents_snapshot]
         agent_results: list[AgentResult] = await asyncio.gather(*tasks)
 
         completed_at = _utc()
@@ -226,6 +222,7 @@ class FederationCouncil:
             if ar.status == "complete":
                 try:
                     from swarmz_runtime.evolution.engine import award_xp
+
                     xp = max(1, int(ar.tokens / 100))
                     award_xp(ar.agent_id, xp, f"federation:{federation_id}")
                 except Exception:
@@ -242,6 +239,7 @@ class FederationCouncil:
         start = time.perf_counter()
         try:
             from swarmz_runtime.bridge.llm import call_v2
+
             bridge = await call_v2(
                 prompt=goal,
                 mode=reg.mode,

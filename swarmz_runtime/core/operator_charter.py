@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any, Dict, List
+from datetime import UTC, datetime
+from typing import Any
 
 OPERATOR_PRIME_DIRECTIVE = (
     "All systems, agents, organisms, and autonomous processes must act in service of the "
@@ -87,15 +87,15 @@ class CharterDecision:
     mode: str
     allowed: bool
     rationale: str
-    constraints: List[str]
+    constraints: list[str]
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "mode": self.mode,
             "allowed": self.allowed,
             "rationale": self.rationale,
             "constraints": self.constraints,
-            "evaluated_at": datetime.now(timezone.utc).isoformat(),
+            "evaluated_at": datetime.now(UTC).isoformat(),
         }
 
 
@@ -123,8 +123,7 @@ def evaluate_prime_directive(
         )
 
     is_high_risk = any(
-        k in action.lower()
-        for k in ["rollback", "withdraw", "execute", "publish", "high_risk"]
+        k in action.lower() for k in ["rollback", "withdraw", "execute", "publish", "high_risk"]
     )
     constraints = [
         "ledger_log_required",
@@ -142,14 +141,14 @@ def evaluate_prime_directive(
     )
 
 
-def charter_document() -> Dict[str, Any]:
+def charter_document() -> dict[str, Any]:
     return {
         "prime_directive": OPERATOR_PRIME_DIRECTIVE,
         "sections": OPERATOR_CHARTER_SECTIONS,
     }
 
 
-def doctrine_document() -> Dict[str, Any]:
+def doctrine_document() -> dict[str, Any]:
     return {
         "system_primitives": SYSTEM_PRIMITIVES,
         "runtime_refactor_requirements": RUNTIME_REFACTOR_REQUIREMENTS,
@@ -161,7 +160,7 @@ def doctrine_document() -> Dict[str, Any]:
     }
 
 
-def future_contract() -> Dict[str, Any]:
+def future_contract() -> dict[str, Any]:
     return {
         "changes": FUTURE_CHANGE_VECTOR,
         "does_not_change": FUTURE_INVARIANTS,
@@ -180,9 +179,9 @@ def evaluate_change_flow(
     in_memory_passing: bool,
     replayable_steps: bool,
     external_verification: bool,
-) -> Dict[str, Any]:
-    violations: List[str] = []
-    constraints: List[str] = ["ordered_event_log_required", "append_only_required"]
+) -> dict[str, Any]:
+    violations: list[str] = []
+    constraints: list[str] = ["ordered_event_log_required", "append_only_required"]
 
     if write_mode != "append_only":
         violations.append("write_mode_must_be_append_only")
@@ -221,7 +220,7 @@ def evaluate_change_flow(
         "rationale": rationale,
         "constraints": constraints,
         "violations": violations,
-        "evaluated_at": datetime.now(timezone.utc).isoformat(),
+        "evaluated_at": datetime.now(UTC).isoformat(),
     }
 
 
@@ -234,8 +233,8 @@ def evaluate_operating_matrix(
     replayable_step: bool,
     irreversible_action: bool,
     operator_approved: bool,
-) -> Dict[str, Any]:
-    violations: List[str] = []
+) -> dict[str, Any]:
+    violations: list[str] = []
 
     if not has_artifact:
         violations.append("no_artifact_nonexistent")
@@ -260,5 +259,5 @@ def evaluate_operating_matrix(
             else "Operating matrix rejected action."
         ),
         "violations": violations,
-        "evaluated_at": datetime.now(timezone.utc).isoformat(),
+        "evaluated_at": datetime.now(UTC).isoformat(),
     }

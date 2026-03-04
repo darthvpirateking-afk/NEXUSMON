@@ -1,15 +1,15 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-from typing import Dict, Any
 from datetime import datetime, timedelta
+from typing import Any
 
 
 class CadenceEngine:
     def __init__(self):
         self.intervals = [3600, 21600, 86400, 259200, 604800, 2592000]
 
-    def calculate_next_interval(self, mission: Dict[str, Any], success: bool) -> int:
+    def calculate_next_interval(self, mission: dict[str, Any], success: bool) -> int:
         current_interval = mission.get("revisit_interval", 3600)
 
         if success:
@@ -25,6 +25,6 @@ class CadenceEngine:
                 return i
         return len(self.intervals) - 1
 
-    def schedule_next_run(self, mission: Dict[str, Any], success: bool) -> datetime:
+    def schedule_next_run(self, mission: dict[str, Any], success: bool) -> datetime:
         next_interval = self.calculate_next_interval(mission, success)
         return datetime.now() + timedelta(seconds=next_interval)

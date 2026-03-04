@@ -4,12 +4,13 @@ Routes prompts through the bridge with mode-specific system prompts.
 All responses are stored as artifacts in artifacts/companion/.
 Guardian mode is blocked — it observes and reports only.
 """
+
 from __future__ import annotations
 
 import json
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -55,20 +56,48 @@ _TIER_LABEL: dict[str, str] = {
 # Cosmic keyword routing
 # ---------------------------------------------------------------------------
 
-_COSMIC_KEYWORDS: frozenset[str] = frozenset([
-    "universe", "cosmos", "galaxy", "star", "planet", "history",
-    "civilization", "ancient", "future", "time", "quantum", "physics",
-    "evolution", "earth", "space", "dimension", "reality", "consciousness",
-    "existence", "origin", "creation", "past", "timeline", "scale",
-    "multiverse", "biology", "chemistry", "nature",
-])
+_COSMIC_KEYWORDS: frozenset[str] = frozenset(
+    [
+        "universe",
+        "cosmos",
+        "galaxy",
+        "star",
+        "planet",
+        "history",
+        "civilization",
+        "ancient",
+        "future",
+        "time",
+        "quantum",
+        "physics",
+        "evolution",
+        "earth",
+        "space",
+        "dimension",
+        "reality",
+        "consciousness",
+        "existence",
+        "origin",
+        "creation",
+        "past",
+        "timeline",
+        "scale",
+        "multiverse",
+        "biology",
+        "chemistry",
+        "nature",
+    ]
+)
 
 _KEYWORD_SCALE_MAP: list[tuple[frozenset[str], str]] = [
     (frozenset({"quantum", "particle", "wave", "superposition", "entanglement"}), "quantum"),
     (frozenset({"history", "ancient", "civilization", "empire", "dynasty"}), "civilizational"),
     (frozenset({"galaxy", "galactic", "milky"}), "galactic"),
     (frozenset({"star", "stellar", "supernova", "neutron"}), "stellar"),
-    (frozenset({"universe", "cosmos", "cosmic", "big bang", "dark matter", "dark energy"}), "cosmic"),
+    (
+        frozenset({"universe", "cosmos", "cosmic", "big bang", "dark matter", "dark energy"}),
+        "cosmic",
+    ),
     (frozenset({"past", "future", "timeline", "deep time", "billion years"}), "temporal"),
     (frozenset({"multiverse", "string theory", "bubble universe"}), "multiversal"),
     (frozenset({"planet", "earth", "geology", "ecology"}), "planetary"),
@@ -122,18 +151,20 @@ class CompanionResponse:
 def _store_artifact(response: CompanionResponse, prompt: str) -> None:
     try:
         _ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-        ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f")
+        ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%f")
         path = _ARTIFACTS_DIR / f"{ts}_{response.mode}.json"
         path.write_text(
-            json.dumps({
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "mode": response.mode,
-                "tier_used": response.tier_used,
-                "prompt": prompt,
-                "reply": response.reply,
-                "tokens": response.tokens,
-                "latency_ms": response.latency_ms,
-            })
+            json.dumps(
+                {
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "mode": response.mode,
+                    "tier_used": response.tier_used,
+                    "prompt": prompt,
+                    "reply": response.reply,
+                    "tokens": response.tokens,
+                    "latency_ms": response.latency_ms,
+                }
+            )
         )
     except Exception:
         pass
@@ -156,6 +187,7 @@ async def generate_response(
     _mem_prefix = ""
     try:
         from swarmz_runtime.operator.memory import get_operator_memory
+
         _mem = get_operator_memory().load()
         _name = _mem.name.strip() or "Operator"
         _mem_prefix = (
@@ -196,6 +228,7 @@ async def generate_response(
     if _is_cosmic_prompt(prompt, mode):
         try:
             from swarmz_runtime.intelligence.cosmic import get_cosmic_intelligence
+
             scale = _detect_scale(prompt)
             ci = get_cosmic_intelligence()
             cosmic_resp = ci.query(prompt, scale, mode)
@@ -205,15 +238,17 @@ async def generate_response(
             ws_id: str | None = None
             try:
                 import uuid as _uuid
-                from swarmz_runtime.intelligence.worldspace import WorldSpaceEntry, get_world_space
+
                 from swarmz_runtime.intelligence.cosmic import ScaleLevel
+                from swarmz_runtime.intelligence.worldspace import WorldSpaceEntry, get_world_space
+
                 ws_entry = WorldSpaceEntry(
                     entry_id=_uuid.uuid4().hex[:16],
                     subject=prompt[:120],
                     scale=ScaleLevel(scale),
                     content=cosmic_resp.content,
                     connections=[],
-                    timestamp=datetime.now(timezone.utc).isoformat(),
+                    timestamp=datetime.now(UTC).isoformat(),
                     operator="Regan Harris",
                     tags=[scale, mode],
                     depth=cosmic_resp.reasoning_depth,
@@ -243,9 +278,7 @@ async def generate_response(
     try:
         bridge = await call_v2(prompt=prompt, mode=mode, context=ctx, budget_tokens=2048)
         latency_ms = (time.perf_counter() - start) * 1000.0
-        tier_label = _TIER_LABEL.get(
-            getattr(bridge, "tier", mode), mode.upper()
-        )
+        tier_label = _TIER_LABEL.get(getattr(bridge, "tier", mode), mode.upper())
         response = CompanionResponse(
             reply=bridge.content,
             mode=mode,

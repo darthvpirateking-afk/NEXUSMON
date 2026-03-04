@@ -1,12 +1,12 @@
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Query, Request
-from typing import Optional
-from datetime import datetime, timezone
 
 v1_stubs_router = APIRouter(tags=["v1"])
 
 
 @v1_stubs_router.get("/prepared/pending")
-async def get_prepared_pending(tag: Optional[str] = Query(default=None)):
+async def get_prepared_pending(tag: str | None = Query(default=None)):
     # Example stub: match test contract exactly
     items = []
     if tag:
@@ -23,5 +23,5 @@ async def get_ai_status(request: Request):
         "ok": True,
         "phase": phase or "quarantine",
         "quarantine": True,
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": datetime.now(UTC).isoformat(),
     }

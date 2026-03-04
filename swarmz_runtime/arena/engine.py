@@ -7,21 +7,22 @@ selects a winner, and persists everything to JSONL storage + audit log.
 
 from __future__ import annotations
 
-import uuid
 import concurrent.futures
+import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from swarmz_runtime.storage.schema import AuditEntry
+
+from .config import load_config
 from .schema import (
-    ArenaRun,
     ArenaCandidate,
+    ArenaRun,
     ArenaRunStatus,
     CandidateStatus,
 )
+from .scoring import rank_candidates, score_candidate
 from .store import ArenaStore
-from .scoring import score_candidate, rank_candidates
-from .config import load_config
 
 
 def _generate_response(prompt: str, worker_index: int) -> str:
@@ -51,7 +52,7 @@ class ArenaEngine:
         self.store = store
         self._audit_fn = audit_fn  # callable(AuditEntry) to log audit
 
-    def _audit(self, event_type: str, run_id: str, details: Dict[str, Any]):
+    def _audit(self, event_type: str, run_id: str, details: dict[str, Any]):
         if self._audit_fn:
             entry = AuditEntry(
                 event_type=event_type,
@@ -68,7 +69,7 @@ class ArenaEngine:
         prompt: str,
         num_candidates: int = 3,
         scoring_strategy: str = "length_quality",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Start a new arena run.
 
         Spawns up to num_candidates parallel workers, scores results,
@@ -101,9 +102,7 @@ class ArenaEngine:
         )
 
         # Spawn parallel workers
-        candidates = self._run_candidates(
-            run_id, prompt, num_candidates, scoring_strategy
-        )
+        candidates = self._run_candidates(run_id, prompt, num_candidates, scoring_strategy)
 
         # Rank and select winner
         ranked = rank_candidates(candidates)
@@ -143,14 +142,12 @@ class ArenaEngine:
 
     def _run_candidates(
         self, run_id: str, prompt: str, num_candidates: int, scoring_strategy: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Execute candidate generation in parallel."""
-        results: List[Dict[str, Any]] = []
+        results: list[dict[str, Any]] = []
 
         # Use ThreadPoolExecutor for parallel execution (up to 8 workers)
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=min(num_candidates, 8)
-        ) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(num_candidates, 8)) as executor:
             futures = {}
             for i in range(num_candidates):
                 cand_id = f"{run_id}_c{i}"
@@ -213,7 +210,7 @@ class ArenaEngine:
 
         return results
 
-    def get_run(self, run_id: str) -> Optional[Dict[str, Any]]:
+    def get_run(self, run_id: str) -> dict[str, Any] | None:
         """Get a run with its candidates."""
         run = self.store.get_run(run_id)
         if not run:
@@ -221,6 +218,6 @@ class ArenaEngine:
         run["candidate_details"] = self.store.get_candidates_for_run(run_id)
         return run
 
-    def list_runs(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def list_runs(self, limit: int = 50) -> list[dict[str, Any]]:
         """List recent arena runs."""
         return self.store.list_runs(limit)

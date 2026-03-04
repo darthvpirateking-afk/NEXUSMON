@@ -3,12 +3,13 @@
 Regan Stewart Harris. Session continuity. Relationship state.
 Every session recorded. Nothing forgotten.
 """
+
 from __future__ import annotations
 
 import json
 import threading
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -16,11 +17,11 @@ _ARTIFACTS_DIR = Path("artifacts/operator")
 _MEMORY_PATH = Path("artifacts/operator/memory.jsonl")
 _ANCHOR_PATH = Path("data/memory/archive/regan_core_memory_anchor.json")
 _LOCK = threading.Lock()
-_OPERATOR_MEMORY: "OperatorMemory | None" = None
+_OPERATOR_MEMORY: OperatorMemory | None = None
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _compute_relationship(session_count: int) -> str:
@@ -55,7 +56,7 @@ class MemoryEntry:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "MemoryEntry":
+    def from_dict(cls, d: dict[str, Any]) -> MemoryEntry:
         return cls(
             name=d.get("name", ""),
             session_count=int(d.get("session_count", 0)),
@@ -177,9 +178,9 @@ class OperatorMemory:
         if entry.last_seen:
             try:
                 last = datetime.fromisoformat(entry.last_seen)
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 if last.tzinfo is None:
-                    last = last.replace(tzinfo=timezone.utc)
+                    last = last.replace(tzinfo=UTC)
                 delta = now - last
                 if delta.days > 7:
                     return f"You were gone {delta.days} days. Systems maintained. Ready."

@@ -10,7 +10,7 @@ class SessionStore:
 
     def _load_sessions(self):
         if os.path.exists(self.storage_path):
-            with open(self.storage_path, "r") as file:
+            with open(self.storage_path) as file:
                 self.sessions = json.load(file)
 
     def append_session(self, session_data: dict):

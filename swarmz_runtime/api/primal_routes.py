@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, Query
 
@@ -15,7 +15,7 @@ _ecosystem = OperatorEcosystem(_ROOT_DIR)
 _fusion_registry = FusionRegistry(_ROOT_DIR)
 
 
-def _read_json(path: Path) -> Dict[str, Any]:
+def _read_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     try:
@@ -29,7 +29,7 @@ def _state_for_path(relative_path: str) -> str:
     return "LINKED" if (_ROOT_DIR / relative_path).exists() else "MISSING"
 
 
-def _default_primal_state_slate() -> Dict[str, Any]:
+def _default_primal_state_slate() -> dict[str, Any]:
     doctrine = _read_json(_DOCTRINE_PATH)
     systems = doctrine.get("systems", {}) if isinstance(doctrine, dict) else {}
     channels = doctrine.get("channels", {}) if isinstance(doctrine, dict) else {}
@@ -45,8 +45,8 @@ def _default_primal_state_slate() -> Dict[str, Any]:
         "DATAVEIN": "swarmz_runtime/storage/db.py",
     }
 
-    mapped_systems: Dict[str, Any] = {}
-    warnings: List[str] = []
+    mapped_systems: dict[str, Any] = {}
+    warnings: list[str] = []
     for key in systems.keys() if isinstance(systems, dict) else runtime_map.keys():
         runtime_path = runtime_map.get(key, "")
         state = _state_for_path(runtime_path) if runtime_path else "MISSING"
@@ -65,7 +65,7 @@ def _default_primal_state_slate() -> Dict[str, Any]:
         "GHOSTLINE": "SIM_PORT:8012",
     }
     if isinstance(channels, dict):
-        for key in channels.keys():
+        for key in channels:
             mapped_channels.setdefault(key, "PORT:8012")
 
     return {
@@ -89,14 +89,14 @@ def _default_primal_state_slate() -> Dict[str, Any]:
     }
 
 
-def _load_primal_state_slate() -> Dict[str, Any]:
+def _load_primal_state_slate() -> dict[str, Any]:
     configured = _read_json(_STATE_SLATE_PATH)
     if configured.get("PRIMAL_STATE_SLATE"):
         return configured
     return _default_primal_state_slate()
 
 
-def _extract_mission_id(row: Dict[str, Any]) -> Optional[str]:
+def _extract_mission_id(row: dict[str, Any]) -> str | None:
     details = row.get("details", {}) if isinstance(row.get("details"), dict) else {}
     mission_id = details.get("mission_id") or row.get("mission_id")
     if mission_id is None:
@@ -105,19 +105,19 @@ def _extract_mission_id(row: Dict[str, Any]) -> Optional[str]:
     return mid if mid else None
 
 
-def _normalize_mission_id(mission_id: Optional[str]) -> Optional[str]:
+def _normalize_mission_id(mission_id: str | None) -> str | None:
     if mission_id is None:
         return None
     mid = str(mission_id).strip()
     return mid if mid else None
 
 
-def _mission_trace_rows(mission_id: Optional[str], limit: int) -> List[Dict[str, Any]]:
+def _mission_trace_rows(mission_id: str | None, limit: int) -> list[dict[str, Any]]:
     mission_id = _normalize_mission_id(mission_id)
     events = _ecosystem.list_timeline()
     missions = _ecosystem.list_missions()
 
-    traces: Dict[str, Dict[str, Any]] = {}
+    traces: dict[str, dict[str, Any]] = {}
     for row in events:
         mid = _extract_mission_id(row)
         if not mid:
@@ -159,16 +159,14 @@ def _mission_trace_rows(mission_id: Optional[str], limit: int) -> List[Dict[str,
     rows.sort(
         key=lambda item: (
             str(item.get("result", {}).get("updated_at") or ""),
-            str(
-                item.get("steps", [])[-1].get("created_at") if item.get("steps") else ""
-            ),
+            str(item.get("steps", [])[-1].get("created_at") if item.get("steps") else ""),
             str(item.get("mission_id") or ""),
         )
     )
     return rows[-limit:]
 
 
-def _infer_tier(tags: List[str]) -> int:
+def _infer_tier(tags: list[str]) -> int:
     for tag in tags:
         lowered = str(tag).lower()
         if lowered.startswith("tier:") or lowered.startswith("tier-"):
@@ -178,7 +176,7 @@ def _infer_tier(tags: List[str]) -> int:
     return 1
 
 
-def _infer_type(source: str, tags: List[str]) -> str:
+def _infer_type(source: str, tags: list[str]) -> str:
     lowered = f"{source} {' '.join(tags)}".lower()
     if "attack" in lowered:
         return "ATTACK"
@@ -191,7 +189,7 @@ def _infer_type(source: str, tags: List[str]) -> str:
 
 @router.get("/riftwalk/trace")
 def riftwalk_trace(
-    mission_id: Optional[str] = Query(default=None),
+    mission_id: str | None = Query(default=None),
     limit: int = Query(default=20, ge=1, le=200),
 ):
     rows = _mission_trace_rows(mission_id=mission_id, limit=limit)
@@ -201,7 +199,7 @@ def riftwalk_trace(
 @router.get("/sigilstack/registry")
 def sigilstack_registry():
     rows = _fusion_registry.list_entries()
-    items: List[Dict[str, Any]] = []
+    items: list[dict[str, Any]] = []
     for row in rows:
         payload = row.get("payload", {}) if isinstance(row, dict) else {}
         tags = payload.get("tags", []) if isinstance(payload.get("tags"), list) else []

@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import List, Tuple
 
 from .schema import ArenaConfig
 
@@ -37,12 +36,12 @@ def save_config(config: ArenaConfig) -> None:
         json.dump(config.model_dump(mode="json"), f, indent=2)
 
 
-def self_check() -> Tuple[bool, List[str]]:
+def self_check() -> tuple[bool, list[str]]:
     """Validate arena config and storage files.
 
     Returns (ok, issues).
     """
-    issues: List[str] = []
+    issues: list[str] = []
 
     # Check config
     try:

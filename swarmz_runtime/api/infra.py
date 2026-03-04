@@ -3,7 +3,7 @@
 # See LICENSE file for details.
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -28,15 +28,15 @@ def _infra_enabled() -> bool:
 
 class InfraMetricSample(BaseModel):
     node_id: str = Field(..., min_length=1)
-    cpu: Optional[float] = None
-    memory: Optional[float] = None
-    gpu: Optional[float] = None
-    disk: Optional[float] = None
-    net_rx: Optional[float] = None
-    net_tx: Optional[float] = None
-    ts: Optional[str] = None
+    cpu: float | None = None
+    memory: float | None = None
+    gpu: float | None = None
+    disk: float | None = None
+    net_rx: float | None = None
+    net_tx: float | None = None
+    ts: str | None = None
     # Free-form additional attributes; not used in aggregation but stored.
-    extra: Dict[str, Any] = Field(default_factory=dict)
+    extra: dict[str, Any] = Field(default_factory=dict)
 
 
 @router.post("/metrics")
@@ -50,7 +50,7 @@ def ingest_metrics(sample: InfraMetricSample):
     # Flatten extra into the top-level sample for storage, but keep
     # reserved keys intact.
     extra = payload.pop("extra", {}) or {}
-    merged: Dict[str, Any] = {**payload, **extra}
+    merged: dict[str, Any] = {**payload, **extra}
     infra_metrics.record_infra_metrics(merged)
     return {"ok": True}
 

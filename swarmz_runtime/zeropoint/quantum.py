@@ -9,22 +9,23 @@ own mechanisms (KernelShift.shift, ZeroPointOverride.apply). Nothing is ever del
 
 All states and collapses are persisted at artifacts/zeropoint/quantum_states.jsonl.
 """
+
 from __future__ import annotations
 
 import json
 import threading
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 _STATES_FILE = Path("artifacts/zeropoint/quantum_states.jsonl")
 _LOCK = threading.Lock()
-_QUANTUM_DOCTRINE: "QuantumDoctrine | None" = None
+_QUANTUM_DOCTRINE: QuantumDoctrine | None = None
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 @dataclass
@@ -49,7 +50,7 @@ class QuantumState:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "QuantumState":
+    def from_dict(cls, d: dict[str, Any]) -> QuantumState:
         return cls(
             name=str(d.get("name", "")),
             snapshot_at=str(d.get("snapshot_at", "")),
@@ -96,24 +97,28 @@ class QuantumDoctrine:
 
         try:
             from swarmz_runtime.kernel.shift import get_kernel_shift
+
             kernel_config = get_kernel_shift().active_config()
         except Exception:
             pass
 
         try:
             from swarmz_runtime.governance.seal_matrix import get_seal_matrix
+
             seal_registry = get_seal_matrix().status()
         except Exception:
             pass
 
         try:
             from swarmz_runtime.zeropoint.override import get_zero_point_override
+
             active_overrides = get_zero_point_override().active_overrides()
         except Exception:
             pass
 
         try:
             from swarmz_runtime.evolution.engine import get_engine
+
             stage_info = get_engine().status()
             evolution_stage = stage_info.get("stage", "ORIGIN")
             traits = stage_info.get("traits", [])
@@ -155,7 +160,8 @@ class QuantumDoctrine:
         # Restore kernel config (additive via KernelShift)
         if target.kernel_config:
             try:
-                from swarmz_runtime.kernel.shift import get_kernel_shift, ShiftConfig
+                from swarmz_runtime.kernel.shift import ShiftConfig, get_kernel_shift
+
                 cfg = ShiftConfig.from_dict(target.kernel_config)
                 get_kernel_shift().shift(cfg, operator_key)
                 restored["actions"].append("kernel_config_restored")
@@ -163,13 +169,15 @@ class QuantumDoctrine:
                 restored["actions"].append(f"kernel_config_error: {exc}")
 
         # Log the collapse event
-        self._append_entry({
-            "type": "collapse",
-            "collapsed_to": name,
-            "snapshot_at": target.snapshot_at,
-            "collapsed_at": _now_iso(),
-            "restored_actions": restored["actions"],
-        })
+        self._append_entry(
+            {
+                "type": "collapse",
+                "collapsed_to": name,
+                "snapshot_at": target.snapshot_at,
+                "collapsed_at": _now_iso(),
+                "restored_actions": restored["actions"],
+            }
+        )
         return restored
 
     def list_states(self) -> list[dict[str, Any]]:

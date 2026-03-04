@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import secrets
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class TemplateSyncManager:
@@ -19,19 +19,19 @@ class TemplateSyncManager:
 
     @staticmethod
     def _now() -> str:
-        return datetime.now(timezone.utc).isoformat()
+        return datetime.now(UTC).isoformat()
 
     @staticmethod
-    def _append_jsonl(path: Path, record: Dict[str, Any]) -> None:
+    def _append_jsonl(path: Path, record: dict[str, Any]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(record) + "\n")
 
     @staticmethod
-    def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
+    def _read_jsonl(path: Path) -> list[dict[str, Any]]:
         if not path.exists():
             return []
-        out: List[Dict[str, Any]] = []
+        out: list[dict[str, Any]] = []
         with path.open("r", encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
@@ -43,7 +43,7 @@ class TemplateSyncManager:
                     continue
         return out
 
-    def _default_config(self) -> Dict[str, Any]:
+    def _default_config(self) -> dict[str, Any]:
         return {
             "operator_id": "",
             "allowlist": [],
@@ -53,7 +53,7 @@ class TemplateSyncManager:
             "updated_at": self._now(),
         }
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         if not self._config_path.exists():
             cfg = self._default_config()
             self._config_path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
@@ -71,16 +71,14 @@ class TemplateSyncManager:
     def update_config(
         self,
         operator_id: str,
-        allowlist: Optional[List[str]] = None,
-        auto_sync: Optional[bool] = None,
-        sync_interval_hours: Optional[int] = None,
-    ) -> Dict[str, Any]:
+        allowlist: list[str] | None = None,
+        auto_sync: bool | None = None,
+        sync_interval_hours: int | None = None,
+    ) -> dict[str, Any]:
         cfg = self.get_config()
         cfg["operator_id"] = operator_id.strip()
         if allowlist is not None:
-            cfg["allowlist"] = [
-                entry.strip() for entry in allowlist if entry and entry.strip()
-            ]
+            cfg["allowlist"] = [entry.strip() for entry in allowlist if entry and entry.strip()]
         if auto_sync is not None:
             cfg["auto_sync"] = bool(auto_sync)
         if sync_interval_hours is not None:
@@ -96,7 +94,7 @@ class TemplateSyncManager:
         template_name: str,
         dry_run: bool = True,
         notes: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         cfg = self.get_config()
 
         bound_operator = str(cfg.get("operator_id", "")).strip()
@@ -140,10 +138,10 @@ class TemplateSyncManager:
         self._append_jsonl(self._templates_path, record)
         return {"ok": True, "job": job, "template": record}
 
-    def list_jobs(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def list_jobs(self, limit: int = 50) -> list[dict[str, Any]]:
         rows = self._read_jsonl(self._jobs_path)
         return rows[-max(1, min(limit, 500)) :]
 
-    def list_templates(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def list_templates(self, limit: int = 50) -> list[dict[str, Any]]:
         rows = self._read_jsonl(self._templates_path)
         return rows[-max(1, min(limit, 500)) :]

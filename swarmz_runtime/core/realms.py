@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 BUILT_IN_REALMS: list[tuple[str, str]] = [
@@ -33,9 +33,7 @@ class Realm:
     name: str
     description: str
     active: bool = True
-    created_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     mission_count: int = 0
     agent_count: int = 0
 

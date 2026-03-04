@@ -4,9 +4,9 @@
 import json
 import os
 import threading
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, List
+from typing import Any
 
 DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -28,17 +28,16 @@ def verbose_log(*args: Any) -> None:
         print("[telemetry]", *args)
 
 
-def _append(path: Path, obj: Dict[str, Any]) -> None:
+def _append(path: Path, obj: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     line = json.dumps(obj, separators=(",", ":"))
-    with _lock:
-        with path.open("a", encoding="utf-8") as f:
-            f.write(line + "\n")
+    with _lock, path.open("a", encoding="utf-8") as f:
+        f.write(line + "\n")
 
 
-def record_event(name: str, payload: Optional[Dict[str, Any]] = None) -> None:
+def record_event(name: str, payload: dict[str, Any] | None = None) -> None:
     evt = {
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": datetime.now(UTC).isoformat(),
         "type": name,
         "payload": payload or {},
     }
@@ -46,11 +45,9 @@ def record_event(name: str, payload: Optional[Dict[str, Any]] = None) -> None:
     verbose_log("event", name, payload)
 
 
-def record_duration(
-    name: str, duration_ms: float, context: Optional[Dict[str, Any]] = None
-) -> None:
+def record_duration(name: str, duration_ms: float, context: dict[str, Any] | None = None) -> None:
     evt = {
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": datetime.now(UTC).isoformat(),
         "type": name,
         "duration_ms": round(duration_ms, 3),
         "context": context or {},
@@ -59,11 +56,9 @@ def record_duration(
     verbose_log("duration", name, f"{duration_ms:.3f}ms", context)
 
 
-def record_failure(
-    name: str, error: str, context: Optional[Dict[str, Any]] = None
-) -> None:
+def record_failure(name: str, error: str, context: dict[str, Any] | None = None) -> None:
     evt = {
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": datetime.now(UTC).isoformat(),
         "type": name,
         "error": error,
         "context": context or {},
@@ -72,7 +67,7 @@ def record_failure(
     verbose_log("failure", name, error, context)
 
 
-def last_event() -> Optional[Dict[str, Any]]:
+def last_event() -> dict[str, Any] | None:
     if not TELEMETRY_FILE.exists():
         return None
     try:
@@ -91,10 +86,10 @@ def last_event() -> Optional[Dict[str, Any]]:
         return None
 
 
-def avg_duration(name: str, max_samples: int = 100) -> Optional[float]:
+def avg_duration(name: str, max_samples: int = 100) -> float | None:
     if not RUNTIME_METRICS_FILE.exists():
         return None
-    durations: List[float] = []
+    durations: list[float] = []
     try:
         with RUNTIME_METRICS_FILE.open("r", encoding="utf-8") as f:
             for line in f:

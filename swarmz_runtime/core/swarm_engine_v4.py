@@ -1,21 +1,21 @@
 # SWARMZ Swarm Engine v4
 # Emergent Formations
 
-from typing import Dict, Any, List
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import Any
 
 
 class FormationRuleset:
-    def __init__(self, rules: Dict[str, Any]):
+    def __init__(self, rules: dict[str, Any]):
         self.rules = rules
 
 
 class FormationSynthesizer:
     def __init__(self):
-        self.formations: List[Dict[str, Any]] = []
+        self.formations: list[dict[str, Any]] = []
 
-    def synthesize(self, ruleset: FormationRuleset) -> Dict[str, Any]:
+    def synthesize(self, ruleset: FormationRuleset) -> dict[str, Any]:
         """Build an emergent formation from a FormationRuleset.
 
         Produces a formation dict with: id, pattern, units, rules snapshot.
@@ -24,16 +24,15 @@ class FormationSynthesizer:
         rules = ruleset.rules if ruleset else {}
         pattern = rules.get("pattern", "delta")
         unit_count = int(rules.get("unit_count", 3))
-        formation: Dict[str, Any] = {
+        formation: dict[str, Any] = {
             "id": str(uuid.uuid4())[:8],
             "pattern": pattern,
             "unit_count": unit_count,
             "units": [
-                {"slot": i + 1, "role": rules.get("role", "agent")}
-                for i in range(unit_count)
+                {"slot": i + 1, "role": rules.get("role", "agent")} for i in range(unit_count)
             ],
             "rules_snapshot": rules,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "status": "SYNTHESIZED",
         }
         self.formations.append(formation)
@@ -42,9 +41,9 @@ class FormationSynthesizer:
 
 class FormationExecutor:
     def __init__(self):
-        self.active_formations: List[Dict[str, Any]] = []
+        self.active_formations: list[dict[str, Any]] = []
 
-    def execute(self, formation: Dict[str, Any]) -> Dict[str, Any]:
+    def execute(self, formation: dict[str, Any]) -> dict[str, Any]:
         """Apply a formation pattern to swarm units.
 
         Marks each unit slot as DEPLOYED and records the formation as active.
@@ -56,7 +55,7 @@ class FormationExecutor:
             unit["status"] = "DEPLOYED"
 
         formation["status"] = "ACTIVE"
-        formation["activated_at"] = datetime.now(timezone.utc).isoformat()
+        formation["activated_at"] = datetime.now(UTC).isoformat()
         self.active_formations.append(formation)
 
         return {
@@ -69,8 +68,8 @@ class FormationExecutor:
 
 class FormationMonitor:
     def __init__(self):
-        self.visualization_data: Dict[str, Any] = {}
+        self.visualization_data: dict[str, Any] = {}
 
-    def update_visualization(self, formations: List[Dict[str, Any]]):
+    def update_visualization(self, formations: list[dict[str, Any]]):
         """Update cockpit visualization of emergent patterns."""
         self.visualization_data = {f["id"]: f for f in formations if "id" in f}

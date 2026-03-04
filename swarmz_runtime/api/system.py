@@ -1,13 +1,16 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
+
 from fastapi import APIRouter
-from typing import Callable
+
 from swarmz_runtime.core.engine import SwarmzEngine
 
 router = APIRouter()
 
-get_engine: Callable[[], SwarmzEngine] = lambda: SwarmzEngine()
+
+def get_engine() -> SwarmzEngine:
+    return SwarmzEngine()
 
 
 @router.get("/health", operation_id="system_health")

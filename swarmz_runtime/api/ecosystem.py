@@ -13,18 +13,23 @@ Routes:
     GET  /v1/ecosystem/status         â€“ loop state, tick_count, last_tick_ts
 """
 
+from collections.abc import Callable
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Any, Callable, Dict, Optional
 
-from swarmz_runtime.core.engine import SwarmzEngine
 from swarmz_runtime.core.autoloop import AutoLoopManager
+from swarmz_runtime.core.engine import SwarmzEngine
 
 router = APIRouter()
 
-get_engine: Callable[[], SwarmzEngine] = lambda: SwarmzEngine()
 
-_loop_manager: Optional[AutoLoopManager] = None
+def get_engine() -> SwarmzEngine:
+    return SwarmzEngine()
+
+
+_loop_manager: AutoLoopManager | None = None
 
 
 def _get_loop() -> AutoLoopManager:
@@ -46,8 +51,8 @@ def set_engine_provider(fn: Callable[[], SwarmzEngine]) -> None:
 
 class EcosystemRunRequest(BaseModel):
     operator_goal: str = "make money"
-    constraints: Dict[str, Any] = {}
-    results: Dict[str, Any] = {}
+    constraints: dict[str, Any] = {}
+    results: dict[str, Any] = {}
 
 
 class AutoStartRequest(BaseModel):
@@ -107,9 +112,7 @@ def get_pack(mission_id: str):
         raise HTTPException(status_code=404, detail="Mission not found")
 
     audit_entries = [
-        e
-        for e in engine.db.load_audit_log(limit=500)
-        if e.get("mission_id") == mission_id
+        e for e in engine.db.load_audit_log(limit=500) if e.get("mission_id") == mission_id
     ]
     return {"mission": mission, "audit": audit_entries}
 

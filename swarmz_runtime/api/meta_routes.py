@@ -1,11 +1,12 @@
 # Refactor imports to avoid circular dependencies
 # Replace runtime imports with module-level imports where possible
+from collections.abc import Callable
+
+from fastapi import APIRouter, FastAPI, HTTPException
+
 from models.ignition import IgnitionStateRequest
 from models.lattice import LatticeStatusRequest
 from models.sovereign import SovereignDecisionRequest
-from fastapi import APIRouter, HTTPException, FastAPI
-from typing import Optional
-from typing import Callable
 from swarmz_runtime.core.engine import SwarmzEngine
 from swarmz_runtime.session.session_router import router as session_router
 
@@ -13,7 +14,7 @@ app = FastAPI()
 
 router = APIRouter()
 
-get_engine: Optional[Callable[[], SwarmzEngine]] = None
+get_engine: Callable[[], SwarmzEngine] | None = None
 
 app.include_router(session_router, prefix="/api")
 
@@ -38,9 +39,7 @@ def make_sovereign_decision(request: SovereignDecisionRequest):
             "timestamp": engine.get_current_timestamp(),
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Sovereign decision failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Sovereign decision failed: {str(e)}")
 
 
 @router.post("/v1/meta/control")
@@ -64,9 +63,7 @@ def apply_sovereign_control(request: SovereignDecisionRequest):
             "timestamp": engine.get_current_timestamp(),
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Sovereign control failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Sovereign control failed: {str(e)}")
 
 
 @router.get("/v1/meta/lattice")
@@ -121,9 +118,7 @@ def get_sovereign_status():
             "timestamp": engine.get_current_timestamp(),
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Sovereign status failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Sovereign status failed: {str(e)}")
 
 
 @router.post("/v1/meta/task-matrix")
@@ -159,9 +154,7 @@ def process_task_matrix(request: SovereignDecisionRequest):
             "timestamp": result["timestamp"],
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Task matrix processing failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Task matrix processing failed: {str(e)}")
 
 
 @router.post("/v1/meta/kernel-ignition")
@@ -196,12 +189,8 @@ def execute_kernel_ignition(request: IgnitionStateRequest):
             "kernel_ignition_executed": True,
             "ignition_result": ignition_result,
             "cockpit_activated": ignition_result["kernel_state"] == "IGNITION_COMPLETE",
-            "operator_control": ignition_result["cockpit_activation"][
-                "operator_channel"
-            ],
-            "execution_governance": ignition_result["cockpit_activation"][
-                "execution_governance"
-            ],
+            "operator_control": ignition_result["cockpit_activation"]["operator_channel"],
+            "execution_governance": ignition_result["cockpit_activation"]["execution_governance"],
             "timestamp": ignition_result["timestamp"],
         }
     except Exception as e:

@@ -1,11 +1,11 @@
 # SWARMZ Universe-Mesh v2
 # Multi-Cosmology Routing
 
-from typing import Dict, Any, List
+from typing import Any
 
 
 class CosmologyNode:
-    def __init__(self, name: str, worlds: List[str], entropy_model: Dict[str, Any]):
+    def __init__(self, name: str, worlds: list[str], entropy_model: dict[str, Any]):
         self.name = name
         self.worlds = worlds
         self.entropy_model = entropy_model
@@ -31,9 +31,7 @@ class CosmicRouter:
         if link.validate():
             self.links.append(link)
 
-    def route_mission(
-        self, mission: Dict[str, Any], constraints: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def route_mission(self, mission: dict[str, Any], constraints: dict[str, Any]) -> dict[str, Any]:
         """Route a mission across cosmologies.
 
         Selects valid inter-cosmic links that satisfy the supplied constraints
@@ -57,13 +55,11 @@ class CosmicRouter:
         require_validated = constraints.get("require_validated", False)
         max_hops = int(constraints.get("max_hops", 10))
 
-        candidates = [
-            link for link in self.links if (not require_validated or link.validated)
-        ]
+        candidates = [link for link in self.links if (not require_validated or link.validated)]
 
         # Build hop path: any link whose source cosmology name matches source
         # OR whose target cosmology name matches target (direct path first).
-        hops: List[Dict[str, str]] = []
+        hops: list[dict[str, str]] = []
         for link in candidates[:max_hops]:
             hop = {
                 "from": link.source.name,
@@ -83,9 +79,7 @@ class CosmicRouter:
             "ok": connected,
             "hops": hops,
             "total_links": len(self.links),
-            "reason": (
-                "path found" if connected else f"no route from {source!r} to {target!r}"
-            ),
+            "reason": ("path found" if connected else f"no route from {source!r} to {target!r}"),
         }
 
 
@@ -93,6 +87,6 @@ class CosmicMap:
     def __init__(self):
         self.visualization_data = {}
 
-    def update_map(self, cosmologies: List[CosmologyNode]):
+    def update_map(self, cosmologies: list[CosmologyNode]):
         """Update the cockpit visualization."""
         self.visualization_data = {cosmo.name: cosmo.worlds for cosmo in cosmologies}

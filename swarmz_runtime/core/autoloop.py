@@ -18,12 +18,12 @@ import json
 import threading
 import time
 from collections import deque
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
-from swarmz_runtime.storage.schema import AuditEntry, VisibilityLevel
 from swarmz_runtime.core import telemetry
+from swarmz_runtime.storage.schema import AuditEntry, VisibilityLevel
 
 
 class AutoLoopManager:
@@ -43,13 +43,13 @@ class AutoLoopManager:
 
         # runtime state
         self._running = False
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
         self._tick_interval = 30
         self._lock = threading.Lock()
 
         # counters (loaded from state.json on init)
         self._tick_count = 0
-        self._last_tick_ts: Optional[str] = None
+        self._last_tick_ts: str | None = None
         self._recent_tick_times: deque = deque()  # timestamps for rate-limiting
 
         self._load_state()
@@ -76,13 +76,13 @@ class AutoLoopManager:
     def single_step(
         self,
         operator_goal: str,
-        constraints: Optional[Dict[str, Any]] = None,
-        results: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        constraints: dict[str, Any] | None = None,
+        results: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Run one ecosystem tick synchronously and return result."""
         return self._tick(operator_goal, constraints or {}, results or {})
 
-    def get_state(self) -> Dict[str, Any]:
+    def get_state(self) -> dict[str, Any]:
         return {
             "running": self._running,
             "tick_count": self._tick_count,
@@ -98,9 +98,7 @@ class AutoLoopManager:
             # kill-switch check
             if self._kill_file.exists():
                 self._running = False
-                self._log_audit(
-                    "kill_switch_triggered", details={"file": str(self._kill_file)}
-                )
+                self._log_audit("kill_switch_triggered", details={"file": str(self._kill_file)})
                 self._persist_state()
                 break
 
@@ -112,9 +110,7 @@ class AutoLoopManager:
             try:
                 t_start = time.perf_counter()
                 self._tick("make money", {}, {})
-                telemetry.record_duration(
-                    "autoloop_tick", (time.perf_counter() - t_start) * 1000.0
-                )
+                telemetry.record_duration("autoloop_tick", (time.perf_counter() - t_start) * 1000.0)
             except Exception as exc:
                 self._log_audit("tick_error", details={"error": str(exc)})
                 telemetry.record_failure("autoloop_tick_error", str(exc))
@@ -128,10 +124,10 @@ class AutoLoopManager:
     def _tick(
         self,
         operator_goal: str,
-        constraints: Dict[str, Any],
-        results: Dict[str, Any],
-    ) -> Dict[str, Any]:
-        now = datetime.now(timezone.utc)
+        constraints: dict[str, Any],
+        results: dict[str, Any],
+    ) -> dict[str, Any]:
+        now = datetime.now(UTC)
         now_iso = now.isoformat()
 
         # 1. generate mission
@@ -201,8 +197,8 @@ class AutoLoopManager:
     def _log_audit(
         self,
         event_type: str,
-        mission_id: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        mission_id: str | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         entry = AuditEntry(
             event_type=event_type,
@@ -230,7 +226,7 @@ class AutoLoopManager:
     def _load_state(self) -> None:
         if self._state_file.exists():
             try:
-                with open(self._state_file, "r") as f:
+                with open(self._state_file) as f:
                     state = json.load(f)
                 self._tick_count = state.get("tick_count", 0)
                 self._last_tick_ts = state.get("last_tick_ts")

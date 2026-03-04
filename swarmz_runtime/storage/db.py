@@ -2,11 +2,12 @@
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
 import json
-from typing import List, Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
-from swarmz_runtime.storage.schema import Mission, AuditEntry, Rune
+from typing import Any
+
 from swarmz_runtime.storage.jsonl_utils import write_jsonl
+from swarmz_runtime.storage.schema import AuditEntry, Mission, Rune
 
 
 class Database:
@@ -29,15 +30,13 @@ class Database:
         if not self.runes_file.exists():
             self.runes_file.write_text(json.dumps({}))
         if not self.state_file.exists():
-            self.state_file.write_text(
-                json.dumps({"active_missions": 0, "pattern_counters": {}})
-            )
+            self.state_file.write_text(json.dumps({"active_missions": 0, "pattern_counters": {}}))
 
     def save_mission(self, mission: Mission):
         with open(self.missions_file, "a") as f:
             f.write(json.dumps(mission.model_dump(mode="json")) + "\n")
 
-    def update_mission(self, mission_id: str, updates: Dict[str, Any]):
+    def update_mission(self, mission_id: str, updates: dict[str, Any]):
         missions = self.load_all_missions()
         for mission in missions:
             mid = mission.get("id") or mission.get("mission_id")
@@ -47,11 +46,11 @@ class Database:
 
         write_jsonl(self.missions_file, missions)
 
-    def load_all_missions(self) -> List[Dict[str, Any]]:
+    def load_all_missions(self) -> list[dict[str, Any]]:
         missions = []
-        bad_rows: List[str] = []
+        bad_rows: list[str] = []
         if self.missions_file.exists():
-            with open(self.missions_file, "r") as f:
+            with open(self.missions_file) as f:
                 for line in f:
                     row = line.strip()
                     if not row:
@@ -75,7 +74,7 @@ class Database:
         }
         return missions
 
-    def get_mission(self, mission_id: str) -> Optional[Dict[str, Any]]:
+    def get_mission(self, mission_id: str) -> dict[str, Any] | None:
         missions = self.load_all_missions()
         for mission in missions:
             mid = mission.get("id") or mission.get("mission_id")
@@ -83,7 +82,7 @@ class Database:
                 return mission
         return None
 
-    def get_active_missions(self) -> List[Dict[str, Any]]:
+    def get_active_missions(self) -> list[dict[str, Any]]:
         missions = self.load_all_missions()
         return [m for m in missions if m.get("status") == "active"]
 
@@ -91,11 +90,11 @@ class Database:
         with open(self.audit_file, "a") as f:
             f.write(json.dumps(entry.model_dump(mode="json")) + "\n")
 
-    def load_audit_log(self, limit: int = 100) -> List[Dict[str, Any]]:
+    def load_audit_log(self, limit: int = 100) -> list[dict[str, Any]]:
         entries = []
-        bad_rows: List[str] = []
+        bad_rows: list[str] = []
         if self.audit_file.exists():
-            with open(self.audit_file, "r") as f:
+            with open(self.audit_file) as f:
                 for line in f:
                     row = line.strip()
                     if not row:
@@ -144,20 +143,20 @@ class Database:
         with open(self.runes_file, "w") as f:
             json.dump(runes, f, indent=2)
 
-    def load_runes(self) -> Dict[str, Any]:
+    def load_runes(self) -> dict[str, Any]:
         if self.runes_file.exists():
-            with open(self.runes_file, "r") as f:
+            with open(self.runes_file) as f:
                 return json.load(f)
         return {}
 
-    def get_rune(self, rune_id: str) -> Optional[Dict[str, Any]]:
+    def get_rune(self, rune_id: str) -> dict[str, Any] | None:
         runes = self.load_runes()
         return runes.get(rune_id)
 
-    def load_state(self) -> Dict[str, Any]:
+    def load_state(self) -> dict[str, Any]:
         if self.state_file.exists():
             try:
-                with open(self.state_file, "r") as f:
+                with open(self.state_file) as f:
                     return json.load(f)
             except json.JSONDecodeError:
                 # Recover from corrupted state file
@@ -166,7 +165,7 @@ class Database:
                 return default
         return {"active_missions": 0, "pattern_counters": {}}
 
-    def save_state(self, state: Dict[str, Any]):
+    def save_state(self, state: dict[str, Any]):
         with open(self.state_file, "w") as f:
             json.dump(state, f, indent=2)
 

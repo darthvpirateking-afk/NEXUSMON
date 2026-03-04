@@ -7,20 +7,20 @@ Defines ArenaCandidate, ArenaRun, and ArenaConfig data contracts.
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
-from typing import Any, Dict, List, Optional
+from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class ArenaRunStatus(str, Enum):
+class ArenaRunStatus(StrEnum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
 
 
-class CandidateStatus(str, Enum):
+class CandidateStatus(StrEnum):
     PENDING = "pending"
     RUNNING = "running"
     SCORED = "scored"
@@ -38,10 +38,10 @@ class ArenaCandidate(BaseModel):
     score: float = 0.0
     rank: int = 0
     status: CandidateStatus = CandidateStatus.PENDING
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    error: Optional[str] = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    error: str | None = None
 
 
 class ArenaRun(BaseModel):
@@ -52,12 +52,12 @@ class ArenaRun(BaseModel):
     num_candidates: int = Field(ge=1, le=8)
     scoring_strategy: str = "length_quality"
     status: ArenaRunStatus = ArenaRunStatus.PENDING
-    winner_id: Optional[str] = None
-    candidates: List[str] = Field(default_factory=list)  # candidate ids
+    winner_id: str | None = None
+    candidates: list[str] = Field(default_factory=list)  # candidate ids
     created_at: datetime = Field(default_factory=datetime.now)
-    completed_at: Optional[datetime] = None
-    config_snapshot: Dict[str, Any] = Field(default_factory=dict)
-    error: Optional[str] = None
+    completed_at: datetime | None = None
+    config_snapshot: dict[str, Any] = Field(default_factory=dict)
+    error: str | None = None
 
 
 class ArenaConfig(BaseModel):

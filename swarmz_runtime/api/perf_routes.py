@@ -2,11 +2,12 @@
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
 import cProfile
-import pstats
 import io
+import pstats
 import time
 from pathlib import Path
-from fastapi import APIRouter, Request, HTTPException
+
+from fastapi import APIRouter, HTTPException, Request
 
 from swarmz_runtime.verify import provenance
 

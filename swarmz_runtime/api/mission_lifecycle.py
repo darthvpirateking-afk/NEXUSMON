@@ -6,8 +6,8 @@
 import logging
 import threading
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Dict, List
+from datetime import UTC, datetime
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -38,7 +38,7 @@ VALID_STATES = {
     "ABORTED",
 }
 
-ALLOWED_TRANSITIONS: Dict[str, List[str]] = {
+ALLOWED_TRANSITIONS: dict[str, list[str]] = {
     "IDLE": ["QUEUED"],
     "QUEUED": ["INITIALIZING", "ABORTED"],
     "INITIALIZING": ["RUNNING", "FAILED", "ABORTED"],
@@ -50,14 +50,14 @@ ALLOWED_TRANSITIONS: Dict[str, List[str]] = {
 }
 
 _LOCK = threading.Lock()
-_MISSIONS: Dict[str, Dict[str, Any]] = {}
+_MISSIONS: dict[str, dict[str, Any]] = {}
 
 
 def _ts() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
-def _get_mission(mission_id: str) -> Dict[str, Any]:
+def _get_mission(mission_id: str) -> dict[str, Any]:
     with _LOCK:
         m = _MISSIONS.get(mission_id)
     if not m:
@@ -65,13 +65,11 @@ def _get_mission(mission_id: str) -> Dict[str, Any]:
     return dict(m)
 
 
-def _transition(mission_id: str, new_state: str) -> Dict[str, Any]:
+def _transition(mission_id: str, new_state: str) -> dict[str, Any]:
     with _LOCK:
         m = _MISSIONS.get(mission_id)
         if not m:
-            raise HTTPException(
-                status_code=404, detail=f"Mission {mission_id} not found"
-            )
+            raise HTTPException(status_code=404, detail=f"Mission {mission_id} not found")
         current = m["state"]
         allowed = ALLOWED_TRANSITIONS.get(current, [])
         if new_state not in allowed:
@@ -105,9 +103,7 @@ def _transition(mission_id: str, new_state: str) -> Dict[str, Any]:
                 input_snapshot={"constraints": snapshot.get("constraints", {})},
             )
         except Exception as exc:
-            logger.warning(
-                "Failed to store mission artifact for %s: %s", mission_id, exc
-            )
+            logger.warning("Failed to store mission artifact for %s: %s", mission_id, exc)
 
     return snapshot
 
@@ -118,7 +114,7 @@ def _transition(mission_id: str, new_state: str) -> Dict[str, Any]:
 class StartMissionRequest(BaseModel):
     goal: str
     category: str = "default"
-    constraints: Dict[str, Any] = {}
+    constraints: dict[str, Any] = {}
 
 
 class CompleteMissionRequest(BaseModel):
@@ -135,11 +131,11 @@ class MissionActionRequest(BaseModel):
 
 
 @router.post("/start")
-def start_mission(req: StartMissionRequest) -> Dict[str, Any]:
+def start_mission(req: StartMissionRequest) -> dict[str, Any]:
     """Create and start a new mission lifecycle."""
     mission_id = f"MLC-{uuid.uuid4().hex[:10].upper()}"
     now = _ts()
-    mission: Dict[str, Any] = {
+    mission: dict[str, Any] = {
         "mission_id": mission_id,
         "goal": req.goal,
         "category": req.category,
@@ -156,28 +152,28 @@ def start_mission(req: StartMissionRequest) -> Dict[str, Any]:
 
 
 @router.post("/stop")
-def stop_mission(req: MissionActionRequest) -> Dict[str, Any]:
+def stop_mission(req: MissionActionRequest) -> dict[str, Any]:
     """Abort a running mission."""
     m = _transition(req.mission_id, "ABORTED")
     return {"mission_id": req.mission_id, "state": m["state"], "timestamp": _ts()}
 
 
 @router.post("/pause")
-def pause_mission(req: MissionActionRequest) -> Dict[str, Any]:
+def pause_mission(req: MissionActionRequest) -> dict[str, Any]:
     """Pause a running mission."""
     m = _transition(req.mission_id, "PAUSED")
     return {"mission_id": req.mission_id, "state": m["state"], "timestamp": _ts()}
 
 
 @router.post("/resume")
-def resume_mission(req: MissionActionRequest) -> Dict[str, Any]:
+def resume_mission(req: MissionActionRequest) -> dict[str, Any]:
     """Resume a paused mission."""
     m = _transition(req.mission_id, "RUNNING")
     return {"mission_id": req.mission_id, "state": m["state"], "timestamp": _ts()}
 
 
 @router.post("/complete")
-def complete_mission(req: CompleteMissionRequest) -> Dict[str, Any]:
+def complete_mission(req: CompleteMissionRequest) -> dict[str, Any]:
     """Mark mission COMPLETED and store bridge_output + mode."""
     with _LOCK:
         m = _MISSIONS.get(req.mission_id)
@@ -190,7 +186,7 @@ def complete_mission(req: CompleteMissionRequest) -> Dict[str, Any]:
 
 
 @router.get("/status")
-def missions_status() -> Dict[str, Any]:
+def missions_status() -> dict[str, Any]:
     """Return all active missions and their current states."""
     with _LOCK:
         missions = [dict(m) for m in _MISSIONS.values()]
@@ -202,7 +198,7 @@ def missions_status() -> Dict[str, Any]:
 
 
 @router.get("/status/{mission_id}")
-def mission_status(mission_id: str) -> Dict[str, Any]:
+def mission_status(mission_id: str) -> dict[str, Any]:
     """Return state of a specific mission."""
     m = _get_mission(mission_id)
     return {

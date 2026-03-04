@@ -15,11 +15,11 @@ Architecture:
     Safety Brain     (diff inspection, bug spotting, verification) â†’ GPT-5.1-Codex-Max
 """
 
-from enum import Enum
-from typing import Dict, Any, Optional
+from enum import StrEnum
+from typing import Any
 
 
-class BrainRole(str, Enum):
+class BrainRole(StrEnum):
     COMMANDER = "commander"
     BUILDER = "builder"
     UTILITY = "utility"
@@ -27,7 +27,7 @@ class BrainRole(str, Enum):
 
 
 # Default brain-to-model assignments
-DEFAULT_BRAINS: Dict[str, Dict[str, str]] = {
+DEFAULT_BRAINS: dict[str, dict[str, str]] = {
     BrainRole.COMMANDER: {
         "model": "claude-opus-4.6",
         "provider": "anthropic",
@@ -55,7 +55,7 @@ DEFAULT_BRAINS: Dict[str, Dict[str, str]] = {
 }
 
 # Deterministic task-type â†’ brain-role routing table
-DEFAULT_TASK_ROUTING: Dict[str, BrainRole] = {
+DEFAULT_TASK_ROUTING: dict[str, BrainRole] = {
     # Commander
     "thinking": BrainRole.COMMANDER,
     "companion": BrainRole.COMMANDER,
@@ -89,12 +89,11 @@ class BrainMapping:
     This preserves personality continuity and learning weights.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self._brains: Dict[BrainRole, Dict[str, str]] = {
-            BrainRole(k) if isinstance(k, str) else k: dict(v)
-            for k, v in DEFAULT_BRAINS.items()
+    def __init__(self, config: dict[str, Any] | None = None):
+        self._brains: dict[BrainRole, dict[str, str]] = {
+            BrainRole(k) if isinstance(k, str) else k: dict(v) for k, v in DEFAULT_BRAINS.items()
         }
-        self._task_routing: Dict[str, BrainRole] = dict(DEFAULT_TASK_ROUTING)
+        self._task_routing: dict[str, BrainRole] = dict(DEFAULT_TASK_ROUTING)
 
         if config:
             self._apply_config(config)
@@ -103,7 +102,7 @@ class BrainMapping:
     # Configuration
     # ------------------------------------------------------------------
 
-    def _apply_config(self, config: Dict[str, Any]) -> None:
+    def _apply_config(self, config: dict[str, Any]) -> None:
         """Apply operator-provided overrides to the brain mapping."""
         if config.get("auto_mode"):
             raise ValueError(
@@ -123,7 +122,7 @@ class BrainMapping:
     # Routing
     # ------------------------------------------------------------------
 
-    def route(self, task_type: str) -> Dict[str, Any]:
+    def route(self, task_type: str) -> dict[str, Any]:
         """Route a task type to its assigned brain.
 
         Deterministic: the same task type always resolves to the same model.
@@ -142,15 +141,15 @@ class BrainMapping:
     # Queries
     # ------------------------------------------------------------------
 
-    def get_brain(self, role: BrainRole) -> Dict[str, str]:
+    def get_brain(self, role: BrainRole) -> dict[str, str]:
         """Return the configuration dict for a single brain role."""
         return dict(self._brains[role])
 
-    def get_all_brains(self) -> Dict[str, Dict[str, str]]:
+    def get_all_brains(self) -> dict[str, dict[str, str]]:
         """Return every brain role and its configuration."""
         return {role.value: dict(cfg) for role, cfg in self._brains.items()}
 
-    def get_routing_table(self) -> Dict[str, str]:
+    def get_routing_table(self) -> dict[str, str]:
         """Return the full task-type â†’ role routing table."""
         return {task: role.value for task, role in self._task_routing.items()}
 

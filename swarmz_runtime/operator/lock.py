@@ -6,18 +6,19 @@ This is not a permission system. This is a binding.
 Every request is checked. Only the bound operator receives responses.
 Wrong key or no key: HTTP 204. Silence. No information given.
 """
+
 from __future__ import annotations
 
 import hashlib
 import json
 import threading
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 _BINDING_PATH = Path("artifacts/operator/binding.json")
 _LOCK = threading.Lock()
-_OPERATOR_LOCK: "OperatorLock | None" = None
+_OPERATOR_LOCK: OperatorLock | None = None
 
 
 def _hash_key(key: str) -> str:
@@ -25,7 +26,7 @@ def _hash_key(key: str) -> str:
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 class OperatorLock:

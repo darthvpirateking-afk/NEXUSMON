@@ -4,13 +4,14 @@ Each spawn request creates a new swarm identified by swarm_id and routes
 the agent goal through the bridge using the specified mode.
 All swarm state is persisted to artifacts/swarm/{swarm_id}.jsonl.
 """
+
 from __future__ import annotations
 
 import json
 import threading
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -19,7 +20,7 @@ _ARTIFACTS_DIR = Path("artifacts/swarm")
 
 
 def _utc() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _swarm_path(swarm_id: str) -> Path:
@@ -47,7 +48,7 @@ class AgentState:
     swarm_id: str
     goal: str
     mode: str
-    status: str          # "running" | "complete" | "error"
+    status: str  # "running" | "complete" | "error"
     output: str | None
     error: str | None
     tokens: int
@@ -106,11 +107,7 @@ def _load_swarm_from_disk(swarm_id: str) -> SwarmState | None:
     if not path.exists():
         return None
     try:
-        lines = [
-            ln.strip()
-            for ln in path.read_text(encoding="utf-8").splitlines()
-            if ln.strip()
-        ]
+        lines = [ln.strip() for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
         for line in reversed(lines):
             d = json.loads(line)
             if d.get("_type") == "snapshot":
@@ -162,19 +159,23 @@ class SwarmCoordinator:
         with self._lock:
             self._swarms[swarm_id] = swarm
 
-        _persist_event(swarm_id, {
-            "_type": "spawn",
-            "agent_id": request.agent_id,
-            "goal": request.goal,
-            "mode": request.mode,
-            "spawned_at": ts,
-        })
+        _persist_event(
+            swarm_id,
+            {
+                "_type": "spawn",
+                "agent_id": request.agent_id,
+                "goal": request.goal,
+                "mode": request.mode,
+                "spawned_at": ts,
+            },
+        )
 
         budget = int(request.constraints.get("max_tokens", 2048))
         start = time.perf_counter()
 
         try:
             from swarmz_runtime.bridge.llm import call_v2
+
             bridge = await call_v2(
                 prompt=request.goal,
                 mode=request.mode,
@@ -206,6 +207,7 @@ class SwarmCoordinator:
         if agent.status == "complete":
             try:
                 from swarmz_runtime.evolution.engine import award_xp
+
                 xp = max(1, int(agent.tokens / 100))
                 award_xp(request.agent_id, xp, f"swarm:{swarm_id}")
             except Exception:

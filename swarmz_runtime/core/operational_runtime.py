@@ -118,9 +118,7 @@ class LangGraphRuntime:
     def agents(self) -> list[str]:
         return list(self._agents)
 
-    def run(
-        self, goal: str, context: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+    def run(self, goal: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         payload = {
             "timestamp": datetime.now(UTC).isoformat(),
             "goal": goal,
@@ -209,11 +207,7 @@ class OperationalRuntime:
         approved: bool = False,
         refund_rate: float = 0.0,
     ) -> dict[str, Any]:
-        margin = (
-            ((price_cents - cost_cents) / price_cents * 100.0)
-            if price_cents > 0
-            else 0.0
-        )
+        margin = ((price_cents - cost_cents) / price_cents * 100.0) if price_cents > 0 else 0.0
         decision = self._policy.evaluate_publish(
             {
                 "margin": margin,
@@ -248,9 +242,7 @@ class OperationalRuntime:
     def list_catalog(self) -> list[dict[str, Any]]:
         return self._read_jsonl(self._offers_file)
 
-    def checkout(
-        self, sku: str, quantity: int, payment_provider: str = "manual"
-    ) -> dict[str, Any]:
+    def checkout(self, sku: str, quantity: int, payment_provider: str = "manual") -> dict[str, Any]:
         offer = self._find_last(self._offers_file, "sku", sku)
         if not offer:
             return {"error": "sku_not_found"}
@@ -273,10 +265,7 @@ class OperationalRuntime:
         if not order:
             return {"error": "order_not_found"}
 
-        if (
-            order.get("status") in {"paid", "fulfilled"}
-            and event == "payment_succeeded"
-        ):
+        if order.get("status") in {"paid", "fulfilled"} and event == "payment_succeeded":
             return {"ok": True, "idempotent": True, "order": order}
 
         if event != "payment_succeeded":

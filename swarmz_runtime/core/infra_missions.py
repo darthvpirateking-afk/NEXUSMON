@@ -11,7 +11,7 @@ standard missions.jsonl log via the runtime Database.
 from __future__ import annotations
 
 import uuid
-from typing import Any, Dict, List
+from typing import Any
 
 from swarmz_runtime.storage.db import Database
 from swarmz_runtime.storage.schema import Mission, MissionCategory, MissionStatus
@@ -23,9 +23,7 @@ def _new_mission_id() -> str:
     return str(uuid.uuid4())[:8]
 
 
-def _save_mission(
-    goal: str, category: MissionCategory, constraints: Dict[str, Any]
-) -> Mission:
+def _save_mission(goal: str, category: MissionCategory, constraints: dict[str, Any]) -> Mission:
     mission = Mission(
         id=_new_mission_id(),
         goal=goal,
@@ -38,28 +36,30 @@ def _save_mission(
 
 
 def emit_infra_missions(
-    autoscale_plan: Dict[str, Any], backup_plan: Dict[str, Any]
-) -> Dict[str, Any]:
+    autoscale_plan: dict[str, Any], backup_plan: dict[str, Any]
+) -> dict[str, Any]:
     """Create simulation-only missions representing infra recommendations.
 
     The resulting missions are tagged with "infra_simulation": True in
     their constraints so that downstream tools can distinguish them.
     """
 
-    created_ids: List[str] = []
+    created_ids: list[str] = []
 
     # Autoscaling-related missions
     for node in autoscale_plan.get("nodes", []) or []:
         status = node.get("status")
         node_id = node.get("node_id") or "unknown"
-        base_constraints: Dict[str, Any] = {
+        base_constraints: dict[str, Any] = {
             "kind": "infra_autoscale",
             "infra_simulation": True,
             "node": node,
         }
 
         if status == "hot":
-            goal = f"Scale up capacity or shed load for infra node {node_id} based on autoscale_plan."
+            goal = (
+                f"Scale up capacity or shed load for infra node {node_id} based on autoscale_plan."
+            )
             mission = _save_mission(goal, MissionCategory.FORGE, base_constraints)
             created_ids.append(mission.id)
         elif status == "cold":

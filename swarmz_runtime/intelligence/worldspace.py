@@ -4,22 +4,23 @@ Every cosmic query becomes a node. Every connection becomes an edge.
 The longer Regan works with Nexusmon, the deeper the world-space grows.
 Permanent. Additive. Sovereign.
 """
+
 from __future__ import annotations
 
 import json
 import threading
 import uuid
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from swarmz_runtime.intelligence.cosmic import ScaleLevel
 
-
 # ---------------------------------------------------------------------------
 # Data models
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class WorldSpaceEntry:
@@ -27,11 +28,11 @@ class WorldSpaceEntry:
     subject: str
     scale: ScaleLevel
     content: str
-    connections: list[str]          # other entry_ids this connects to
-    timestamp: str                  # ISO8601 UTC
-    operator: str                   # always "Regan Harris"
+    connections: list[str]  # other entry_ids this connects to
+    timestamp: str  # ISO8601 UTC
+    operator: str  # always "Regan Harris"
     tags: list[str]
-    depth: str                      # SURFACE | DEEP | PROFOUND
+    depth: str  # SURFACE | DEEP | PROFOUND
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -47,7 +48,7 @@ class WorldSpaceEntry:
         }
 
     @staticmethod
-    def from_dict(d: dict[str, Any]) -> "WorldSpaceEntry":
+    def from_dict(d: dict[str, Any]) -> WorldSpaceEntry:
         return WorldSpaceEntry(
             entry_id=d["entry_id"],
             subject=d["subject"],
@@ -82,6 +83,7 @@ class SynthesisArtifact:
 # ---------------------------------------------------------------------------
 # WorldSpace
 # ---------------------------------------------------------------------------
+
 
 class WorldSpace:
     """The accumulated knowledge universe of NEXUSMON.
@@ -123,9 +125,8 @@ class WorldSpace:
     def _append_graph(self, record: dict[str, Any]) -> None:
         try:
             self._ensure_dir()
-            with self._lock:
-                with self._graph_log.open("a", encoding="utf-8") as f:
-                    f.write(json.dumps(record) + "\n")
+            with self._lock, self._graph_log.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(record) + "\n")
         except Exception:
             pass
 
@@ -166,10 +167,14 @@ class WorldSpace:
         for entry in self._load_all():
             if scale_filter and entry.scale != scale_filter:
                 continue
-            haystack = " ".join([
-                entry.subject, entry.content,
-                " ".join(entry.tags), entry.depth,
-            ]).lower()
+            haystack = " ".join(
+                [
+                    entry.subject,
+                    entry.content,
+                    " ".join(entry.tags),
+                    entry.depth,
+                ]
+            ).lower()
             if query_lower in haystack:
                 results.append(entry)
         # Most recent first
@@ -183,7 +188,7 @@ class WorldSpace:
         relationship: str,
     ) -> dict[str, Any]:
         """Link two entries with a named relationship. Additive — both entries updated."""
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
         with self._lock:
             for eid, other_id in [(entry_a_id, entry_b_id), (entry_b_id, entry_a_id)]:
@@ -225,9 +230,7 @@ class WorldSpace:
 
         parts: list[str] = []
         for e in entries:
-            parts.append(
-                f"[{e.scale.value.upper()} | {e.depth}] {e.subject}\n{e.content[:800]}"
-            )
+            parts.append(f"[{e.scale.value.upper()} | {e.depth}] {e.subject}\n{e.content[:800]}")
 
         synthesis = (
             f"WORLDSPACE SYNTHESIS — {len(entries)} entries\n"
@@ -239,8 +242,11 @@ class WorldSpace:
         # Auto-render
         try:
             from swarmz_runtime.artifacts.renderer import get_renderer
+
             get_renderer().render(
-                artifact_id, synthesis, "report",
+                artifact_id,
+                synthesis,
+                "report",
                 title=f"WorldSpace Synthesis · {len(entries)} entries",
                 scale="MULTI-SCALE",
                 depth="PROFOUND",
@@ -296,7 +302,7 @@ class WorldSpace:
         graph = self.map()
         return {
             "operator": "Regan Harris",
-            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "exported_at": datetime.now(UTC).isoformat(),
             "entries": [e.to_dict() for e in entries],
             "graph": graph,
             "entry_count": len(entries),

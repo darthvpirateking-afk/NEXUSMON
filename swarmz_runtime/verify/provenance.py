@@ -1,11 +1,11 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
-import json
 import hashlib
+import json
 import os
 from pathlib import Path
-from typing import Dict, Any, Tuple
+from typing import Any
 
 AUDIT_FILE = Path(__file__).resolve().parents[2] / "data" / "audit.jsonl"
 SEAL_KEY_ENV = "SWARMZ_SEAL_KEY"
@@ -28,7 +28,7 @@ def _last_hash(path: Path = AUDIT_FILE) -> str:
         return "0" * 64
 
 
-def _hash_entry(entry: Dict[str, Any], prev_hash: str) -> str:
+def _hash_entry(entry: dict[str, Any], prev_hash: str) -> str:
     body = dict(entry)
     body["prev_hash"] = prev_hash
     raw = json.dumps(body, sort_keys=True, separators=(",", ":"))
@@ -36,8 +36,8 @@ def _hash_entry(entry: Dict[str, Any], prev_hash: str) -> str:
 
 
 def append_audit(
-    event: str, details: Dict[str, Any] | None = None, path: Path = AUDIT_FILE
-) -> Dict[str, Any]:
+    event: str, details: dict[str, Any] | None = None, path: Path = AUDIT_FILE
+) -> dict[str, Any]:
     details = details or {}
     path.parent.mkdir(parents=True, exist_ok=True)
     prev = _last_hash(path)
@@ -56,7 +56,7 @@ def append_audit(
     return entry
 
 
-def verify_chain(path: Path = AUDIT_FILE) -> Tuple[bool, int]:
+def verify_chain(path: Path = AUDIT_FILE) -> tuple[bool, int]:
     if not path.exists():
         return True, 0
     count = 0
@@ -68,11 +68,7 @@ def verify_chain(path: Path = AUDIT_FILE) -> Tuple[bool, int]:
                     continue
                 obj = json.loads(line)
                 expected = _hash_entry(
-                    {
-                        k: v
-                        for k, v in obj.items()
-                        if k not in {"hash", "prev_hash", "seal"}
-                    },
+                    {k: v for k, v in obj.items() if k not in {"hash", "prev_hash", "seal"}},
                     prev,
                 )
                 if obj.get("hash") != expected or obj.get("prev_hash") != prev:

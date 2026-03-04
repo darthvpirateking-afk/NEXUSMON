@@ -3,23 +3,24 @@
 # See LICENSE file for details.
 import json
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Dict, Any, Callable
+from typing import Any
 
-from swarmz_runtime.verify import runner, provenance
+from swarmz_runtime.verify import provenance, runner
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 SCHED_FILE = DATA_DIR / "scheduler.json"
 RUNS_FILE = DATA_DIR / "scheduler_runs.jsonl"
 
-TASKS: Dict[str, Callable[[], Dict[str, Any]]] = {
+TASKS: dict[str, Callable[[], dict[str, Any]]] = {
     "verify_pending_missions": runner.run_verify,
     "replay_check": runner.replay_audit,
     "perf_snapshot": lambda: {"ok": True, "note": "placeholder"},
 }
 
 
-def _load_state() -> Dict[str, Any]:
+def _load_state() -> dict[str, Any]:
     if SCHED_FILE.exists():
         try:
             return json.loads(SCHED_FILE.read_text())
@@ -30,12 +31,12 @@ def _load_state() -> Dict[str, Any]:
     return state
 
 
-def _save_state(state: Dict[str, Any]):
+def _save_state(state: dict[str, Any]):
     SCHED_FILE.parent.mkdir(parents=True, exist_ok=True)
     SCHED_FILE.write_text(json.dumps(state, indent=2))
 
 
-def _append_run(task: str, result: Dict[str, Any]):
+def _append_run(task: str, result: dict[str, Any]):
     RUNS_FILE.parent.mkdir(parents=True, exist_ok=True)
     row = {
         "ts": time.time(),
@@ -44,9 +45,7 @@ def _append_run(task: str, result: Dict[str, Any]):
     }
     with RUNS_FILE.open("a", encoding="utf-8") as f:
         f.write(json.dumps(row, separators=(",", ":")) + "\n")
-    provenance.append_audit(
-        "scheduler_run", {"task": task, "ok": result.get("ok", True)}
-    )
+    provenance.append_audit("scheduler_run", {"task": task, "ok": result.get("ok", True)})
 
 
 def tick(now: float | None = None):

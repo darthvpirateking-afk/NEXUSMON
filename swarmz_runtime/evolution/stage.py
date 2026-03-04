@@ -1,12 +1,12 @@
 """NEXUSMON Evolution Stage definitions."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Dict, List
+from enum import StrEnum
 
 
-class EvolutionStage(str, Enum):
+class EvolutionStage(StrEnum):
     ORIGIN = "ORIGIN"
     EMBODIMENT = "EMBODIMENT"
     EXECUTION_FRAME = "EXECUTION_FRAME"
@@ -18,11 +18,11 @@ class EvolutionStage(str, Enum):
 class StageDefinition:
     stage: EvolutionStage
     xp_threshold: int
-    traits_unlocked: List[str]
+    traits_unlocked: list[str]
     visual_state: str
 
 
-STAGE_DEFS: Dict[EvolutionStage, StageDefinition] = {
+STAGE_DEFS: dict[EvolutionStage, StageDefinition] = {
     EvolutionStage.ORIGIN: StageDefinition(
         stage=EvolutionStage.ORIGIN,
         xp_threshold=0,
@@ -55,7 +55,7 @@ STAGE_DEFS: Dict[EvolutionStage, StageDefinition] = {
     ),
 }
 
-STAGE_ORDER: List[EvolutionStage] = [
+STAGE_ORDER: list[EvolutionStage] = [
     EvolutionStage.ORIGIN,
     EvolutionStage.EMBODIMENT,
     EvolutionStage.EXECUTION_FRAME,
@@ -69,10 +69,10 @@ class EvolutionState:
     agent_id: str
     stage: EvolutionStage = EvolutionStage.ORIGIN
     xp: int = 0
-    trait_scores: Dict[str, float] = field(default_factory=dict)
-    history: List[Dict] = field(default_factory=list)
+    trait_scores: dict[str, float] = field(default_factory=dict)
+    history: list[dict] = field(default_factory=list)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         stage_def = STAGE_DEFS[self.stage]
         current_idx = STAGE_ORDER.index(self.stage)
         next_stage = STAGE_ORDER[current_idx + 1] if current_idx < len(STAGE_ORDER) - 1 else None

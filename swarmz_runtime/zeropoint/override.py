@@ -10,30 +10,31 @@ Supported subsystems and parameters:
   combat      retry_budget, latency_target_ms
   seal        seal_level_{action} (elevate a resource's required seal level)
 """
+
 from __future__ import annotations
 
 import json
 import secrets
 import threading
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 _ARTIFACTS_DIR = Path("artifacts/zeropoint")
 _OVERRIDES_FILE = Path("artifacts/zeropoint/overrides.jsonl")
 _LOCK = threading.Lock()
-_ZERO_POINT_OVERRIDE: "ZeroPointOverride | None" = None
+_ZERO_POINT_OVERRIDE: ZeroPointOverride | None = None
 
 _DEFAULT_TTL = 3600  # seconds
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _now_ts() -> float:
-    return datetime.now(timezone.utc).timestamp()
+    return datetime.now(UTC).timestamp()
 
 
 @dataclass
@@ -60,7 +61,7 @@ class Override:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "Override":
+    def from_dict(cls, d: dict[str, Any]) -> Override:
         return cls(
             override_id=str(d.get("override_id", "")),
             subsystem=str(d.get("subsystem", "")),
@@ -75,7 +76,7 @@ class Override:
     def is_expired(self) -> bool:
         try:
             exp = datetime.fromisoformat(self.expires_at)
-            return datetime.now(timezone.utc) >= exp
+            return datetime.now(UTC) >= exp
         except Exception:
             return True
 
@@ -92,9 +93,8 @@ class ZeroPointOverride:
     def _validate_sovereign(self, operator_key: str, doctrine_hash: str) -> None:
         """Validate SOVEREIGN seal: operator key + doctrine hash."""
         from swarmz_runtime.governance.seal_matrix import get_seal_matrix
-        result = get_seal_matrix().approve(
-            "/v1/zeropoint/override", operator_key, doctrine_hash
-        )
+
+        result = get_seal_matrix().approve("/v1/zeropoint/override", operator_key, doctrine_hash)
         if not result.approved:
             raise PermissionError(f"SOVEREIGN seal required: {result.reason}")
 
@@ -128,13 +128,12 @@ class ZeroPointOverride:
     ) -> Override:
         """Apply a system override. SOVEREIGN seal required."""
         if subsystem not in _VALID_SUBSYSTEMS:
-            raise ValueError(
-                f"Unknown subsystem '{subsystem}'. Valid: {sorted(_VALID_SUBSYSTEMS)}"
-            )
+            raise ValueError(f"Unknown subsystem '{subsystem}'. Valid: {sorted(_VALID_SUBSYSTEMS)}")
         self._validate_sovereign(operator_key, doctrine_hash)
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         from datetime import timedelta
+
         expires = now + timedelta(seconds=ttl_seconds)
 
         override = Override(
@@ -154,25 +153,24 @@ class ZeroPointOverride:
         """Manually expire an override before its TTL. Returns True if found."""
         entries = self._read_entries()
         found = any(
-            e.get("override_id") == override_id and e.get("type") == "apply"
-            for e in entries
+            e.get("override_id") == override_id and e.get("type") == "apply" for e in entries
         )
         if not found:
             return False
-        self._append_entry({
-            "type": "expire",
-            "override_id": override_id,
-            "expired_at": _now_iso(),
-        })
+        self._append_entry(
+            {
+                "type": "expire",
+                "override_id": override_id,
+                "expired_at": _now_iso(),
+            }
+        )
         return True
 
     def list_overrides(self) -> list[dict[str, Any]]:
         """Return all overrides with current active/expired status."""
         entries = self._read_entries()
         applies = {e["override_id"]: e for e in entries if e.get("type") == "apply"}
-        manually_expired = {
-            e["override_id"] for e in entries if e.get("type") == "expire"
-        }
+        manually_expired = {e["override_id"] for e in entries if e.get("type") == "expire"}
         result = []
         for oid, entry in applies.items():
             override = Override.from_dict(entry)

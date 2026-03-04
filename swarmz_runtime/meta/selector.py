@@ -2,10 +2,12 @@
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, Any, List, Optional, Callable
-from datetime import datetime
+
 import hashlib
 import json
+from collections.abc import Callable
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from swarmz_runtime.core.engine import SwarmzEngine  # noqa: F811
@@ -53,9 +55,7 @@ class MetaSelector:
         self.space_shaping = SpaceShaping(engine)
         self.pre_evaluated = PreEvaluated(engine)
 
-    def select(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def select(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Execute the complete lattice flow for sovereign decision making.
         """
@@ -66,9 +66,7 @@ class MetaSelector:
         shaped_space = self.space_shaping.shape(context, filtered_options)
 
         # Apply architectural restraint
-        restrained_options = self.architectural_restraint.restrain(
-            context, shaped_space
-        )
+        restrained_options = self.architectural_restraint.restrain(context, shaped_space)
 
         # Apply nonlinear uplift
         uplifted_options = self.magic_way.uplift(context, restrained_options)
@@ -88,8 +86,8 @@ class MetaSelector:
         return final_selection
 
     def _meta_select(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], options: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """
         THE THING WITHOUT A NAME - Final silent arbitration
         Meta-coherence without visible dominance
@@ -116,9 +114,7 @@ class MetaSelector:
 
         return selected_option
 
-    def _calculate_meta_coherence(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> float:
+    def _calculate_meta_coherence(self, context: dict[str, Any], option: dict[str, Any]) -> float:
         """
         Calculate meta-coherence score for an option.
         This is the invisible architecture that governs without being seen.
@@ -144,9 +140,9 @@ class MetaSelector:
 
     def _log_lattice_flow(
         self,
-        context: Dict[str, Any],
-        original_options: List[Dict[str, Any]],
-        final_selection: Dict[str, Any],
+        context: dict[str, Any],
+        original_options: list[dict[str, Any]],
+        final_selection: dict[str, Any],
     ):
         """
         Log the complete lattice flow for audit purposes.
@@ -188,12 +184,10 @@ class LatticeFlow:
     PRE-EVALUATED → SPACE-SHAPING → ARCHITECTURAL RESTRAINT → MAGIC WAY → MYTHICAL WAY → HIDDEN WAY → THE THING WITHOUT A NAME
     """
 
-    def __init__(self, engine: "SwarmzEngine"):
+    def __init__(self, engine: SwarmzEngine):
         self.engine = engine
 
-    def process(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def process(self, context: dict[str, Any], options: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Execute the complete lattice flow.
         """
@@ -211,12 +205,12 @@ class PreEvaluated:
     IN-BETWEEN: Static gate
     """
 
-    def __init__(self, engine: "SwarmzEngine"):
+    def __init__(self, engine: SwarmzEngine):
         self.engine = engine
 
     def filter(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, context: dict[str, Any], options: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Fast pre-evaluation filtering to remove obviously invalid options.
         """
@@ -228,7 +222,7 @@ class PreEvaluated:
 
         return filtered
 
-    def _passes_pre_eval(self, context: Dict[str, Any], option: Dict[str, Any]) -> bool:
+    def _passes_pre_eval(self, context: dict[str, Any], option: dict[str, Any]) -> bool:
         """
         Static gate evaluation - fast rejection of invalid options.
         """
@@ -242,11 +236,7 @@ class PreEvaluated:
 
         # Check context compatibility
         required_context = option.get("required_context", [])
-        for req in required_context:
-            if req not in context:
-                return False
-
-        return True
+        return all(req in context for req in required_context)
 
 
 class SpaceShaping:
@@ -259,12 +249,10 @@ class SpaceShaping:
     IN-BETWEEN: Boundary tension
     """
 
-    def __init__(self, engine: "SwarmzEngine"):
+    def __init__(self, engine: SwarmzEngine):
         self.engine = engine
 
-    def shape(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    def shape(self, context: dict[str, Any], options: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Shape the decision space by establishing boundaries and directions.
         """
@@ -278,8 +266,8 @@ class SpaceShaping:
         return shaped
 
     def _apply_space_shaping(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any] | None:
         """
         Apply directional constraints to shape the option space.
         """
@@ -290,8 +278,8 @@ class SpaceShaping:
         return option
 
     def _calculate_boundaries(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Calculate boundary constraints for the option.
         """
@@ -301,9 +289,7 @@ class SpaceShaping:
             "directional_alignment": self._calculate_alignment(context, option),
         }
 
-    def _calculate_alignment(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> float:
+    def _calculate_alignment(self, context: dict[str, Any], option: dict[str, Any]) -> float:
         """
         Calculate how well the option aligns with the context direction.
         """
@@ -330,12 +316,12 @@ class ArchitecturalRestraint:
     IN-BETWEEN: Tight bounds
     """
 
-    def __init__(self, engine: "SwarmzEngine"):
+    def __init__(self, engine: SwarmzEngine):
         self.engine = engine
 
     def restrain(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, context: dict[str, Any], options: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Apply architectural purity constraints to enforce minimal, clean designs.
         """
@@ -349,7 +335,7 @@ class ArchitecturalRestraint:
         return restrained
 
     def _passes_architectural_restraint(
-        self, context: Dict[str, Any], option: Dict[str, Any]
+        self, context: dict[str, Any], option: dict[str, Any]
     ) -> bool:
         """
         Check if option passes architectural purity requirements.
@@ -363,14 +349,9 @@ class ArchitecturalRestraint:
 
         # Check purity requirements
         impurities = option.get("impurities", [])
-        if impurities:
-            return False
+        return not impurities
 
-        return True
-
-    def _apply_restraint(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _apply_restraint(self, context: dict[str, Any], option: dict[str, Any]) -> dict[str, Any]:
         """
         Apply architectural restraint to minimize and purify the option.
         """
@@ -380,7 +361,7 @@ class ArchitecturalRestraint:
 
         return restrained
 
-    def _calculate_purity(self, option: Dict[str, Any]) -> float:
+    def _calculate_purity(self, option: dict[str, Any]) -> float:
         """
         Calculate architectural purity score.
         """
@@ -402,12 +383,12 @@ class MagicWay:
     IN-BETWEEN: Wild potential
     """
 
-    def __init__(self, engine: "SwarmzEngine"):
+    def __init__(self, engine: SwarmzEngine):
         self.engine = engine
 
     def uplift(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, context: dict[str, Any], options: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Apply nonlinear uplift to create emergence and wild potential.
         """
@@ -420,8 +401,8 @@ class MagicWay:
         return uplifted
 
     def _apply_magic_uplift(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Apply nonlinear transformation to uplift the option.
         """
@@ -439,9 +420,7 @@ class MagicWay:
 
         return uplifted
 
-    def _calculate_emergence(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> float:
+    def _calculate_emergence(self, context: dict[str, Any], option: dict[str, Any]) -> float:
         """
         Calculate emergence potential for nonlinear uplift.
         """
@@ -477,12 +456,10 @@ class MythicalWay:
     IN-BETWEEN: Pattern pull
     """
 
-    def __init__(self, engine: "SwarmzEngine"):
+    def __init__(self, engine: SwarmzEngine):
         self.engine = engine
 
-    def align(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    def align(self, context: dict[str, Any], options: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Apply archetypal alignment for deep pattern resonance.
         """
@@ -495,8 +472,8 @@ class MythicalWay:
         return aligned
 
     def _apply_mythical_alignment(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Apply archetypal patterns and narrative alignment.
         """
@@ -515,9 +492,7 @@ class MythicalWay:
 
         return aligned
 
-    def _identify_archetypes(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> List[str]:
+    def _identify_archetypes(self, context: dict[str, Any], option: dict[str, Any]) -> list[str]:
         """
         Identify archetypal patterns in context and option.
         """
@@ -537,15 +512,12 @@ class MythicalWay:
         }
 
         for archetype, patterns in archetype_patterns.items():
-            if any(
-                pattern in context_text or pattern in option_text
-                for pattern in patterns
-            ):
+            if any(pattern in context_text or pattern in option_text for pattern in patterns):
                 archetypes.append(archetype)
 
         return archetypes
 
-    def _calculate_resonance(self, archetypes: List[str]) -> float:
+    def _calculate_resonance(self, archetypes: list[str]) -> float:
         """
         Calculate archetypal resonance strength.
         """
@@ -567,12 +539,12 @@ class SovereignOverride:
     IN-BETWEEN: Covert force
     """
 
-    def __init__(self, engine: "SwarmzEngine"):
+    def __init__(self, engine: SwarmzEngine):
         self.engine = engine
 
     def override(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, context: dict[str, Any], options: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Apply sovereign override when needed - covert force with zero transparency.
         """
@@ -588,9 +560,7 @@ class SovereignOverride:
 
         return overridden
 
-    def _requires_override(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> bool:
+    def _requires_override(self, context: dict[str, Any], options: list[dict[str, Any]]) -> bool:
         """
         Determine if sovereign override is required.
         """
@@ -603,14 +573,11 @@ class SovereignOverride:
             return True
 
         # Override if critical decision threshold
-        if context.get("critical_decision", False):
-            return True
-
-        return False
+        return bool(context.get("critical_decision", False))
 
     def _apply_sovereign_override(
-        self, context: Dict[str, Any], options: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, context: dict[str, Any], options: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Apply covert sovereign control - untraceable force.
         """
@@ -627,7 +594,7 @@ class SovereignOverride:
 
         return influenced
 
-    def _create_sovereign_option(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    def _create_sovereign_option(self, context: dict[str, Any]) -> dict[str, Any]:
         """
         Create a sovereign option when no other options exist.
         """
@@ -641,8 +608,8 @@ class SovereignOverride:
         }
 
     def _apply_sovereign_influence(
-        self, context: Dict[str, Any], option: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any], option: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Apply subtle sovereign influence to an existing option.
         """
@@ -652,9 +619,7 @@ class SovereignOverride:
 
         return influenced
 
-    def _log_covert_override(
-        self, context: Dict[str, Any], original_count: int, final_count: int
-    ):
+    def _log_covert_override(self, context: dict[str, Any], original_count: int, final_count: int):
         """
         Log sovereign override with zero transparency markers.
         """

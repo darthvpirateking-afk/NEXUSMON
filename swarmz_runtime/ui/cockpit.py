@@ -1,3 +1,5 @@
+from datetime import UTC
+
 from fastapi import APIRouter
 
 router = APIRouter()
@@ -34,7 +36,7 @@ def get_cockpit_layout():
 @router.get("/cockpit/status")
 def get_cockpit_status():
     """Live cockpit status: health, avatar state, realm summary, swarm tier, mission rank."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from swarmz_runtime.avatar.avatar_matrix import get_avatar_matrix
     from swarmz_runtime.core.mission_ranks import list_ranks
@@ -54,7 +56,7 @@ def get_cockpit_status():
 
     return {
         "ok": True,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "throne": throne.get_state(),
         "avatar": {
             "active_variant": avatar_state["active_variant"],

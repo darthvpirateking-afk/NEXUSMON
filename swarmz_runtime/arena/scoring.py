@@ -6,12 +6,10 @@ All scoring is pure-function, deterministic: same inputs → same outputs.
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 
-def score_candidate(
-    response: str, prompt: str, strategy: str = "length_quality"
-) -> float:
+def score_candidate(response: str, prompt: str, strategy: str = "length_quality") -> float:
     """Score a candidate response deterministically.
 
     Strategies:
@@ -46,17 +44,14 @@ def _score_length_quality(response: str, prompt: str) -> float:
     # Relevance component: how many prompt words appear in response
     prompt_words = set(prompt.lower().split())
     response_words = set(text.lower().split())
-    if prompt_words:
-        overlap = len(prompt_words & response_words) / len(prompt_words)
-    else:
-        overlap = 0.5
+    overlap = len(prompt_words & response_words) / len(prompt_words) if prompt_words else 0.5
     relevance_score = min(overlap, 1.0)
 
     score = 0.4 * length_score + 0.3 * structure_score + 0.3 * relevance_score
     return round(score, 6)
 
 
-def rank_candidates(candidates: list[Dict[str, Any]]) -> list[Dict[str, Any]]:
+def rank_candidates(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Sort candidates by score descending, assign deterministic ranks.
 
     Tie-breaking: higher score first, then lower worker_index, then lexical id.
