@@ -263,8 +263,10 @@ Enforced in `swarmz_runtime/bridge/mode.py`. Never bypass.
 | 4 — Companion Voice | ✅ | `ecfcc87` feat(companion): voice layer, mode-aware routing, NexusmonChat wired |
 | 5 — Artifact Vault | ✅ | `f42aaa1` feat(artifacts): vault fused into both servers, 26 vault tests |
 | 6 — Seal | ✅ | docs/NEXUSMON_DOCTRINE.md created · CLAUDE.md finalized |
+| EF — Execution Frame | ✅ | SwarmCoordinator, ShadowExecutor, CombatProtocol, FederationCouncil, cockpit wiring |
+| MS — Monarch Shell | ✅ | KernelShift, SealMatrix, CommandFusion, OperatorMemory — 14 endpoints, MonarchPage |
 
-**Last test run: 1156 passed, 1 skipped, 0 failed**
+**Last test run: 1438 passed, 1 skipped, 0 failed**
 
 ---
 
