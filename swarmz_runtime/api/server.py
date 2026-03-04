@@ -16,7 +16,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, HTMLResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -37,7 +37,13 @@ class _OperatorLockMiddleware(BaseHTTPMiddleware):
 
 from addons.api.addons_router import router as addons_router
 from addons.api.guardrails_router import router as guardrails_router
-from core.startup_validation import validate_startup_contract
+from core.startup_validation import (
+    env_truthy,
+    parse_cors_origins,
+    should_enforce_security_contract,
+    validate_security_env,
+    validate_startup_contract,
+)
 from jsonl_utils import read_jsonl
 from kernel_runtime.orchestrator import SwarmzOrchestrator
 from swarmz_runtime.api import admin, ecosystem, system
@@ -65,6 +71,14 @@ from .template_sync_routes import router as template_sync_routes_router
 logger = logging.getLogger("swarmz.server")
 
 load_dotenv()
+_READY_SECURITY_ENFORCED = should_enforce_security_contract()
+_FAIL_FAST_SECURITY_ENV = env_truthy("FAIL_FAST_SECURITY_ENV", False)
+_security_env_status = validate_security_env(enforce=_FAIL_FAST_SECURITY_ENV)
+if _security_env_status["missing_env"]:
+    logger.warning(
+        "[SECURITY] Missing recommended env vars: %s",
+        ", ".join(_security_env_status["missing_env"]),
+    )
 
 # ---- cheap constants only (NO orchestrator creation here) ----
 BASE_DIR = Path(__file__).resolve().parent
@@ -105,19 +119,22 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     from fastapi.middleware.cors import CORSMiddleware
 
-    # Allow origins from env var; fall back to all origins for local dev
-    _cors_origins_env = os.environ.get("CORS_ALLOW_ORIGINS", "")
-    _cors_origins = (
-        [o.strip() for o in _cors_origins_env.split(",") if o.strip()]
-        if _cors_origins_env
-        else ["*"]
+    # Prefer explicit env origins and default to local dev origins.
+    _cors_origins_env = os.environ.get("CORS_ALLOW_ORIGINS") or os.environ.get(
+        "ALLOWED_ORIGINS", ""
     )
+    _cors_origins = parse_cors_origins(_cors_origins_env)
+    _allow_credentials = "*" not in _cors_origins
+    if not _allow_credentials:
+        logger.warning(
+            "[SECURITY] Wildcard CORS origin detected; disabling credentialed CORS."
+        )
 
     app = FastAPI(lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=_cors_origins,
-        allow_credentials=True,
+        allow_credentials=_allow_credentials,
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -1322,9 +1339,41 @@ def observability_health():
     return {"status": "ok"}
 
 
+def _ready_payload() -> tuple[bool, dict[str, Any]]:
+    missing_env = validate_security_env(enforce=False)["missing_env"]
+    ready = not (_READY_SECURITY_ENFORCED and missing_env)
+    payload: dict[str, Any] = {
+        "status": "ready" if ready else "not_ready",
+        "service": "SWARMZ Runtime API",
+    }
+    if missing_env:
+        payload["missing_env"] = missing_env
+    return ready, payload
+
+
+@app.get("/ready")
+def readiness():
+    ready, payload = _ready_payload()
+    if not ready:
+        return JSONResponse(status_code=503, content=payload)
+    return payload
+
+
+@app.get("/health/ready")
+def health_ready_compat():
+    ready, payload = _ready_payload()
+    content = {"ok": ready, **payload}
+    if not ready:
+        return JSONResponse(status_code=503, content=content)
+    return content
+
+
 @app.get("/v1/observability/ready")
 def observability_ready():
-    return {"status": "ready"}
+    ready, payload = _ready_payload()
+    if not ready:
+        return JSONResponse(status_code=503, content=payload)
+    return payload
 
 
 @app.get("/v1/command-center/state")

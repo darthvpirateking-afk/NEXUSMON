@@ -3,16 +3,80 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Iterable
 
 
 REQUIRED_RUNTIME_KEYS: tuple[str, ...] = ("config_version", "llm", "routing", "models")
 REQUIRED_SCHEMA_PATHS: tuple[str, ...] = ("schemas/agent-manifest.v1.json",)
+DEFAULT_DEV_CORS_ORIGINS: tuple[str, ...] = (
+    "http://localhost:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:5173",
+)
+_TRUTHY: frozenset[str] = frozenset({"1", "true", "yes", "on"})
 
 
 def _missing_keys(payload: dict, required_keys: Iterable[str]) -> list[str]:
     return [key for key in required_keys if key not in payload]
+
+
+def env_truthy(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in _TRUTHY
+
+
+def is_production_environment() -> bool:
+    env_value = (
+        os.environ.get("APP_ENV")
+        or os.environ.get("ENVIRONMENT")
+        or os.environ.get("SWARMZ_ENV")
+        or os.environ.get("RAILWAY_ENVIRONMENT")
+        or ("production" if os.environ.get("RENDER") else "")
+    )
+    return str(env_value).strip().lower() in {"production", "prod"}
+
+
+def should_enforce_security_contract() -> bool:
+    return env_truthy("ENFORCE_SECURITY_CONTRACT", False) or is_production_environment()
+
+
+def parse_cors_origins(
+    raw_value: str | None,
+    default_origins: Iterable[str] = DEFAULT_DEV_CORS_ORIGINS,
+) -> list[str]:
+    origins = [o.strip() for o in (raw_value or "").split(",") if o.strip()]
+    if not origins:
+        origins = list(default_origins)
+
+    unique_origins: list[str] = []
+    seen: set[str] = set()
+    for origin in origins:
+        if origin not in seen:
+            seen.add(origin)
+            unique_origins.append(origin)
+    return unique_origins
+
+
+def validate_security_env(enforce: bool = False) -> dict[str, object]:
+    missing_env: list[str] = []
+    if not os.environ.get("OPERATOR_KEY", "").strip():
+        missing_env.append("OPERATOR_KEY")
+    if not (
+        os.environ.get("JWT_SECRET", "").strip()
+        or os.environ.get("SWARMZ_JWT_SECRET", "").strip()
+    ):
+        missing_env.append("JWT_SECRET|SWARMZ_JWT_SECRET")
+
+    if enforce and missing_env:
+        raise RuntimeError(
+            "FATAL: missing required security env vars: " + ", ".join(missing_env)
+        )
+
+    return {"missing_env": missing_env, "enforced": enforce}
 
 
 def validate_startup_contract(repo_root: Path | None = None) -> dict[str, object]:

@@ -35,7 +35,13 @@ from pydantic import BaseModel, Field
 
 from jsonl_utils import read_jsonl, write_jsonl
 from core.activity_stream import record_event
-from core.startup_validation import validate_startup_contract
+from core.startup_validation import (
+    env_truthy,
+    parse_cors_origins,
+    should_enforce_security_contract,
+    validate_security_env,
+    validate_startup_contract,
+)
 from addons.auth_gate import LANAuthMiddleware
 from addons.rate_limiter import RateLimitMiddleware
 from addons.security import (
@@ -417,21 +423,34 @@ app = FastAPI(
 
 validate_startup_contract(Path(__file__).resolve().parent)
 
+_READY_SECURITY_ENFORCED = should_enforce_security_contract()
+_FAIL_FAST_SECURITY_ENV = env_truthy("FAIL_FAST_SECURITY_ENV", False)
+_security_env_status = validate_security_env(enforce=_FAIL_FAST_SECURITY_ENV)
+if _security_env_status["missing_env"]:
+    logging.warning(
+        "[SECURITY] Missing recommended env vars: %s",
+        ", ".join(_security_env_status["missing_env"]),
+    )
+
 # Core security middlewares (all conservative / opt-out via config):
 app.add_middleware(RateLimitMiddleware)
 app.add_middleware(LANAuthMiddleware)
 app.add_middleware(IDSMiddleware)
 
 # Add CORS middleware â€” allow_credentials=True requires explicit origins (not "*")
-_raw_origins = os.environ.get(
-    "ALLOWED_ORIGINS",
-    "http://localhost:5173,http://localhost:4173,http://127.0.0.1:5173",
+_raw_origins = os.environ.get("ALLOWED_ORIGINS") or os.environ.get(
+    "CORS_ALLOW_ORIGINS", ""
 )
-allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+allowed_origins = parse_cors_origins(_raw_origins)
+_allow_credentials = "*" not in allowed_origins
+if not _allow_credentials:
+    logging.warning(
+        "[SECURITY] Wildcard CORS origin detected; disabling credentialed CORS."
+    )
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_credentials=True,
+    allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -1223,13 +1242,30 @@ async def readiness():
     accept traffic.  Extend with queue-depth / reconciler-thread checks as
     the system matures.
     """
-    return {"status": "ready", "service": "SWARMZ API"}
+    missing_env = validate_security_env(enforce=False)["missing_env"]
+    ready = not (_READY_SECURITY_ENFORCED and missing_env)
+    payload: Dict[str, Any] = {
+        "status": "ready" if ready else "not_ready",
+        "service": "SWARMZ API",
+    }
+    if missing_env:
+        payload["missing_env"] = missing_env
+    if not ready:
+        return JSONResponse(status_code=503, content=payload)
+    return payload
 
 
 @app.get("/health/ready", operation_id="swarmz_health_ready_compat")
 async def health_ready_compat():
     """Compatibility readiness endpoint for UI clients."""
-    return {"ok": True, "status": "ready"}
+    missing_env = validate_security_env(enforce=False)["missing_env"]
+    ready = not (_READY_SECURITY_ENFORCED and missing_env)
+    payload: Dict[str, Any] = {"ok": ready, "status": "ready" if ready else "not_ready"}
+    if missing_env:
+        payload["missing_env"] = missing_env
+    if not ready:
+        return JSONResponse(status_code=503, content=payload)
+    return payload
 
 
 @app.get("/api/health", operation_id="swarmz_health_api")
