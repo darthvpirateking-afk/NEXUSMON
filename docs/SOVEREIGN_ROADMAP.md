@@ -133,9 +133,11 @@ Easier GUI for managing local models. Good backup option.
 ## PHASE 5 — FULL SOVEREIGN STACK
 > The end goal — everything yours, nothing third party
 
-### 11. Self-Hosted Git — Gitea  `[ TODO ]`  · MEDIUM
+### 11. Self-Hosted Git — Gitea  `[ DONE ]`  · MEDIUM
 Your own GitHub. Your own server. Nobody else's platform.
-- Cost: Free — runs on mini PC
+- Sovereign Git: https://52ppup.gitea.cloud/darthvpirateking_afk/NEXUSMON
+- Mirrors from GitHub automatically
+- Full-scope API token configured
 
 ### 12. Build Nexusmon's Physical Body — CORE UNIT  `[ TODO ]`  · MEDIUM
 Exoshell Stage 1. Raspberry Pi + sensors + 3D printed shell. ~$80.
