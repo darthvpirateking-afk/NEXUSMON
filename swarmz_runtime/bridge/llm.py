@@ -237,15 +237,15 @@ def _resolve_api_base(provider: str, candidate: dict[str, Any]) -> str | None:
         return None
 
     if normalized_provider == "ollama":
+        env_endpoint = os.environ.get("OLLAMA_ENDPOINT", "").strip()
+        if env_endpoint:
+            return env_endpoint
         endpoint = candidate.get("endpoint")
         if isinstance(endpoint, str) and endpoint.strip():
             return endpoint.strip()
         base_url = candidate.get("base_url")
         if isinstance(base_url, str) and base_url.strip():
             return base_url.strip()
-        env_endpoint = os.environ.get("OLLAMA_ENDPOINT", "").strip()
-        if env_endpoint:
-            return env_endpoint
         return "http://localhost:11434"
 
     return None
