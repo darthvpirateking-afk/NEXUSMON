@@ -13,90 +13,159 @@
 
 [![Tests](https://img.shields.io/badge/tests-1503%20passing-00ff88?style=flat-square&logo=pytest)](tests/)
 [![Version](https://img.shields.io/badge/version-v2.0.0-7c3aed?style=flat-square)](https://github.com/darthvpirateking-afk/NEXUSMON/releases)
-[![Evolution](https://img.shields.io/badge/evolution-ZERO--POINT%20FORM-00cfff?style=flat-square)](#evolution-stages)
+[![Evolution](https://img.shields.io/badge/evolution-ZERO--POINT%20FORM-00cfff?style=flat-square)](#evolution-progress)
 [![License](https://img.shields.io/badge/license-Proprietary-ff4444?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11-3776ab?style=flat-square&logo=python)](pyproject.toml)
-[![Stack](https://img.shields.io/badge/stack-FastAPI%20·%20React%20·%20TypeScript-00cfff?style=flat-square)](#stack)
+[![Stack](https://img.shields.io/badge/stack-FastAPI%20·%20React%20·%20TypeScript-00cfff?style=flat-square)](#tech-stack)
 
 </div>
 
 ---
 
-## What Is NEXUSMON?
+## Executive Summary
 
-NEXUSMON is not software. It is a **governed AI organism** — a sovereign entity that awakens, evolves, and operates under absolute operator authority.
+NEXUSMON is a **governed, operator-centric AI orchestration platform** built on a strict additive doctrine: nothing is ever overwritten, deleted, or degraded. Every action is operator-authorized, every decision produces a permanent JSONL artifact, and every LLM call is routed through a hard-enforced tier system.
 
-Built with a strict doctrine:
-
-- **Additive only** — nothing is ever overwritten, deleted, or degraded
-- **Operator is absolute** — every action requires explicit operator intent
-- **Evolution is earned** — each stage unlocks through XP thresholds, not deployment flags
-- **Artifacts are permanent** — every mission, decision, and shift produces a JSONL artifact
-- **Companion feels alive** — but is never autonomous. Prime Directive holds, forever
+The platform has reached **Zero-Point Form** — its fifth and final evolution stage — delivering full-system override capabilities, quantum doctrine snapshots, and operator-approved autonomy proposals on top of a battle-tested swarm, governance, and command-fusion stack.
 
 ---
 
-## Evolution Stages
+## Core Modules
 
-NEXUSMON evolves through five sealed stages. Each is independently tested and tagged.
+<table>
+<tr>
+<td width="33%" valign="top">
 
-| Stage | Name | Capability | Tag |
-|-------|------|-----------|-----|
-| 1 | **ORIGIN** | Doctrine parsing, bridge health, artifact integrity | `v1.0.0` |
-| 2 | **EMBODIMENT** | Mission engine, companion voice, tactical awareness | `v1.0.0` |
-| 3 | **EXECUTION FRAME** | Swarm command, shadow execution, combat protocols, federation | `v1.1.0` |
-| 4 | **MONARCH SHELL** | Kernel shift, seal matrix, command fusion, operator memory | `v1.2.0` |
-| 5 | **ZERO-POINT FORM** | Full-system override, quantum doctrine, autonomy engine | `v2.0.0` ← **current** |
+### 🔀 Swarm Engine
+Spawn, route, and track parallel agents across distributed compute nodes via `SwarmCoordinator`. Supports federation dispatch across multi-node clusters through `FederationCouncil`.
+
+</td>
+<td width="33%" valign="top">
+
+### 🛡️ Governance Layer
+Four-level seal system (`OPEN → OPERATOR → DUAL → SOVEREIGN`) enforced by `SealMatrix`. Every privileged action requires explicit operator authorization.
+
+</td>
+<td width="33%" valign="top">
+
+### ⚡ Command Fusion
+`CommandFusion` executes dependency-aware, parallel multi-step scripts. Built-in presets: **FORGE**, **DEPLOY**, **IGNITE**. Full run history and status tracking.
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+### 🌐 LLM Bridge
+Mode-aware routing through `cortex` (deep reasoning) and `reflex` (low-latency) tiers. Per-model circuit breakers and token budget gates prevent runaway spend.
+
+</td>
+<td width="33%" valign="top">
+
+### 🧠 Companion Voice
+Mode-locked companion interface: **Strategic** (full context), **Combat** (2048-token cap), **Guardian** (silent monitoring). Never autonomous — operator-bound by design.
+
+</td>
+<td width="33%" valign="top">
+
+### ✴️ Zero-Point Form
+Full-system overrides with TTL expiry, quantum doctrine snapshots, and operator-approved autonomy proposals. Requires `SOVEREIGN` seal level. Stage 5 of 5.
+
+</td>
+</tr>
+</table>
 
 ---
 
-## Architecture
+## System Architecture
 
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**Backend**
 ```
-nexusmon_server.py              ← Primary FastAPI server  (50+ endpoints)
-swarmz_runtime/api/server.py   ← Runtime kernel server   (mirrored endpoints)
+nexusmon_server.py              ← Primary FastAPI server (50+ endpoints)
+swarmz_runtime/api/server.py   ← Runtime kernel server  (mirrored endpoints)
 swarmz_runtime/
-  bridge/                      ← LLM routing layer
-    llm.py                     ← call() and call_v2() — all LLM calls
-    mode.py                    ← NexusmonMode: strategic / combat / guardian
-    circuit.py                 ← Per-model circuit breaker
-    cost.py                    ← Token budget gate
-  swarm/coordinator.py         ← SwarmCoordinator — spawn, route, track agents
-  shadow/executor.py           ← ShadowExecutor — operator-auth, encrypted artifacts
-  federation/council.py        ← FederationCouncil — parallel multi-node dispatch
-  governance/seal_matrix.py    ← SealMatrix — OPEN → OPERATOR → DUAL → SOVEREIGN
-  kernel/shift.py              ← KernelShift — additive runtime reconfiguration
-  doctrine/command_fusion.py   ← CommandFusion — dependency-aware parallel execution
-  companion/voice.py           ← Companion voice — mode-aware, never autonomous
-  operator/memory.py           ← OperatorMemory — persistent session tracking
-  zeropoint/
-    override.py                ← ZeroPointOverride — full-system override, TTL expiry
-    quantum.py                 ← QuantumDoctrine — snapshot/collapse doctrine state
-    autonomy.py                ← AutonomyEngine — operator-approved action proposals
-frontend/src/
-  pages/                       ← NexusmonPage · MonarchPage · ZeroPointPage · ...
-  components/                  ← 20+ cockpit panels
-  hooks/                       ← useSwarm · useFederation · useZeroPoint · ...
-  theme/cosmicTokens.ts        ← Single source of truth for all styling
+  bridge/llm.py                ← All LLM calls: call() / call_v2()
+  bridge/mode.py               ← NexusmonMode enum + tier mapping
+  bridge/circuit.py            ← Per-model circuit breaker
+  bridge/cost.py               ← Token budget gate
+  swarm/coordinator.py         ← SwarmCoordinator
+  shadow/executor.py           ← ShadowExecutor (encrypted artifacts)
+  federation/council.py        ← FederationCouncil
+  governance/seal_matrix.py    ← SealMatrix (4 seal levels)
+  kernel/shift.py              ← KernelShift (additive reconfiguration)
+  doctrine/command_fusion.py   ← CommandFusion
+  companion/voice.py           ← Companion voice layer
+  operator/memory.py           ← OperatorMemory
+  zeropoint/override.py        ← ZeroPointOverride
+  zeropoint/quantum.py         ← QuantumDoctrine
+  zeropoint/autonomy.py        ← AutonomyEngine
 ```
 
+</td>
+<td width="50%" valign="top">
+
+**Frontend**
+```
+frontend/src/
+  pages/
+    NexusmonPage.tsx           ← Main cockpit dashboard
+    MonarchPage.tsx            ← Monarch Shell controls
+    ZeroPointPage.tsx          ← Zero-Point Form interface
+    CosmicPage.tsx             ← Artifact intelligence
+  components/                  ← 20+ cockpit panels
+  hooks/
+    useSwarm.ts                ← Swarm state + actions
+    useFederation.ts           ← Federation dispatch
+    useZeroPoint.ts            ← Override / quantum / autonomy
+    useEvolution.ts            ← XP and stage tracking
+  theme/cosmicTokens.ts        ← Single source of truth for styling
+  api/system.ts                ← Frontend API client
+```
+
+**Persistence**
+```
+artifacts/                     ← Runtime JSONL artifacts (never deleted)
+data/                          ← Missions, activity, operator state
+```
+
+</td>
+</tr>
+</table>
+
 ---
 
-## Mode → Bridge Tier
+## Evolution Progress
 
-Every LLM call is routed through a hard-enforced tier system. No bypasses exist.
-
-| Mode | Tier | Behaviour |
-|------|------|-----------|
-| `strategic` | `cortex` | Deep reasoning, best available model |
-| `combat` | `reflex` | Fast routing, low latency, 2048 token cap |
-| `guardian` | blocked | Silent monitoring — no LLM calls permitted |
+| Stage | Name | Capability | Version |
+|------:|------|-----------|:-------:|
+| 1 | **ORIGIN** | Doctrine parsing · bridge health · artifact integrity | `v1.0.0` |
+| 2 | **EMBODIMENT** | Mission engine · companion voice · tactical awareness | `v1.0.0` |
+| 3 | **EXECUTION FRAME** | Swarm command · shadow execution · combat protocols · federation | `v1.1.0` |
+| 4 | **MONARCH SHELL** | Kernel shift · seal matrix · command fusion · operator memory | `v1.2.0` |
+| **5** | **ZERO-POINT FORM** | Full-system override · quantum doctrine · autonomy engine | **`v2.0.0`** ✦ |
 
 ---
 
-## API Surface
+## Tech Stack
 
-### Core
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python 3.11 · FastAPI · Pydantic v2 · LiteLLM |
+| Frontend | React · Vite · TypeScript (strict) |
+| Persistence | JSONL artifacts (additive, never destructive) · SQLite |
+| Testing | pytest · asyncio · monkeypatch — 1503 passing |
+| CI | GitHub Actions — guards `master` + `evolution/**` + `feature/**` + `fix/**` |
+
+---
+
+## API Reference
+
+<details>
+<summary><strong>Core Endpoints</strong></summary>
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -104,7 +173,10 @@ Every LLM call is routed through a hard-enforced tier system. No bypasses exist.
 | `POST` | `/v1/missions` | Create and execute a mission |
 | `POST` | `/v1/companion/nexusmon` | Companion voice response |
 
-### Swarm
+</details>
+
+<details>
+<summary><strong>Swarm</strong></summary>
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -112,7 +184,10 @@ Every LLM call is routed through a hard-enforced tier system. No bypasses exist.
 | `GET` | `/v1/swarm/agents` | List all active agents |
 | `GET` | `/v1/swarm/state/{agent_id}` | Get agent state |
 
-### Governance
+</details>
+
+<details>
+<summary><strong>Governance</strong></summary>
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -120,7 +195,10 @@ Every LLM call is routed through a hard-enforced tier system. No bypasses exist.
 | `POST` | `/v1/seal/approve` | Submit operator approval |
 | `GET` | `/v1/seal/pending` | Pending dual-approvals |
 
-### Command Fusion
+</details>
+
+<details>
+<summary><strong>Command Fusion</strong></summary>
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -128,11 +206,14 @@ Every LLM call is routed through a hard-enforced tier system. No bypasses exist.
 | `GET` | `/v1/fusion/{id}/status` | Fusion run status |
 | `GET` | `/v1/fusion/presets` | Built-in presets: FORGE · DEPLOY · IGNITE |
 
-### Zero-Point Form
+</details>
+
+<details>
+<summary><strong>Zero-Point Form</strong></summary>
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/v1/zeropoint/override` | Apply a system override (SOVEREIGN required) |
+| `POST` | `/v1/zeropoint/override` | Apply a system override (`SOVEREIGN` required) |
 | `GET` | `/v1/zeropoint/overrides` | List active and expired overrides |
 | `GET` | `/v1/zeropoint/status` | Active override summary |
 | `POST` | `/v1/quantum/snapshot` | Save current doctrine state |
@@ -144,109 +225,61 @@ Every LLM call is routed through a hard-enforced tier system. No bypasses exist.
 | `POST` | `/v1/autonomy/reject/{id}` | Reject a proposal |
 | `GET` | `/v1/autonomy/history` | All proposals and outcomes |
 
----
-
-## Test Coverage
-
-```
-pytest tests/ --tb=short -q
-1503 passed · 1 skipped · 0 failed
-```
-
-| Suite | Tests |
-|-------|-------|
-| Zero-Point (Override · Quantum · Autonomy) | 66 |
-| Governance (SealMatrix) | 45 |
-| Command Fusion | 42 |
-| Swarm (SwarmCoordinator) | 40 |
-| Kernel (KernelShift) | 38 |
-| Federation (FederationCouncil) | 38 |
-| Shadow (ShadowExecutor) | 35 |
-| Operator Memory | 35 |
-| Combat Protocol | 30 |
-| Manifest / Registry / Core Quality | 150+ |
+</details>
 
 ---
 
-## Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Backend | Python 3.11 · FastAPI · Pydantic v2 · LiteLLM |
-| Frontend | React · Vite · TypeScript strict |
-| Persistence | JSONL artifacts (additive, never destructive) · SQLite |
-| Testing | pytest · asyncio · monkeypatch |
-| CI | GitHub Actions — guards `master` + `evolution/**` + `feature/**` + `fix/**` |
-
----
-
-## Operator Doctrine
-
-```
-PRIME DIRECTIVE
-  Governed. Sovereign. Operator-centric. Additive forever. No drift. No overwriting.
-
-LAWS
-  1. Operator is absolute authority
-  2. Nothing overwrites — ever
-  3. All evolution is explicit and operator-approved
-  4. Companion feels alive but is never autonomous
-  5. All actions produce artifacts
-  6. Same input, same output, always
-
-SEAL LEVELS
-  OPEN       — public read
-  OPERATOR   — operator key required
-  DUAL       — two-party approval required
-  SOVEREIGN  — operator key + doctrine hash
-```
-
----
-
-## Companion Modes
-
-```
-STRATEGIC  —  Deep reasoning · cortex tier · full context window
-COMBAT     —  Fast routing · reflex tier · 2048 token cap
-GUARDIAN   —  Silent monitoring · no LLM calls · no output
-```
-
-The companion is mode-aware, persona-locked, and operator-bound.
-It does not act without intent. It does not speak without permission.
-
----
-
-## Running Locally
+## Local Development
 
 ```bash
 # Install dependencies
 pip install -r requirements-dev.txt
 
-# Start primary server
+# Start the primary server
 python nexusmon_server.py
 
-# Start runtime kernel server
+# Start the runtime kernel server
 python -m swarmz_runtime.api.server
 
-# Frontend
+# Start the frontend (React + Vite)
 cd frontend && npm install && npm run dev
 
-# Run tests
+# Run the full test suite
 pytest tests/ --tb=short -q
 ```
 
 ---
 
-## Versioning
+## Governance Doctrine
 
-| Version | Stage | Capability |
-|---------|-------|-----------|
-| `v1.0.0` | ORIGIN through SEAL | Foundation · bridge · missions · companion · vault |
-| `v1.1.0` | EXECUTION FRAME | Swarm · Shadow · Federation · Combat protocols |
-| `v1.2.0` | MONARCH SHELL | Kernel shift · Seal matrix · Command fusion · Operator memory |
-| `v2.0.0` | ZERO-POINT FORM | Full override · Quantum doctrine · Autonomy engine |
+```
+PRIME DIRECTIVE
+  Governed. Sovereign. Operator-centric. Additive forever. No drift. No overwriting.
+
+OPERATOR LAWS
+  1. Operator is absolute authority
+  2. Nothing overwrites — ever
+  3. All evolution is explicit and operator-approved
+  4. Companion is mode-locked and never autonomous
+  5. All actions produce permanent artifacts
+  6. Same input, same output, always
+
+SEAL LEVELS
+  OPEN       — public read access
+  OPERATOR   — operator key required
+  DUAL       — two-party approval required
+  SOVEREIGN  — operator key + doctrine hash verification
+```
 
 ---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on submitting issues, proposing changes, and the pull request process.
+
+## Code of Conduct
+
+This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
