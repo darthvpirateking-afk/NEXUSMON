@@ -5,7 +5,7 @@ services:
     runtime: python
     region: oregon
     autoDeploy: true
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     startCommand: uvicorn nexusmon_server:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /v1/health
     envVars:
