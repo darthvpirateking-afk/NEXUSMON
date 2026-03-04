@@ -1008,6 +1008,169 @@ async def fusion_presets():
     return {"ok": True, "presets": PRESETS}
 
 
+# ── ZERO-POINT FORM — Override ─────────────────────────────────────────────────
+
+@app.post("/v1/zeropoint/override")
+async def zeropoint_apply(payload: dict):
+    """Apply a system-wide override. SOVEREIGN seal required."""
+    try:
+        from swarmz_runtime.zeropoint.override import get_zero_point_override
+        override = get_zero_point_override().apply(
+            subsystem=str(payload.get("subsystem", "")),
+            parameter=str(payload.get("parameter", "")),
+            value=payload.get("value"),
+            operator_key=str(payload.get("operator_key", "")),
+            doctrine_hash=str(payload.get("doctrine_hash", "")),
+            ttl_seconds=int(payload.get("ttl_seconds", 3600)),
+        )
+        return {"ok": True, **override.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/zeropoint/overrides")
+async def zeropoint_list():
+    """List all overrides with active/expired status."""
+    try:
+        from swarmz_runtime.zeropoint.override import get_zero_point_override
+        return {"ok": True, "overrides": get_zero_point_override().list_overrides()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/zeropoint/override/{override_id}/expire")
+async def zeropoint_expire(override_id: str):
+    """Manually expire an override before its TTL."""
+    try:
+        from swarmz_runtime.zeropoint.override import get_zero_point_override
+        found = get_zero_point_override().expire(override_id)
+        return {"ok": found, "override_id": override_id}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/zeropoint/status")
+async def zeropoint_status():
+    """Return active override summary grouped by subsystem."""
+    try:
+        from swarmz_runtime.zeropoint.override import get_zero_point_override
+        return {"ok": True, **get_zero_point_override().status_summary()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+# ── ZERO-POINT FORM — Quantum Doctrine ────────────────────────────────────────
+
+@app.post("/v1/quantum/snapshot")
+async def quantum_snapshot(payload: dict):
+    """Save current doctrine state as a named quantum state."""
+    try:
+        from swarmz_runtime.zeropoint.quantum import get_quantum_doctrine
+        state = get_quantum_doctrine().snapshot(str(payload.get("name", "")))
+        return {"ok": True, **state.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/quantum/states")
+async def quantum_states():
+    """List all saved quantum states."""
+    try:
+        from swarmz_runtime.zeropoint.quantum import get_quantum_doctrine
+        return {"ok": True, "states": get_quantum_doctrine().list_states()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/quantum/collapse")
+async def quantum_collapse(payload: dict):
+    """Collapse to a named quantum state (additive restore)."""
+    try:
+        from swarmz_runtime.zeropoint.quantum import get_quantum_doctrine
+        result = get_quantum_doctrine().collapse(
+            name=str(payload.get("name", "")),
+            operator_key=str(payload.get("operator_key", "")),
+        )
+        return {"ok": True, **result}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/quantum/history")
+async def quantum_history():
+    """Return all quantum collapse events."""
+    try:
+        from swarmz_runtime.zeropoint.quantum import get_quantum_doctrine
+        return {"ok": True, "history": get_quantum_doctrine().collapse_history()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+# ── ZERO-POINT FORM — Autonomy Engine ─────────────────────────────────────────
+
+@app.post("/v1/autonomy/propose")
+async def autonomy_propose(payload: dict):
+    """Submit an action proposal to the operator queue."""
+    try:
+        from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+        proposal = get_autonomy_engine().propose(
+            title=str(payload.get("title", "")),
+            steps=list(payload.get("steps", [])),
+            rationale=str(payload.get("rationale", "")),
+        )
+        return {"ok": True, **proposal.to_dict()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/autonomy/queue")
+async def autonomy_queue():
+    """Return all pending proposals awaiting operator decision."""
+    try:
+        from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+        return {"ok": True, "queue": get_autonomy_engine().pending_queue()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/autonomy/approve/{proposal_id}")
+async def autonomy_approve(proposal_id: str, payload: dict):
+    """Operator approves a proposal — dispatches via CommandFusion."""
+    try:
+        from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+        result = get_autonomy_engine().approve(
+            proposal_id=proposal_id,
+            operator_key=str(payload.get("operator_key", "")),
+        )
+        return {"ok": True, **result}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.post("/v1/autonomy/reject/{proposal_id}")
+async def autonomy_reject(proposal_id: str, payload: dict):
+    """Operator rejects a proposal — discards without execution."""
+    try:
+        from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+        result = get_autonomy_engine().reject(
+            proposal_id=proposal_id,
+            reason=str(payload.get("reason", "")),
+        )
+        return {"ok": True, **result}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
+@app.get("/v1/autonomy/history")
+async def autonomy_history():
+    """Return all proposals with their final status."""
+    try:
+        from swarmz_runtime.zeropoint.autonomy import get_autonomy_engine
+        return {"ok": True, "history": get_autonomy_engine().history()}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
 @app.get("/api/health/governance")
 def health_api_governance():
     return {"status": "ok", "policy_gate": "available"}

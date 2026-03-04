@@ -26,6 +26,8 @@ import { OperatorAuthPage } from "./pages/OperatorAuthPage";
 import { ApiFoundationPage } from "./pages/ApiFoundationPage";
 import { NexusmonConsolePage } from "./pages/NexusmonConsolePage";
 import { NexusmonPage } from "./pages/NexusmonPage";
+import { MonarchPage } from "./pages/MonarchPage";
+import { ZeroPointPage } from "./pages/ZeroPointPage";
 import { systemApi } from "./api/system";
 import { colors, spacing, radii, typography, shadows } from "./theme/cosmicTokens";
 
@@ -51,7 +53,8 @@ type PageId =
   | "appstore"
   | "chat"
   | "console"
-  | "monarch";
+  | "monarch"
+  | "zeropoint";
 
 interface NavItem {
   id: PageId;
@@ -75,6 +78,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "chat",      icon: "💬", label: "Chat" },
   { id: "console",   icon: "⬡",  label: "Console" },
   { id: "monarch",   icon: "✸",  label: "Monarch" },
+  { id: "zeropoint", icon: "◈",  label: "Zero-Point" },
 ];
 
 export default function App() {
@@ -230,6 +234,8 @@ function PageContent({ activePage }: { activePage: PageId }) {
       return <NexusmonConsolePage />;
     case "monarch":
       return <MonarchPage />;
+    case "zeropoint":
+      return <ZeroPointPage />;
     default:
       return <NexusmonEntityPanel />;
   }

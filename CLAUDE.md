@@ -265,8 +265,9 @@ Enforced in `swarmz_runtime/bridge/mode.py`. Never bypass.
 | 6 — Seal | ✅ | docs/NEXUSMON_DOCTRINE.md created · CLAUDE.md finalized |
 | EF — Execution Frame | ✅ | SwarmCoordinator, ShadowExecutor, CombatProtocol, FederationCouncil, cockpit wiring |
 | MS — Monarch Shell | ✅ | KernelShift, SealMatrix, CommandFusion, OperatorMemory — 14 endpoints, MonarchPage |
+| ZP — Zero-Point Form | ✅ | ZeroPointOverride, QuantumDoctrine, AutonomyEngine — 13 endpoints, ZeroPointPage |
 
-**Last test run: 1438 passed, 1 skipped, 0 failed**
+**Last test run: 1483 passed, 1 skipped, 0 failed**
 
 ---
 

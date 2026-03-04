@@ -54,6 +54,10 @@ _DEFAULT_REGISTRY: dict[str, SealLevel] = {
     "/v1/offworld/activate": SealLevel.DUAL,
     "/v1/legacy/continuity/generate": SealLevel.SOVEREIGN,
     "/v1/genome/import": SealLevel.SOVEREIGN,
+    # ZERO-POINT FORM
+    "/v1/zeropoint/override": SealLevel.SOVEREIGN,
+    "/v1/quantum/collapse": SealLevel.OPERATOR,
+    "/v1/autonomy/approve": SealLevel.OPERATOR,
 }
 
 
