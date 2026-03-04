@@ -26,8 +26,8 @@ AI organism. You build it additively. You never overwrite. You never drift.
 
 ## REPO
 ```
-Location:  e:\NEXUSMON-main\NEXUSMON-main-backup-20260227-224154\
-Branch:    evolution/evolution_controller_install
+Location:  https://github.com/darthvpirateking-afk/NEXUSMON
+Branch:    main
 Stack:     Python 3.11 · FastAPI · Pydantic v2 · LiteLLM · React · Vite · TypeScript strict
 Tests:     pytest (operator runs manually) · last clean: 1156 passed, 1 skipped, 0 failed
 ```
@@ -48,7 +48,7 @@ Use them proactively. Do not wait to be asked.
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem",
-               "e:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154"]
+               "/path/to/NEXUSMON"]
     }
   }
 }
@@ -62,7 +62,7 @@ Use them proactively. Do not wait to be asked.
     "git": {
       "command": "uvx",
       "args": ["mcp-server-git", "--repository",
-               "e:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154"]
+               "/path/to/NEXUSMON"]
     }
   }
 }
@@ -146,19 +146,19 @@ uvx mcp-server-git --help
 uvx mcp-fetch --help
 ```
 
-Then add to `C:\Users\Gaming PC\.claude\settings.json`:
+Then add to your Claude settings file (`~/.claude/settings.json` on macOS/Linux, `%APPDATA%\Claude\settings.json` on Windows):
 ```json
 {
   "mcpServers": {
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem",
-               "e:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154"]
+               "/path/to/NEXUSMON"]
     },
     "git": {
       "command": "uvx",
       "args": ["mcp-server-git", "--repository",
-               "e:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154"]
+               "/path/to/NEXUSMON"]
     },
     "memory": {
       "command": "npx",
