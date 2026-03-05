@@ -54,6 +54,22 @@ from addons.security import (
     security_status_snapshot,
 )
 from timeline_store import load_timeline, get_stats
+from core.api.routers import (
+    audit_router,
+    avatar_router,
+    dispatch_mission_orchestrator,
+    get_artifacts_for_mission,
+    get_audit_entries,
+    get_avatar_xp_compat,
+    get_governance_log,
+    get_health_avatar_payload,
+    get_health_governance_payload,
+    get_health_orchestrator_payload,
+    get_mission_orchestrator,
+    health_ext_router,
+    missions_router,
+    stream_audit_entries,
+)
 
 load_dotenv()
 
@@ -552,6 +568,12 @@ if _symbolic_router_available:
 if _life_router_available:
     app.include_router(life_router)
 
+# Shared additive routers (single source for cross-surface behavior)
+app.include_router(missions_router, prefix="/api/missions", tags=["missions"])
+app.include_router(audit_router, prefix="/api/audit", tags=["audit"])
+app.include_router(avatar_router, prefix="/api/avatar", tags=["avatar"])
+app.include_router(health_ext_router, prefix="/api/health", tags=["health"])
+
 # Include the new tab loader routes
 # app.include_router(app.router, prefix="/v1/tabs")
 
@@ -754,13 +776,22 @@ async def api_dispatch_mission(payload: ApiMissionDispatchRequest):
         mission_id,
         {"status": status, "governance": governance, "category": category},
     )
-    return {
+    response = {
         "mission_id": mission_id,
         "status": status,
         "governance": governance,
         "artifacts": [],
         "audit_refs": [f"/api/missions/{mission_id}/governance"],
     }
+    try:
+        response["orchestrator"] = await dispatch_mission_orchestrator(
+            mission_type=str(payload.type),
+            payload=mission_payload,
+            operator_id=None,
+        )
+    except Exception:
+        pass
+    return response
 
 
 @app.get("/api/missions")
@@ -777,12 +808,17 @@ async def api_get_mission(mission_id: str):
     if mission is None:
         raise HTTPException(status_code=404, detail=f"mission_id {mission_id} not found")
     status = str(mission.get("status", "UNKNOWN"))
-    return {
+    response = {
         "mission_id": mission_id,
         "status": status,
         "governance": _governance_from_status(status),
         "mission": mission,
     }
+    try:
+        response["orchestrator"] = await get_mission_orchestrator(mission_id)
+    except Exception:
+        pass
+    return response
 
 
 @app.get("/api/missions/{mission_id}/governance")
@@ -791,11 +827,16 @@ async def api_get_mission_governance(mission_id: str):
     events = events_payload.get("events", [])
     mission_events = [e for e in events if str(e.get("mission_id", "")) == mission_id]
     mission_payload = await api_get_mission(mission_id)
-    return {
+    response = {
         "mission_id": mission_id,
         "governance": mission_payload.get("governance", "PASS"),
         "events": mission_events[-25:],
     }
+    try:
+        response["orchestrator"] = await get_governance_log(mission_id)
+    except Exception:
+        pass
+    return response
 
 
 @app.get("/api/missions/{mission_id}/artifacts")
@@ -809,7 +850,12 @@ async def api_get_mission_artifacts(mission_id: str):
             artifacts = loaded
     except Exception:
         artifacts = []
-    return {"mission_id": mission_id, "artifacts": artifacts, "count": len(artifacts)}
+    response = {"mission_id": mission_id, "artifacts": artifacts, "count": len(artifacts)}
+    try:
+        response["orchestrator"] = await get_artifacts_for_mission(mission_id)
+    except Exception:
+        pass
+    return response
 
 
 # --- UI state endpoint ---
@@ -1815,20 +1861,29 @@ async def autonomy_history():
 
 @app.get("/api/health/governance", operation_id="swarmz_health_api_governance")
 async def health_api_governance():
-    return {"status": "ok", "policy_gate": "available"}
+    try:
+        return await get_health_governance_payload()
+    except Exception:
+        return {"status": "ok", "policy_gate": "available"}
 
 
 @app.get("/api/health/orchestrator", operation_id="swarmz_health_api_orchestrator")
 async def health_api_orchestrator():
-    return {
-        "status": "ok" if _swarmz_core is not None else "degraded",
-        "orchestrator_loaded": _swarmz_core is not None,
-    }
+    try:
+        return await get_health_orchestrator_payload()
+    except Exception:
+        return {
+            "status": "ok" if _swarmz_core is not None else "degraded",
+            "orchestrator_loaded": _swarmz_core is not None,
+        }
 
 
 @app.get("/api/health/avatar", operation_id="swarmz_health_api_avatar")
 async def health_api_avatar():
-    return {"status": "ok", "avatar_layer": "online"}
+    try:
+        return await get_health_avatar_payload()
+    except Exception:
+        return {"status": "ok", "avatar_layer": "online"}
 
 
 @app.get("/api/governor", operation_id="swarmz_governor_status_compat")
@@ -2631,35 +2686,37 @@ async def get_audit_events():
 
 
 @app.get("/api/audit")
-async def api_get_audit(limit: int = Query(default=50, ge=1, le=500)):
-    payload = await get_audit_events()
-    events = payload.get("events", []) if isinstance(payload, dict) else []
-    return {"entries": events[:limit], "count": min(len(events), limit)}
+async def api_get_audit(
+    limit: int = Query(default=50, ge=1, le=500),
+    mission_id: str | None = None,
+):
+    try:
+        return await get_audit_entries(mission_id=mission_id, limit=limit)
+    except Exception:
+        payload = await get_audit_events()
+        events = payload.get("events", []) if isinstance(payload, dict) else []
+        return {"entries": events[:limit], "count": min(len(events), limit)}
 
 
 @app.get("/api/audit/stream")
 async def api_audit_stream(request: Request):
-    stream_path = Path("artifacts/shadow/audit.jsonl")
-    return StreamingResponse(
-        _stream_jsonl(stream_path, request),
-        media_type="text/event-stream",
-    )
+    try:
+        return StreamingResponse(
+            stream_audit_entries(request),
+            media_type="text/event-stream",
+        )
+    except Exception:
+        stream_path = Path("artifacts/shadow/audit.jsonl")
+        return StreamingResponse(
+            _stream_jsonl(stream_path, request),
+            media_type="text/event-stream",
+        )
 
 
 @app.get("/api/avatar/xp")
 async def api_avatar_xp():
     try:
-        from nexusmon_operator_rank import _load_state, get_operator_rank_state
-
-        state = _load_state()
-        rank_state = get_operator_rank_state()
-        history = state.get("xp_history", []) if isinstance(state, dict) else []
-        last = history[-1] if history else {}
-        return {
-            "xp": rank_state.get("xp", 0),
-            "rank": rank_state.get("rank", "E"),
-            "last_delta_source": last.get("action"),
-        }
+        return await get_avatar_xp_compat()
     except Exception:
         return {"xp": 0, "rank": "E", "last_delta_source": None}
 

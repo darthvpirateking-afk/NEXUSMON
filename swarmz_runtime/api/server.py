@@ -37,6 +37,22 @@ class _OperatorLockMiddleware(BaseHTTPMiddleware):
 
 from addons.api.addons_router import router as addons_router
 from addons.api.guardrails_router import router as guardrails_router
+from core.api.routers import (
+    audit_router as shared_audit_router,
+    avatar_router as shared_avatar_router,
+    dispatch_mission_orchestrator,
+    get_artifacts_for_mission,
+    get_audit_entries,
+    get_avatar_xp_compat,
+    get_governance_log,
+    get_health_avatar_payload,
+    get_health_governance_payload,
+    get_health_orchestrator_payload,
+    get_mission_orchestrator,
+    health_ext_router as shared_health_ext_router,
+    missions_router as shared_missions_router,
+    stream_audit_entries,
+)
 from core.startup_validation import (
     env_truthy,
     parse_cors_origins,
@@ -173,6 +189,10 @@ def create_app() -> FastAPI:
     app.include_router(infra_router)
     app.include_router(addons_router, prefix="/v1/addons", tags=["addons"])
     app.include_router(guardrails_router, prefix="/v1/guardrails", tags=["guardrails"])
+    app.include_router(shared_missions_router, prefix="/api/missions", tags=["missions"])
+    app.include_router(shared_audit_router, prefix="/api/audit", tags=["audit"])
+    app.include_router(shared_avatar_router, prefix="/api/avatar", tags=["avatar"])
+    app.include_router(shared_health_ext_router, prefix="/api/health", tags=["health"])
 
     from .app_store_routes import router as app_store_router
     from .mission_lifecycle import router as mission_lifecycle_router
@@ -1189,22 +1209,31 @@ async def autonomy_history():
 
 
 @app.get("/api/health/governance")
-def health_api_governance():
-    return {"status": "ok", "policy_gate": "available"}
+async def health_api_governance():
+    try:
+        return await get_health_governance_payload()
+    except Exception:
+        return {"status": "ok", "policy_gate": "available"}
 
 
 @app.get("/api/health/orchestrator")
-def health_api_orchestrator():
-    has_orchestrator = hasattr(app.state, "orchestrator")
-    return {
-        "status": "ok" if has_orchestrator else "degraded",
-        "orchestrator_loaded": has_orchestrator,
-    }
+async def health_api_orchestrator():
+    try:
+        return await get_health_orchestrator_payload()
+    except Exception:
+        has_orchestrator = hasattr(app.state, "orchestrator")
+        return {
+            "status": "ok" if has_orchestrator else "degraded",
+            "orchestrator_loaded": has_orchestrator,
+        }
 
 
 @app.get("/api/health/avatar")
-def health_api_avatar():
-    return {"status": "ok", "avatar_layer": "online"}
+async def health_api_avatar():
+    try:
+        return await get_health_avatar_payload()
+    except Exception:
+        return {"status": "ok", "avatar_layer": "online"}
 
 
 @app.get("/v1/pairing/info")
@@ -1652,7 +1681,7 @@ def _engine_mission_by_id(mission_id: str) -> dict[str, Any] | None:
 
 
 @app.post("/api/missions")
-def api_dispatch_mission(payload: ApiMissionDispatchRequest):
+async def api_dispatch_mission(payload: ApiMissionDispatchRequest):
     mission_payload = payload.payload if isinstance(payload.payload, dict) else {}
     category = _normalize_mission_category(str(payload.type))
     goal = str(
@@ -1676,44 +1705,63 @@ def api_dispatch_mission(payload: ApiMissionDispatchRequest):
         mission_id,
         {"status": status, "governance": governance, "category": category},
     )
-    return {
+    response = {
         "mission_id": mission_id,
         "status": status,
         "governance": governance,
         "artifacts": [],
         "audit_refs": [f"/api/missions/{mission_id}/governance"],
     }
+    try:
+        response["orchestrator"] = await dispatch_mission_orchestrator(
+            mission_type=str(payload.type),
+            payload=mission_payload,
+            operator_id=None,
+        )
+    except Exception:
+        pass
+    return response
 
 
 @app.get("/api/missions/{mission_id}")
-def api_get_mission(mission_id: str):
+async def api_get_mission(mission_id: str):
     mission = _engine_mission_by_id(mission_id)
     if mission is None:
         raise HTTPException(status_code=404, detail=f"Mission {mission_id} not found")
     status = str(mission.get("status", "UNKNOWN"))
-    return {
+    response = {
         "mission_id": mission_id,
         "status": status,
         "governance": _governance_from_status(status),
         "mission": mission,
     }
+    try:
+        response["orchestrator"] = await get_mission_orchestrator(mission_id)
+    except Exception:
+        pass
+    return response
 
 
 @app.get("/api/missions/{mission_id}/governance")
-def api_get_mission_governance(mission_id: str):
+async def api_get_mission_governance(mission_id: str):
     entries = _tail_jsonl(DATA_DIR / "audit.jsonl", 500)
     mission_entries = [e for e in entries if str(e.get("mission_id", "")) == mission_id]
     mission = _engine_mission_by_id(mission_id)
     status = str((mission or {}).get("status", "UNKNOWN"))
-    return {
+    response = {
         "mission_id": mission_id,
         "governance": _governance_from_status(status),
         "events": mission_entries[-25:],
     }
+    try:
+        response["orchestrator"] = await get_governance_log(mission_id)
+    except Exception:
+        pass
+    return response
 
 
 @app.get("/api/missions/{mission_id}/artifacts")
-def api_get_mission_artifacts(mission_id: str):
+async def api_get_mission_artifacts(mission_id: str):
     artifacts: list[dict[str, Any]] = []
     try:
         from nexusmon_artifact_vault import list_artifacts
@@ -1723,38 +1771,45 @@ def api_get_mission_artifacts(mission_id: str):
             artifacts = loaded
     except Exception:
         artifacts = []
-    return {"mission_id": mission_id, "artifacts": artifacts, "count": len(artifacts)}
+    response = {"mission_id": mission_id, "artifacts": artifacts, "count": len(artifacts)}
+    try:
+        response["orchestrator"] = await get_artifacts_for_mission(mission_id)
+    except Exception:
+        pass
+    return response
 
 
 @app.get("/api/audit")
-def api_get_audit(limit: int = Query(default=50, ge=1, le=500)):
-    entries = _tail_jsonl(DATA_DIR / "audit.jsonl", limit)
-    return {"entries": entries, "count": len(entries)}
+async def api_get_audit(
+    limit: int = Query(default=50, ge=1, le=500),
+    mission_id: str | None = None,
+):
+    try:
+        return await get_audit_entries(mission_id=mission_id, limit=limit)
+    except Exception:
+        entries = _tail_jsonl(DATA_DIR / "audit.jsonl", limit)
+        return {"entries": entries, "count": len(entries)}
 
 
 @app.get("/api/audit/stream")
 async def api_audit_stream(request: Request):
-    stream_path = ROOT_DIR / "artifacts" / "shadow" / "audit.jsonl"
-    return StreamingResponse(
-        _stream_jsonl(stream_path, request),
-        media_type="text/event-stream",
-    )
+    try:
+        return StreamingResponse(
+            stream_audit_entries(request),
+            media_type="text/event-stream",
+        )
+    except Exception:
+        stream_path = ROOT_DIR / "artifacts" / "shadow" / "audit.jsonl"
+        return StreamingResponse(
+            _stream_jsonl(stream_path, request),
+            media_type="text/event-stream",
+        )
 
 
 @app.get("/api/avatar/xp")
-def api_avatar_xp():
+async def api_avatar_xp():
     try:
-        from nexusmon_operator_rank import _load_state, get_operator_rank_state
-
-        state = _load_state()
-        rank_state = get_operator_rank_state()
-        history = state.get("xp_history", []) if isinstance(state, dict) else []
-        last = history[-1] if history else {}
-        return {
-            "xp": rank_state.get("xp", 0),
-            "rank": rank_state.get("rank", "E"),
-            "last_delta_source": last.get("action"),
-        }
+        return await get_avatar_xp_compat()
     except Exception:
         state = _read_command_center_state()
         partners = state.get("evolution_tree", {}).get("partners", [])

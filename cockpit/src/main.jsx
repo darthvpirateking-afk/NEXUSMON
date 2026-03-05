@@ -1,7 +1,5 @@
 import { h, render } from 'preact';
-import HologramPreact from './HologramPreact.jsx';
-import './styles.css';
-
-const App = () => h(HologramPreact, {});
+import { App } from './App.tsx';
+import './app.css';
 
 render(h(App, {}), document.getElementById('app'));
