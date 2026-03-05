@@ -137,3 +137,4 @@ FULL_PATH_LIST.txt
 FULL_READ_MANIFEST.csv
 *.bundle
 artifacts/
+test_results.txt
