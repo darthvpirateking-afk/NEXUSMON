@@ -1,5 +1,9 @@
 # Node
 node_modules/
+node_modules_*/
+
+# Local IDE/Claude settings
+.claude/settings.local.json
 
 # Python
 __pycache__/
@@ -97,6 +101,7 @@ prepared_actions/commands/
 prepared_actions/messages/
 prepared_actions/purchases/
 prepared_actions/mission_*/
+prepared_actions/schedules/
 
 *.orig
 Copilot-Processing.md
@@ -140,5 +145,6 @@ artifacts/
 test_results.txt
 cockpit/src/panels/generated/*.tsx
 core/orchestrator/workers/generated/*.py
+core/manifests/registry.json
 artifacts/patterns/
 artifacts/state/self_manifest.json
