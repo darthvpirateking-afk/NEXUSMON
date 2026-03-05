@@ -28,7 +28,7 @@ from fastapi import Depends, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from swarmz_server import app, _swarmz_core  # reuse the existing app instance
+from nexusmon_server import app, _swarmz_core  # reuse the canonical app instance
 from jsonl_utils import read_jsonl, write_jsonl
 
 DATA_DIR = Path(__file__).parent / "data"
@@ -308,7 +308,7 @@ async def ai_status():
         }
 
     # Add QUARANTINE state
-    from swarmz_server import compute_phase
+    from nexusmon_server import compute_phase
 
     try:
         missions, _, _ = read_jsonl(MISSIONS_FILE)
@@ -434,7 +434,7 @@ async def operator_os_prime_state():
             success_rate = 0
 
         # Phase calculation
-        from swarmz_server import compute_phase
+        from nexusmon_server import compute_phase
 
         phase = compute_phase(total_missions, success_count)
 
@@ -722,7 +722,7 @@ app.add_api_route(
 @app.get("/v1/runtime/status", tags=["runtime"])
 async def runtime_status():
     """Runtime status aggregate — combines ui/state + companion/state."""
-    from swarmz_server import compute_phase
+    from nexusmon_server import compute_phase
 
     missions_file = Path("data/missions.jsonl")
     missions, _, _ = read_jsonl(missions_file)

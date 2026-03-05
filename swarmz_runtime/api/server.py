@@ -2174,6 +2174,18 @@ async def cosmic_compare(payload: dict):
         return {"error": str(exc)}
 
 
+@app.get("/v1/deployment/mobile-status")
+async def deployment_mobile_status():
+    """Return deployment and mobile readiness for v2.2.0 operations."""
+    try:
+        from swarmz_runtime.api.deployment_mobile_status import get_deployment_mobile_status
+
+        port = int(os.environ.get("PORT", "8012"))
+        return get_deployment_mobile_status(root_dir=ROOT_DIR, default_port=port)
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
 # --- Artifact Renderer routes ---
 
 @app.get("/v1/artifacts/{artifact_id}/render/{format}")

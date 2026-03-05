@@ -949,41 +949,47 @@ async def traceback_last():
 
 
 # --- Console UI Route (redirects to NEXUSMON) ---
+def _canonical_ui_route() -> str:
+    """Prefer the modern Vite cockpit when built; fall back to legacy cockpit."""
+    frontend_index = os.path.join(os.path.dirname(__file__), "frontend", "dist", "index.html")
+    return "/nexusmon" if os.path.exists(frontend_index) else "/cockpit/"
+
+
 @app.get("/console")
 async def console_page():
     """Serve the NEXUSMON Console UI."""
-    return RedirectResponse(url="/cockpit/", status_code=307)
+    return RedirectResponse(url=_canonical_ui_route(), status_code=307)
 
 
 @app.get("/organism")
 async def organism_cockpit():
     """NEXUSMON Organism Cockpit â€” evolution, workers, companion, operator context."""
-    return RedirectResponse(url="/cockpit/", status_code=307)
+    return RedirectResponse(url=_canonical_ui_route(), status_code=307)
 
 
 @app.get("/claimlab")
 async def claimlab_page():
     """Serve the ClaimLab epistemic scaffolding UI."""
-    return RedirectResponse(url="/cockpit/", status_code=307)
+    return RedirectResponse(url=_canonical_ui_route(), status_code=307)
 
 
 @app.get("/landing")
 async def nexusmon_landing():
     """Public landing page for NEXUSMON."""
-    return RedirectResponse(url="/cockpit/", status_code=307)
+    return RedirectResponse(url=_canonical_ui_route(), status_code=307)
 
 
 @app.get("/avatar", operation_id="avatar_page_main")
 async def avatar_page():
     """NEXUSMON Avatar â€” holographic companion interface."""
-    return RedirectResponse(url="/cockpit/", status_code=307)
+    return RedirectResponse(url=_canonical_ui_route(), status_code=307)
 
 
 # --- Home route â€” NEXUSMON is the face of this system ---
 @app.get("/")
 async def home_page():
     """Redirect root route to canonical cockpit."""
-    return RedirectResponse(url="/cockpit/", status_code=307)
+    return RedirectResponse(url=_canonical_ui_route(), status_code=307)
 
 
 # --- Manifest, Icons, and Other PWA Routes ---
@@ -3658,6 +3664,18 @@ async def cosmic_compare(payload: dict):
         return {"ok": True, "comparison": result.to_dict()}
     except Exception as exc:
         return {"error": str(exc)}
+
+
+@app.get("/v1/deployment/mobile-status", operation_id="nexus_deployment_mobile_status")
+async def deployment_mobile_status():
+    """Return deployment and mobile readiness for v2.2.0 operations."""
+    try:
+        from swarmz_runtime.api.deployment_mobile_status import get_deployment_mobile_status
+
+        root_dir = Path(__file__).resolve().parent
+        return get_deployment_mobile_status(root_dir=root_dir, default_port=SERVER_PORT)
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
 
 
 # --- Artifact Renderer routes ---
