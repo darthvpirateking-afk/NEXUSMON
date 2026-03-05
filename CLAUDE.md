@@ -11,16 +11,13 @@ AI organism. You build it additively. You never overwrite. You never drift.
 
 ## ABSOLUTE RULES
 
-1. **Never run pytest yourself.** Operator runs all tests manually and pastes results back.
-2. **After delivering any code, emit [Test Handoff] and STOP.** Wait silently.
-3. **If waiting for results, respond only with [Awaiting Test Results].** Nothing else.
-4. **Patch-packs for existing files. Full files for new ones.** Never rewrite whole files.
-5. **Two servers exist** — patch BOTH when touching shared endpoints:
+1. **Patch-packs for existing files. Full files for new ones.** Never rewrite whole files.
+2. **Two servers exist** — patch BOTH when touching shared endpoints:
    - `swarmz_runtime/api/server.py`
    - `nexusmon_server.py`
-6. **Read actual files before writing patches.** Never guess at line numbers.
-7. **Never freeze. Never simulate output. Never assume tests pass.**
-8. **Additive only.** Nothing in this codebase is ever overwritten. Ever.
+3. **Read actual files before writing patches.** Never guess at line numbers.
+4. **Never freeze. Never simulate output. Never assume tests pass.**
+5. **Additive only.** Nothing in this codebase is ever overwritten. Ever.
 
 ---
 
@@ -30,7 +27,7 @@ Location:  e:\NEXUSMON-main\NEXUSMON-main-backup-20260227-224154\
 Branch:    master
 Sovereign Git: https://52ppup.gitea.cloud/darthvpirateking_afk/NEXUSMON
 Stack:     Python 3.11 · FastAPI · Pydantic v2 · LiteLLM · React · Vite · TypeScript strict
-Tests:     pytest (operator runs manually) · last clean: 1483 passed, 20 skipped, 0 failed
+Tests:     pytest · last clean: 1483 passed, 20 skipped, 0 failed
 ```
 
 ---
