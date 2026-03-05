@@ -15,3 +15,37 @@
 13. SOVEREIGN capability unlocks require explicit operator approval.
 14. Shadow channel logs are append-only.
 15. Schema validation runs on every boot; fail fast on violations.
+
+## SELF-MODIFICATION DOCTRINE
+
+### What NEXUSMON Can Generate
+- Cockpit UI panels (TSX) -> `cockpit/src/panels/generated/`
+- New workers (Python) -> `core/orchestrator/workers/generated/`
+- Style patches (JSON) -> `cockpit/src/panels/generated/`
+
+### What NEXUSMON Can Never Touch
+- `core/` source files (except `/generated/` subdirs)
+- `docs/DOCTRINE.md`
+- `nexusmon_server.py`
+- `swarmz_runtime/api/server.py`
+- Any file outside designated `generated/` dirs
+- Any sealed artifact
+
+### Activation Rules
+- Generated UI panels: visible immediately via Vite hot reload
+- Generated workers: INACTIVE until operator explicitly activates
+- Style patches: applied on cockpit reload
+- All generation requires PolicyGate PASS
+- All generation is checkpointed and rollback-ready
+- All generation is logged to ShadowChannel
+
+### Rollback
+- Every self-modification creates a checkpoint first
+- Rollback command: `POST /api/self/diagnostics/run` then manually revert generated file if needed
+- Generated files can be deleted without core impact
+
+### Governance Rank Requirements
+- Generate UI panel: `can_write_artifacts` (AWAKENING)
+- Forge worker: `can_trigger_evolution` (ACTIVE)
+- Activate worker: operator manual approval always
+- Run diagnostics: no capability required

@@ -79,6 +79,9 @@ WORKER_MAP: dict[MissionType, type[BaseWorker]] = {
     MissionType.ARTIFACT_GEN: SigildronWorker,
     MissionType.WEBHOOK: BytewolfWorker,
     MissionType.SCHEDULED: BytewolfWorker,
+    MissionType.UI_MUTATION: SigildronWorker,
+    MissionType.WORKER_FORGE: SigildronWorker,
+    MissionType.SELF_DIAGNOSE: BytewolfWorker,
 }
 
 

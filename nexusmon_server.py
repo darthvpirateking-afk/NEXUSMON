@@ -70,6 +70,7 @@ from core.api.routers import (
     missions_router,
     stream_audit_entries,
 )
+from core.api.self_routes import self_router
 
 load_dotenv()
 
@@ -573,6 +574,7 @@ app.include_router(missions_router, prefix="/api/missions", tags=["missions"])
 app.include_router(audit_router, prefix="/api/audit", tags=["audit"])
 app.include_router(avatar_router, prefix="/api/avatar", tags=["avatar"])
 app.include_router(health_ext_router, prefix="/api/health", tags=["health"])
+app.include_router(self_router, prefix="/api/self", tags=["self"])
 
 # Include the new tab loader routes
 # app.include_router(app.router, prefix="/v1/tabs")

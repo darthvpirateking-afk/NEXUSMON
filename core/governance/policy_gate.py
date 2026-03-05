@@ -15,6 +15,9 @@ MISSION_REQUIRED_CAPABILITIES: dict[MissionType, list[str]] = {
     MissionType.TRANSFORM: [],
     MissionType.WEBHOOK: [],
     MissionType.SCHEDULED: [],
+    MissionType.UI_MUTATION: ["can_write_artifacts"],
+    MissionType.WORKER_FORGE: ["can_trigger_evolution"],
+    MissionType.SELF_DIAGNOSE: [],
 }
 
 HORIZON_2_TYPES: list[MissionType] = []

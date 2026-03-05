@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:ci": "jest --ci",
-    "clean": "rm -rf dist",
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "plugin:validate": "node scripts/validate-plugins.js",

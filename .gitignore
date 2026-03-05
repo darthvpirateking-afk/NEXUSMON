@@ -138,3 +138,7 @@ FULL_READ_MANIFEST.csv
 *.bundle
 artifacts/
 test_results.txt
+cockpit/src/panels/generated/*.tsx
+core/orchestrator/workers/generated/*.py
+artifacts/patterns/
+artifacts/state/self_manifest.json

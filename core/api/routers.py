@@ -28,6 +28,9 @@ def _coerce_mission_type(raw: str) -> MissionType:
         "webhook_triggered": MissionType.WEBHOOK,
         "webhook": MissionType.WEBHOOK,
         "scheduled": MissionType.SCHEDULED,
+        "ui_mutation": MissionType.UI_MUTATION,
+        "worker_forge": MissionType.WORKER_FORGE,
+        "self_diagnose": MissionType.SELF_DIAGNOSE,
     }
     return mapping.get(normalized, MissionType.ANALYSIS)
 

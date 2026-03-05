@@ -14,6 +14,9 @@ class MissionType(str, Enum):
     ARTIFACT_GEN = "artifact_gen"
     WEBHOOK = "webhook_triggered"
     SCHEDULED = "scheduled"
+    UI_MUTATION = "ui_mutation"
+    WORKER_FORGE = "worker_forge"
+    SELF_DIAGNOSE = "self_diagnose"
 
 
 class MissionStatus(str, Enum):

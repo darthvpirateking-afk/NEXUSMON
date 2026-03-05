@@ -146,8 +146,13 @@ class Database:
 
     def load_runes(self) -> Dict[str, Any]:
         if self.runes_file.exists():
-            with open(self.runes_file, "r") as f:
-                return json.load(f)
+            try:
+                with open(self.runes_file, "r") as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                # Recover from corrupted runes file
+                self.runes_file.write_text(json.dumps({}))
+                return {}
         return {}
 
     def get_rune(self, rune_id: str) -> Optional[Dict[str, Any]]:

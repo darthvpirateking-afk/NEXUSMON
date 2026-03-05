@@ -53,6 +53,7 @@ from core.api.routers import (
     missions_router as shared_missions_router,
     stream_audit_entries,
 )
+from core.api.self_routes import self_router
 from core.startup_validation import (
     env_truthy,
     parse_cors_origins,
@@ -193,6 +194,7 @@ def create_app() -> FastAPI:
     app.include_router(shared_audit_router, prefix="/api/audit", tags=["audit"])
     app.include_router(shared_avatar_router, prefix="/api/avatar", tags=["avatar"])
     app.include_router(shared_health_ext_router, prefix="/api/health", tags=["health"])
+    app.include_router(self_router, prefix="/api/self", tags=["self"])
 
     from .app_store_routes import router as app_store_router
     from .mission_lifecycle import router as mission_lifecycle_router
