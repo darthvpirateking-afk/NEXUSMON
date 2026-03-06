@@ -25,11 +25,13 @@ export function AvatarPanel() {
     return () => clearInterval(timer);
   }, []);
 
-  const rank = data?.rank ?? "DORMANT";
-  const xp = data?.xp ?? 0;
-  const toNext = data?.xp_to_next_rank;
-  const pct = data?.progress_pct ?? 0;
-  const caps = data?.capabilities ?? {};
+  const summary = data?.summary ?? data ?? {};
+  const rank = summary?.rank ?? data?.rank ?? "DORMANT";
+  const xp = summary?.xp ?? data?.xp ?? 0;
+  const toNext = summary?.xp_to_next_rank;
+  const pct = summary?.progress_pct ?? 0;
+  const caps = summary?.capabilities ?? {};
+  const missionsComplete = summary?.missions_complete ?? data?.missions_complete ?? 0;
 
   return (
     <div class="panel">
@@ -76,8 +78,8 @@ export function AvatarPanel() {
       </div>
 
       <div class="muted" style={{ textAlign: "center", marginTop: 8 }}>
-        {data?.missions_complete ?? 0} missions complete
-        {data?.evolution_pending && (
+        {missionsComplete} missions complete
+        {summary?.evolution_pending && (
           <span style={{ color: "#f1c40f" }}> | evolution pending</span>
         )}
       </div>

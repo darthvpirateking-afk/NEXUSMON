@@ -925,9 +925,13 @@ async def _stream_jsonl(path: Path, request: Request):
     if not path.exists():
         path.touch()
     file_position = path.stat().st_size
+    # Immediate keepalive so browser EventSource.onopen fires
+    yield ": keepalive\n\n"
+    last_ping = asyncio.get_event_loop().time()
     while True:
         if await request.is_disconnected():
             break
+        sent = False
         try:
             with open(path, "r", encoding="utf-8") as handle:
                 handle.seek(file_position)
@@ -939,8 +943,15 @@ async def _stream_jsonl(path: Path, request: Request):
                         continue
                     file_position = handle.tell()
                     yield f"data: {line.strip()}\n\n"
+                    sent = True
         except Exception:
             pass
+        now = asyncio.get_event_loop().time()
+        if not sent and now - last_ping > 15:
+            yield ": keepalive\n\n"
+            last_ping = now
+        elif sent:
+            last_ping = now
         await asyncio.sleep(0.5)
 
 
@@ -3802,6 +3813,21 @@ async def artifact_template_serve(name: str):
         return HTMLResponse(content=template_path.read_text(encoding="utf-8"))
     except Exception as exc:
         return {"error": str(exc)}
+
+
+# --- Telegram Channel Startup ---
+@app.on_event("startup")
+async def _start_telegram_channel():
+    """Start Telegram bot if TELEGRAM_BOT_TOKEN is set."""
+    try:
+        from core.channels.telegram import start_telegram_channel
+        channel = await start_telegram_channel()
+        if channel:
+            print("[NEXUSMON] Telegram channel online")
+        else:
+            print("[NEXUSMON] Telegram channel disabled (set TELEGRAM_BOT_TOKEN to enable)")
+    except Exception as _tg_exc:
+        print(f"[NEXUSMON] Telegram channel failed to start: {_tg_exc}")
 
 
 # --- Main Entry Point ---

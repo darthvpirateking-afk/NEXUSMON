@@ -11,6 +11,17 @@ export default defineConfig({
         ws: true,
         changeOrigin: true,
         secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('X-Forwarded-For', '127.0.0.1');
+          });
+          proxy.on('proxyRes', (proxyRes) => {
+            // Disable buffering for SSE
+            if (proxyRes.headers['content-type']?.includes('text/event-stream')) {
+              proxyRes.headers['x-accel-buffering'] = 'no';
+            }
+          });
+        },
       },
       '/v1/canonical': {
         target: 'http://localhost:8000',

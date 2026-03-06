@@ -1,5 +1,6 @@
 import { AuditTail } from "./panels/AuditTail";
 import { AvatarPanel } from "./panels/AvatarPanel";
+import { CompanionChat } from "./panels/CompanionChat";
 import { HealthGrid } from "./panels/HealthGrid";
 import { MissionConsole } from "./panels/MissionConsole";
 import "./app.css";
@@ -16,6 +17,7 @@ export function App() {
         <AvatarPanel />
         <MissionConsole />
         <AuditTail />
+        <CompanionChat />
       </main>
     </div>
   );

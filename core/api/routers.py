@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from typing import Any, AsyncGenerator
 
@@ -102,10 +103,23 @@ async def get_audit_entries(
 
 
 async def stream_audit_entries(request: Request) -> AsyncGenerator[str, None]:
-    async for entry in shadow_channel.tail():
-        if await request.is_disconnected():
-            break
-        yield f"data: {json.dumps(entry)}\n\n"
+    # Immediate keepalive so browser EventSource.onopen fires without waiting for data
+    yield ": keepalive\n\n"
+    queue: asyncio.Queue = asyncio.Queue(maxsize=500)
+    shadow_channel._subscribers.append(queue)
+    try:
+        while True:
+            if await request.is_disconnected():
+                break
+            try:
+                entry = await asyncio.wait_for(queue.get(), timeout=15.0)
+                yield f"data: {json.dumps(entry)}\n\n"
+            except asyncio.TimeoutError:
+                # Keepalive ping every 15 s of silence to prevent proxy timeout
+                yield ": keepalive\n\n"
+    finally:
+        if queue in shadow_channel._subscribers:
+            shadow_channel._subscribers.remove(queue)
 
 
 async def get_avatar_state() -> dict[str, Any]:

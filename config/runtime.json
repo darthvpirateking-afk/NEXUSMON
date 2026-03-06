@@ -7,21 +7,21 @@
   "llm": {
     "cortex": {
       "provider": "ollama",
-      "model": "llama3.1:8b",
+      "model": "llama3.2:3b",
       "endpoint": "http://localhost:11434",
       "base_url": "http://localhost:11434",
       "purpose": "local sovereign reasoning via Ollama"
     },
     "reflex": {
       "provider": "ollama",
-      "model": "llama3.1:8b",
+      "model": "llama3.2:3b",
       "endpoint": "http://localhost:11434",
       "base_url": "http://localhost:11434",
       "purpose": "fast local routing via Ollama"
     },
     "fallback": {
       "provider": "ollama",
-      "model": "llama3.1:8b",
+      "model": "llama3.2:3b",
       "enabled": true,
       "endpoint": "http://localhost:11434",
       "base_url": "http://localhost:11434",
@@ -50,7 +50,7 @@
       "apiKeyEnv": "OPENAI_API_KEY"
     },
     "ollama": {
-      "model": "llama3.1:8b",
+      "model": "llama3.2:3b",
       "endpoint": "http://localhost:11434",
       "apiKeyEnv": ""
     },
@@ -67,6 +67,11 @@
     "sessionId": "main_companion",
     "memoryFile": "data/companion_memory.json",
     "policy": "active"
+  },
+  "telegram": {
+    "enabled": true,
+    "token_env": "TELEGRAM_BOT_TOKEN",
+    "note": "Set TELEGRAM_BOT_TOKEN env var to activate. Get token from @BotFather on Telegram."
   },
   "integrations": {
     "zapier": {

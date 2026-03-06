@@ -11,7 +11,35 @@
       "Bash(python -c \"from swarmz_runtime.api.mission_lifecycle import router; print\\(''import OK''\\)\")",
       "Bash(python -m pytest tests/ --tb=short -q)",
       "Bash(python -c \"from swarmz_runtime.evolution.stage import EvolutionStage, EvolutionState, STAGE_DEFS, STAGE_ORDER; from swarmz_runtime.evolution.traits import TRAIT_REGISTRY, apply_trait_gain; from swarmz_runtime.evolution.engine import award_xp, get_state, advance_stage; print\\(''all imports OK''\\)\")",
-      "Bash(python -m pytest tests/evolution/ -v --tb=short)"
+      "Bash(python -m pytest tests/evolution/ -v --tb=short)",
+      "Bash(python -m pytest tests/ -q --timeout=30 -x --tb=line)",
+      "Read(//tmp/**)",
+      "Bash(npm install)",
+      "Bash(node node_modules/vite/dist/node/cli.js)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(npm view @preact/preset-vite@2.10.3 peerDependencies)",
+      "Bash(node -e \"const p = require\\(''./node_modules/@prefresh/vite/package.json''\\); console.log\\(''main:'', p.main, ''exports:'', JSON.stringify\\(p.exports\\)\\)\")",
+      "Bash(node -e \"require\\(''@babel/core''\\); console.log\\(''OK''\\)\")",
+      "Bash(node -e \"require\\(''@prefresh/vite''\\); console.log\\(''OK''\\)\")",
+      "Bash(node -e \"require\\(''@preact/preset-vite''\\); console.log\\(''OK''\\)\")",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(curl -s --max-time 3 http://localhost:8000/api/audit/stream -v)",
+      "Bash(curl -s http://localhost:8000/api/avatar/xp)",
+      "Bash(curl -s http://localhost:8000/api/health)",
+      "Bash(curl -s http://localhost:8000/v1/companion/nexusmon -X POST -H \"Content-Type: application/json\" -d \"{\"\"prompt\"\":\"\"hello\"\",\"\"mode\"\":\"\"strategic\"\"}\")",
+      "Bash(curl -s http://localhost:11434/api/tags)",
+      "Bash(curl -s --max-time 30 http://localhost:11434/api/generate -d \"{\"\"model\"\":\"\"llama3.1:8b\"\",\"\"prompt\"\":\"\"Hi\"\",\"\"stream\"\":false}\")",
+      "Bash(curl -s --max-time 5 http://localhost:11434/)",
+      "Bash(curl -s --max-time 5 http://localhost:11434/api/ps)",
+      "Bash(where python)",
+      "Bash(where node)",
+      "Bash(pip show python-telegram-bot)",
+      "Read(//c/Users/Gaming PC/**)",
+      "Bash(powershell -Command \"Copy-Item ''e:\\\\NEXUSMON-main\\\\NEXUSMON-main-backup-20260227-224154\\\\.env'' -Destination \\([Environment]::GetFolderPath\\(''Desktop''\\)\\)\")",
+      "Bash(powershell -Command \"Test-Path \\([Environment]::GetFolderPath\\(''Desktop''\\) + ''\\\\.env''\\)\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Gaming PC\\Desktop"
     ]
   }
 }
