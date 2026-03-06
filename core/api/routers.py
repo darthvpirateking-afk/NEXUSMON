@@ -36,14 +36,45 @@ def _coerce_mission_type(raw: str) -> MissionType:
     return mapping.get(normalized, MissionType.ANALYSIS)
 
 
+def _coerce_positive_int(raw: Any, fallback: int) -> int:
+    if isinstance(raw, int):
+        return raw if raw > 0 else fallback
+    if isinstance(raw, str):
+        try:
+            value = int(raw.strip())
+        except ValueError:
+            return fallback
+        return value if value > 0 else fallback
+    return fallback
+
+
 def _coerce_mission_budget(payload: dict[str, Any]) -> MissionBudget:
     budget_raw = payload.get("budget")
+    from swarmz_runtime.bridge.config import get_budget_config
+    from swarmz_runtime.bridge.cost import get_mode_token_limit
+
+    runtime_budget = get_budget_config()
+    mode_limit = get_mode_token_limit(payload.get("mode"))
+    per_call_limit = int(runtime_budget.get("per_call_max_tokens", 2048))
+    safe_token_cap = per_call_limit
+    if mode_limit > 0:
+        safe_token_cap = min(safe_token_cap, mode_limit)
+
+    base_budget = MissionBudget()
     if isinstance(budget_raw, dict):
-        try:
-            return MissionBudget(**budget_raw)
-        except Exception:
-            return MissionBudget()
-    return MissionBudget()
+        raw_tokens = budget_raw.get("tokens", base_budget.tokens)
+        raw_time = budget_raw.get("time_seconds", base_budget.time_seconds)
+    else:
+        raw_tokens = payload.get("budget_tokens", payload.get("max_tokens", base_budget.tokens))
+        raw_time = payload.get("time_seconds", payload.get("time_budget_seconds", base_budget.time_seconds))
+
+    tokens = _coerce_positive_int(raw_tokens, base_budget.tokens)
+    time_seconds = _coerce_positive_int(raw_time, base_budget.time_seconds)
+
+    return MissionBudget(
+        tokens=max(1, min(tokens, safe_token_cap)),
+        time_seconds=min(time_seconds, MAX_TIME_BUDGET),
+    )
 
 
 def build_mission_from_compat_payload(payload: MissionCreate) -> Mission:

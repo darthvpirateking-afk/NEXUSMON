@@ -24,7 +24,7 @@ import { BuildMilestonesPage } from "./pages/BuildMilestonesPage";
 import { DatabaseLayerPage } from "./pages/DatabaseLayerPage";
 import { OperatorAuthPage } from "./pages/OperatorAuthPage";
 import { ApiFoundationPage } from "./pages/ApiFoundationPage";
-import { NexusmonConsolePage } from "./pages/NexusmonConsolePage";
+import { NexusmonConsoleTruthPage } from "./pages/NexusmonConsoleTruthPage";
 import { NexusmonPage } from "./pages/NexusmonPage";
 import { MonarchPage } from "./pages/MonarchPage";
 import { ZeroPointPage } from "./pages/ZeroPointPage";
@@ -254,7 +254,7 @@ function PageContent({ activePage }: { activePage: PageId }) {
     case "chat":
       return <ChatPanel />;
     case "console":
-      return <NexusmonConsolePage />;
+      return <NexusmonConsoleTruthPage />;
     case "monarch":
       return <MonarchPage />;
     case "zeropoint":

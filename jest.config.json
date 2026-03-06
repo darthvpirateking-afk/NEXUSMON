@@ -1,22 +1,21 @@
 {
   "testEnvironment": "node",
-  "roots": ["<rootDir>/src"],
+  "roots": ["<rootDir>/src", "<rootDir>/frontend/src"],
   "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   "transform": {
-    "^.+\\.(t|j)sx?$": [
-      "@swc/jest",
+    "^.+\\.tsx?$": [
+      "ts-jest",
       {
-        "jsc": {
-          "target": "es2022",
-          "parser": {
-            "syntax": "typescript",
-            "tsx": false,
-            "decorators": true
-          }
+        "tsconfig": {
+          "target": "ES2022",
+          "module": "commonjs",
+          "esModuleInterop": true,
+          "moduleResolution": "node",
+            "jsx": "react-jsx",
+          "types": ["jest", "node"]
         },
-        "module": {
-          "type": "commonjs"
-        }
+        "diagnostics": false,
+        "isolatedModules": true
       }
     ]
   },

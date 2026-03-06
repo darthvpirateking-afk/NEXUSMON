@@ -24,3 +24,12 @@ def test_api_missions_alias_dispatch_and_read(client):
     assert artifacts.status_code == 200
     artifacts_payload = artifacts.json()
     assert artifacts_payload.get("mission_id") == mission_id
+
+    listing = client.get("/api/missions")
+    assert listing.status_code == 200
+    listing_payload = listing.json()
+    assert "items" in listing_payload
+    assert any(item.get("mission_id") == mission_id for item in listing_payload.get("items", []))
+
+    assert "read_model" in mission_payload
+    assert mission_payload["read_model"].get("mission_id") == mission_id

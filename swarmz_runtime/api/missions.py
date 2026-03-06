@@ -1,15 +1,24 @@
 # SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
+from functools import lru_cache
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, Optional, Callable
+
+from core.api.mission_read_model import build_mission_list_payload
 from swarmz_runtime.core.engine import SwarmzEngine
 from swarmz_runtime.bridge.mode import NexusmonMode
 
 router = APIRouter()
 
-get_engine: Callable[[], SwarmzEngine] = lambda: SwarmzEngine()
+
+@lru_cache(maxsize=1)
+def _cached_engine() -> SwarmzEngine:
+    return SwarmzEngine()
+
+
+get_engine: Callable[[], SwarmzEngine] = _cached_engine
 
 
 class CreateMissionRequest(BaseModel):
@@ -55,7 +64,10 @@ def run_mission(request: RunMissionRequest):
 @router.get("/list")
 def list_missions(status: Optional[str] = None):
     missions = get_engine().list_missions(status=status)
-    return {"missions": missions, "count": len(missions)}
+    return build_mission_list_payload(
+        missions,
+        source="runtime_engine",
+    )
 
 
 @router.get("")

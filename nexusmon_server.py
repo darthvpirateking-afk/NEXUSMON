@@ -35,6 +35,10 @@ from pydantic import BaseModel, Field
 
 from jsonl_utils import read_jsonl, write_jsonl
 from core.activity_stream import record_event
+from core.api.mission_read_model import (
+    build_mission_detail_payload,
+    build_mission_list_payload,
+)
 from core.startup_validation import (
     env_truthy,
     parse_cors_origins,
@@ -75,9 +79,9 @@ from core.api.self_routes import self_router
 load_dotenv()
 
 try:
-    from swarmz import SwarmzCore
+    from nexusmon import NexusmonCore
 
-    _swarmz_core = SwarmzCore()
+    _swarmz_core = NexusmonCore()
 except Exception:
     _swarmz_core = None
 
@@ -698,13 +702,14 @@ async def list_missions():
     for m in missions:
         if "updated_at" not in m:
             m["updated_at"] = m.get("created_at", now)
-    return {
-        "ok": True,
-        "missions": missions,
-        "count": len(missions),
-        "skipped_empty": skipped,
-        "quarantined": quarantined,
-    }
+    return build_mission_list_payload(
+        missions,
+        source="legacy_jsonl",
+        extra={
+            "skipped_empty": skipped,
+            "quarantined": quarantined,
+        },
+    )
 
 
 @app.get("/v1/missions")
@@ -770,8 +775,7 @@ async def api_dispatch_mission(payload: ApiMissionDispatchRequest):
     )
     created = await create_mission(req)
     mission_id = str(created.get("mission_id", ""))
-    run = await run_mission(mission_id=mission_id)
-    status = str(run.get("status") or created.get("status") or "PENDING")
+    status = str(created.get("status") or "PENDING")
     governance = _governance_from_status(status)
     _append_shadow_event(
         "mission_dispatch",
@@ -786,11 +790,28 @@ async def api_dispatch_mission(payload: ApiMissionDispatchRequest):
         "audit_refs": [f"/api/missions/{mission_id}/governance"],
     }
     try:
-        response["orchestrator"] = await dispatch_mission_orchestrator(
+        orchestrator_result = await dispatch_mission_orchestrator(
             mission_type=str(payload.type),
             payload=mission_payload,
             operator_id=None,
         )
+        response["orchestrator"] = orchestrator_result
+        orchestrator_mission = orchestrator_result.get("mission", {})
+        orchestrator_status_raw = orchestrator_mission.get("status") or response["status"]
+        orchestrator_status = getattr(orchestrator_status_raw, "value", orchestrator_status_raw)
+        orchestrator_status = str(orchestrator_status).split(".")[-1]
+        response["status"] = orchestrator_status.upper()
+        response["governance"] = str(
+            orchestrator_mission.get("governance_result")
+            or _governance_from_status(orchestrator_status)
+        ).upper()
+        artifact_id = orchestrator_result.get("artifact_id")
+        if artifact_id:
+            response["artifacts"] = [artifact_id]
+        if not orchestrator_result.get("success", True):
+            error = orchestrator_mission.get("error") or orchestrator_result.get("message")
+            if error:
+                response["error"] = str(error)
     except Exception:
         pass
     return response
@@ -810,12 +831,11 @@ async def api_get_mission(mission_id: str):
     if mission is None:
         raise HTTPException(status_code=404, detail=f"mission_id {mission_id} not found")
     status = str(mission.get("status", "UNKNOWN"))
-    response = {
-        "mission_id": mission_id,
-        "status": status,
-        "governance": _governance_from_status(status),
-        "mission": mission,
-    }
+    response = build_mission_detail_payload(
+        mission,
+        source="legacy_jsonl",
+        governance=_governance_from_status(status),
+    )
     try:
         response["orchestrator"] = await get_mission_orchestrator(mission_id)
     except Exception:

@@ -53,6 +53,7 @@ from core.api.routers import (
     missions_router as shared_missions_router,
     stream_audit_entries,
 )
+from core.api.mission_read_model import build_mission_detail_payload
 from core.api.self_routes import self_router
 from core.startup_validation import (
     env_truthy,
@@ -1699,8 +1700,7 @@ async def api_dispatch_mission(payload: ApiMissionDispatchRequest):
         raise HTTPException(status_code=400, detail=created["error"])
 
     mission_id = str(created.get("mission_id", ""))
-    run = engine.run_mission(mission_id=mission_id, operator_key=OPERATOR_PIN)
-    status = str(run.get("status") or created.get("status") or "PENDING")
+    status = str(created.get("status") or "PENDING")
     governance = _governance_from_status(status)
     _append_shadow_event(
         "mission_dispatch",
@@ -1715,11 +1715,28 @@ async def api_dispatch_mission(payload: ApiMissionDispatchRequest):
         "audit_refs": [f"/api/missions/{mission_id}/governance"],
     }
     try:
-        response["orchestrator"] = await dispatch_mission_orchestrator(
+        orchestrator_result = await dispatch_mission_orchestrator(
             mission_type=str(payload.type),
             payload=mission_payload,
             operator_id=None,
         )
+        response["orchestrator"] = orchestrator_result
+        orchestrator_mission = orchestrator_result.get("mission", {})
+        orchestrator_status_raw = orchestrator_mission.get("status") or response["status"]
+        orchestrator_status = getattr(orchestrator_status_raw, "value", orchestrator_status_raw)
+        orchestrator_status = str(orchestrator_status).split(".")[-1]
+        response["status"] = orchestrator_status.upper()
+        response["governance"] = str(
+            orchestrator_mission.get("governance_result")
+            or _governance_from_status(orchestrator_status)
+        ).upper()
+        artifact_id = orchestrator_result.get("artifact_id")
+        if artifact_id:
+            response["artifacts"] = [artifact_id]
+        if not orchestrator_result.get("success", True):
+            error = orchestrator_mission.get("error") or orchestrator_result.get("message")
+            if error:
+                response["error"] = str(error)
     except Exception:
         pass
     return response
@@ -1731,12 +1748,11 @@ async def api_get_mission(mission_id: str):
     if mission is None:
         raise HTTPException(status_code=404, detail=f"Mission {mission_id} not found")
     status = str(mission.get("status", "UNKNOWN"))
-    response = {
-        "mission_id": mission_id,
-        "status": status,
-        "governance": _governance_from_status(status),
-        "mission": mission,
-    }
+    response = build_mission_detail_payload(
+        mission,
+        source="runtime_engine",
+        governance=_governance_from_status(status),
+    )
     try:
         response["orchestrator"] = await get_mission_orchestrator(mission_id)
     except Exception:

@@ -48,6 +48,31 @@ export interface MissionsStatusResponse {
   timestamp: string;
 }
 
+export interface MissionReadItem {
+  id: string;
+  mission_id: string;
+  title: string;
+  status: string;
+  status_raw: string;
+  category: string;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  risk_level: string;
+  latest_run_id: string;
+  source: string;
+  truth: string;
+}
+
+export interface MissionReadResponse {
+  ok?: boolean;
+  missions: Record<string, unknown>[];
+  count: number;
+  items: MissionReadItem[];
+  read_model_version: string;
+  source: string;
+}
+
 export const systemApi = {
   start: () => apiPost<RuntimeStatus>("/v1/system/start", {}),
   stop: () => apiPost<RuntimeStatus>("/v1/system/stop", {}),
@@ -89,6 +114,7 @@ export const missionApi = {
       { mission_id },
     ),
   status: () => apiGet<MissionsStatusResponse>("/v1/missions/status"),
+  readModel: () => apiGet<MissionReadResponse>("/api/missions"),
   statusById: (mission_id: string) =>
     apiGet<MissionStatus>(`/v1/missions/status/${mission_id}`),
   complete: (

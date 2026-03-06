@@ -34,6 +34,50 @@ def test_post_missions_available_on_both_surfaces():
     assert set(a.keys()) == set(b.keys())
 
 
+def test_get_missions_list_additive_read_model_available_on_both_surfaces():
+    payload = {"type": "analysis", "payload": {"prompt": "list read model"}}
+
+    with TestClient(nexusmon_app) as client_a:
+        client_a.post("/api/missions", json=payload)
+        a = _get_json(client_a, "/api/missions")
+
+    with TestClient(runtime_app) as client_b:
+        client_b.post("/api/missions", json=payload)
+        b = _get_json(client_b, "/api/missions")
+
+    for response in (a, b):
+        assert "missions" in response
+        assert "count" in response
+        assert "items" in response
+        assert "read_model_version" in response
+        assert response["count"] == len(response["missions"])
+        assert response["count"] == len(response["items"])
+        if response["items"]:
+            item = response["items"][0]
+            assert set(
+                ("id", "mission_id", "title", "status", "status_raw", "source", "truth")
+            ).issubset(set(item.keys()))
+
+
+def test_get_mission_detail_additive_read_model_available_on_both_surfaces():
+    payload = {"type": "analysis", "payload": {"prompt": "detail read model"}}
+
+    with TestClient(nexusmon_app) as client_a:
+        created_a = client_a.post("/api/missions", json=payload).json()
+        a = _get_json(client_a, f"/api/missions/{created_a['mission_id']}")
+
+    with TestClient(runtime_app) as client_b:
+        created_b = client_b.post("/api/missions", json=payload).json()
+        b = _get_json(client_b, f"/api/missions/{created_b['mission_id']}")
+
+    for response, mission_id in ((a, created_a["mission_id"]), (b, created_b["mission_id"])):
+        assert response["mission_id"] == mission_id
+        assert "mission" in response
+        assert "read_model" in response
+        assert response["read_model"]["mission_id"] == mission_id
+        assert response["read_model"]["truth"] == "backend"
+
+
 def test_audit_available_on_both_surfaces():
     with TestClient(nexusmon_app) as client_a:
         a = _get_json(client_a, "/api/audit")
