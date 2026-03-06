@@ -1,5 +1,5 @@
-import NexusmonCockpit from "./CockpitV3";
+import NexusmonCockpitV4 from "./CockpitV4";
 
 export function App() {
-  return <NexusmonCockpit />;
+  return <NexusmonCockpitV4 />;
 }
