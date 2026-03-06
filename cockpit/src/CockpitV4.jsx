@@ -219,22 +219,22 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 @keyframes plugHealth  {0%,100%{width:var(--hw);}50%{width:calc(var(--hw) + 2%);}}
 
 /* ── Nanobot Swarm ── */
-@keyframes nbot1{from{transform:rotate(0deg) translateX(62px) rotate(0deg);}to{transform:rotate(360deg) translateX(62px) rotate(-360deg);}}
-@keyframes nbot2{from{transform:rotate(30deg) translateX(75px) rotate(-30deg);}to{transform:rotate(390deg) translateX(75px) rotate(-390deg);}}
-@keyframes nbot3{from{transform:rotate(60deg) translateX(55px) rotate(-60deg);}to{transform:rotate(420deg) translateX(55px) rotate(-420deg);}}
-@keyframes nbot4{from{transform:rotate(100deg) translateX(82px) rotate(-100deg);}to{transform:rotate(460deg) translateX(82px) rotate(-460deg);}}
-@keyframes nbot5{from{transform:rotate(150deg) translateX(68px) rotate(-150deg);}to{transform:rotate(510deg) translateX(68px) rotate(-510deg);}}
-@keyframes nbot6{from{transform:rotate(200deg) translateX(72px) rotate(-200deg);}to{transform:rotate(560deg) translateX(72px) rotate(-560deg);}}
-@keyframes nbot7{from{transform:rotate(240deg) translateX(58px) rotate(-240deg);}to{transform:rotate(600deg) translateX(58px) rotate(-600deg);}}
-@keyframes nbot8{from{transform:rotate(280deg) translateX(78px) rotate(-280deg);}to{transform:rotate(640deg) translateX(78px) rotate(-640deg);}}
-@keyframes nbot9{from{transform:rotate(320deg) translateX(65px) rotate(-320deg);}to{transform:rotate(680deg) translateX(65px) rotate(-680deg);}}
-@keyframes nbot10{from{transform:rotate(10deg) translateX(70px) rotate(-10deg);}to{transform:rotate(370deg) translateX(70px) rotate(-370deg);}}
-@keyframes nbot11{from{transform:rotate(50deg) translateX(85px) rotate(-50deg);}to{transform:rotate(410deg) translateX(85px) rotate(-410deg);}}
-@keyframes nbot12{from{transform:rotate(170deg) translateX(60px) rotate(-170deg);}to{transform:rotate(530deg) translateX(60px) rotate(-530deg);}}
+@keyframes nbot1{from{transform:rotate(0deg) translateX(78px) rotate(0deg);}to{transform:rotate(360deg) translateX(78px) rotate(-360deg);}}
+@keyframes nbot2{from{transform:rotate(30deg) translateX(94px) rotate(-30deg);}to{transform:rotate(390deg) translateX(94px) rotate(-390deg);}}
+@keyframes nbot3{from{transform:rotate(60deg) translateX(70px) rotate(-60deg);}to{transform:rotate(420deg) translateX(70px) rotate(-420deg);}}
+@keyframes nbot4{from{transform:rotate(100deg) translateX(100px) rotate(-100deg);}to{transform:rotate(460deg) translateX(100px) rotate(-460deg);}}
+@keyframes nbot5{from{transform:rotate(150deg) translateX(85px) rotate(-150deg);}to{transform:rotate(510deg) translateX(85px) rotate(-510deg);}}
+@keyframes nbot6{from{transform:rotate(200deg) translateX(90px) rotate(-200deg);}to{transform:rotate(560deg) translateX(90px) rotate(-560deg);}}
+@keyframes nbot7{from{transform:rotate(240deg) translateX(74px) rotate(-240deg);}to{transform:rotate(600deg) translateX(74px) rotate(-600deg);}}
+@keyframes nbot8{from{transform:rotate(280deg) translateX(98px) rotate(-280deg);}to{transform:rotate(640deg) translateX(98px) rotate(-640deg);}}
+@keyframes nbot9{from{transform:rotate(320deg) translateX(82px) rotate(-320deg);}to{transform:rotate(680deg) translateX(82px) rotate(-680deg);}}
+@keyframes nbot10{from{transform:rotate(10deg) translateX(88px) rotate(-10deg);}to{transform:rotate(370deg) translateX(88px) rotate(-370deg);}}
+@keyframes nbot11{from{transform:rotate(50deg) translateX(104px) rotate(-50deg);}to{transform:rotate(410deg) translateX(104px) rotate(-410deg);}}
+@keyframes nbot12{from{transform:rotate(170deg) translateX(76px) rotate(-170deg);}to{transform:rotate(530deg) translateX(76px) rotate(-530deg);}}
 @keyframes nbotGlow{0%,100%{box-shadow:0 0 3px var(--mc);}50%{box-shadow:0 0 8px var(--mc),0 0 16px var(--mc);}}
 
 /* ── Layout ── */
-.ck{display:grid;grid-template-rows:48px 1fr 60px 28px;grid-template-columns:170px 1fr 220px;height:100vh;gap:0;background:var(--bg0);animation:modeIn .3s ease;position:relative;}
+.ck{display:grid;grid-template-rows:64px 1fr 88px 28px;grid-template-columns:170px 1fr 220px;height:100vh;gap:0;background:var(--bg0);animation:modeIn .3s ease;position:relative;}
 .topbar{grid-column:1/-1;background:#020b12;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;padding:0 16px;position:relative;overflow:hidden;z-index:10;}
 .topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--mc),transparent);opacity:.4;}
 .botlane{grid-column:1/-1;background:#030e18;border-top:1px solid var(--bd);display:flex;gap:0;overflow:hidden;position:relative;}
@@ -251,7 +251,7 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .pc::-webkit-scrollbar-thumb{background:var(--bda);}
 
 /* ── Typography ── */
-.logo{font-family:var(--fd);font-size:18px;font-weight:900;letter-spacing:.25em;color:var(--mc);animation:glowText 3s ease-in-out infinite;}
+.logo{font-family:var(--fd);font-size:34px;font-weight:900;letter-spacing:.3em;color:var(--mc);animation:glowText 3s ease-in-out infinite;text-shadow:0 0 32px var(--mc),0 0 64px var(--mc);}
 .logo-sub{font-family:var(--fm);font-size:12px;color:var(--td);letter-spacing:.2em;}
 .seal-txt{font-size:14px;letter-spacing:.05em;color:var(--cg);text-shadow:0 0 10px rgba(255,204,68,.5);}
 .ttime{font-family:var(--fm);font-size:11px;color:var(--tm);}
@@ -417,8 +417,8 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .spacer{flex:1;}
 `;
 
-// ── AVATAR SVG ─────────────────────────────────────────────────────────────────
-function Avatar({ state, mode, form, monarchMode }) {
+// ── ORGANISM ENERGY CORE ──────────────────────────────────────────────────────
+function Organism({ state, mode, form, monarchMode }) {
   const fd = EVO_FORMS[form];
   const C = monarchMode ? "#ffcc44" : fd.color;
   const isP = state==="PROCESSING", isR = state==="RESPONDING", isM = state==="MISSION";
@@ -431,168 +431,128 @@ function Avatar({ state, mode, form, monarchMode }) {
     :isL?"coreListen 1.2s ease-in-out infinite"
     :"coreIdle 2.8s ease-in-out infinite";
 
-  const NBOTS = [
-    {a:"nbot1", s:4.2, c:C,        sz:2.5},
-    {a:"nbot2", s:3.5, c:"#aa44ff",sz:2},
-    {a:"nbot3", s:5.1, c:C,        sz:2},
-    {a:"nbot4", s:3.8, c:"#ff44aa",sz:2.5},
-    {a:"nbot5", s:4.6, c:C,        sz:3},
-    {a:"nbot6", s:3.2, c:"#aa44ff",sz:2},
-    {a:"nbot7", s:5.4, c:C,        sz:2.5},
-    {a:"nbot8", s:4.0, c:"#ffcc44",sz:2},
-    {a:"nbot9", s:3.6, c:C,        sz:2},
-    {a:"nbot10",s:4.8, c:"#ff44aa",sz:2.5},
-    {a:"nbot11",s:5.2, c:"#aa44ff",sz:3},
-    {a:"nbot12",s:3.4, c:C,        sz:2},
+  // Large glowing orbs — concept art golden swarm
+  const ORBS = [
+    {a:"nbot1", s:4.2, c:"#ffcc44", sz:14},
+    {a:"nbot2", s:3.5, c:"#ffcc44", sz:10},
+    {a:"nbot3", s:5.1, c:C,         sz:12},
+    {a:"nbot4", s:3.8, c:"#ffcc44", sz:16},
+    {a:"nbot5", s:4.6, c:C,         sz:10},
+    {a:"nbot6", s:3.2, c:"#ffcc44", sz:14},
+    {a:"nbot7", s:5.4, c:C,         sz:12},
+    {a:"nbot8", s:4.0, c:"#ffcc44", sz:8},
+    {a:"nbot9", s:3.6, c:C,         sz:10},
+    {a:"nbot10",s:4.8, c:"#ff44aa", sz:8},
+    {a:"nbot11",s:5.2, c:"#aa44ff", sz:10},
+    {a:"nbot12",s:3.4, c:C,         sz:12},
+    {a:"nbot2", s:6.8, c:"#ffcc44", sz:7},
+    {a:"nbot6", s:7.5, c:C,         sz:6},
+    {a:"nbot9", s:8.2, c:"#ffcc44", sz:8},
+    {a:"nbot11",s:9.0, c:"#aa44ff", sz:5},
   ];
 
   return (
-    <div style={{position:"relative",width:168,height:168}}>
-      {/* NANOBOT SWARM */}
-      {NBOTS.map((nb,i)=>(
+    <div style={{position:"relative", width:220, height:220}}>
+
+      {/* ENERGY WINGS — COMBAT + STRATEGIC */}
+      {(isC||isS)&&<>
+        <div style={{position:"absolute",top:"50%",left:-28,width:28,height:84,marginTop:-42,
+          background:`linear-gradient(90deg,transparent,${C}44)`,
+          borderLeft:`2px solid ${C}66`,clipPath:"polygon(100% 0,0 50%,100% 100%)",
+          animation:"holoFloat 1.6s ease-in-out infinite"}}/>
+        <div style={{position:"absolute",top:"50%",right:-28,width:28,height:84,marginTop:-42,
+          background:`linear-gradient(270deg,transparent,${C}44)`,
+          borderRight:`2px solid ${C}66`,clipPath:"polygon(0 0,100% 50%,0 100%)",
+          animation:"holoFloat 1.6s ease-in-out infinite",animationDelay:".5s"}}/>
+      </>}
+
+      {/* CONCENTRIC RINGS */}
+      {[64,96,128,162].map((r,i)=>(
         <div key={i} style={{
-          position:"absolute",top:"50%",left:"50%",
-          width:nb.sz,height:nb.sz,
-          marginTop:-nb.sz/2,marginLeft:-nb.sz/2,
+          position:"absolute", top:"50%", left:"50%",
+          width:r, height:r,
+          marginTop:-r/2, marginLeft:-r/2,
           borderRadius:"50%",
-          background:nb.c,
-          animation:`${nb.a} ${nb.s}s linear infinite,nbotGlow 2.1s ease-in-out infinite`,
-          animationDelay:`${i*0.18}s,${i*0.28}s`,
-          opacity:.82,zIndex:5,
+          border:`1px solid ${C}${["99","55","33","1a"][i]}`,
+          boxShadow:`0 0 ${8+i*7}px ${C}${["28","18","10","0a"][i]}`,
+          animation:`ring${i+1} ${[3.4,4.8,6.2,8.0][i]}s ease-in-out infinite`,
+          pointerEvents:"none",
         }}/>
       ))}
-      {/* Orbit glyphs in PROCESSING */}
-      {isP&&[G.ID,G.AUTH,G.SYS].map((g,i)=>(
-        <div key={i} style={{position:"absolute",top:"50%",left:"50%",marginTop:-7,marginLeft:-7,fontSize:12,color:C,
-          animation:`orbit${["A","B","C"][i]} ${1.4+i*.35}s linear infinite`,animationDelay:`${i*.4}s`,zIndex:6}}>{g}</div>
+
+      {/* ORBITAL ORBS */}
+      {ORBS.map((orb,i)=>(
+        <div key={i} style={{
+          position:"absolute", top:"50%", left:"50%",
+          width:orb.sz, height:orb.sz,
+          marginTop:-orb.sz/2, marginLeft:-orb.sz/2,
+          borderRadius:"50%",
+          background:`radial-gradient(circle at 34% 28%, white, ${orb.c})`,
+          boxShadow:`0 0 ${orb.sz}px ${orb.c}, 0 0 ${orb.sz*2.5}px ${orb.c}55`,
+          animation:`${orb.a} ${orb.s}s linear infinite`,
+          animationDelay:`${i*0.22}s`,
+          zIndex:4,
+        }}/>
       ))}
-      {isM&&<div style={{position:"absolute",top:"28%",left:"50%",marginTop:-9,marginLeft:-9,fontSize:16,color:"#ffcc44",animation:"orbitBig 3s linear infinite",zIndex:6}}>{G.MISS}</div>}
 
-      <svg viewBox="0 0 100 115" style={{width:"100%",height:"100%"}} overflow="visible">
-        <defs>
-          <filter id="glow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="cg2"><feGaussianBlur stdDeviation="4.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="soft"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <radialGradient id="bG2" cx="50%" cy="35%" r="65%">
-            <stop offset="0%" stopColor={`${C}20`}/><stop offset="100%" stopColor="#020810"/>
-          </radialGradient>
-          <radialGradient id="eyeGl" cx="35%" cy="28%" r="75%">
-            <stop offset="0%" stopColor="white" stopOpacity=".9"/><stop offset="55%" stopColor={C}/><stop offset="100%" stopColor={`${C}66`}/>
-          </radialGradient>
-          <radialGradient id="eyeGr" cx="65%" cy="28%" r="75%">
-            <stop offset="0%" stopColor="white" stopOpacity=".9"/><stop offset="55%" stopColor={C}/><stop offset="100%" stopColor={`${C}66`}/>
-          </radialGradient>
-          <radialGradient id="digiCore" cx="38%" cy="28%" r="72%">
-            <stop offset="0%" stopColor="white" stopOpacity=".85"/><stop offset="50%" stopColor={C}/><stop offset="100%" stopColor={`${C}44`}/>
-          </radialGradient>
-        </defs>
+      {/* GUARDIAN SHIELD */}
+      {isG&&<div style={{
+        position:"absolute",top:"50%",left:"50%",
+        width:212,height:212,marginTop:-106,marginLeft:-106,
+        borderRadius:"50%",border:"2px solid #44ff88",
+        boxShadow:"0 0 28px #44ff8855",
+        animation:"shieldPulse 1.9s ease-in-out infinite",
+        zIndex:2,pointerEvents:"none",
+      }}/>}
 
-        {/* ENERGY WINGS — COMBAT + STRATEGIC */}
-        {(isC||isS)&&<>
-          <path d="M 18 52 Q -6 32 -1 6 Q 14 28 20 48 Z" fill={`${C}30`} stroke={`${C}70`} strokeWidth=".9" filter="url(#glow)" style={{animation:"holoFloat 1.6s ease-in-out infinite"}}/>
-          <path d="M 82 52 Q 106 32 101 6 Q 86 28 80 48 Z" fill={`${C}30`} stroke={`${C}70`} strokeWidth=".9" filter="url(#glow)" style={{animation:"holoFloat 1.6s ease-in-out infinite",animationDelay:".5s"}}/>
-        </>}
+      {/* MISSION RING */}
+      {isM&&<div style={{
+        position:"absolute",top:"50%",left:"50%",
+        width:212,height:212,marginTop:-106,marginLeft:-106,
+        borderRadius:"50%",border:"2px solid #ffcc44",
+        boxShadow:"0 0 28px #ffcc4455",
+        animation:"shieldPulse 1s ease-in-out infinite",
+        zIndex:2,pointerEvents:"none",
+      }}/>}
 
-        {/* EAR FINS — organic Digimon style */}
-        <path d="M 21 24 Q 7 7 11 -5 Q 20 9 26 26 Z" fill={`${C}28`} stroke={`${C}78`} strokeWidth="1" filter="url(#soft)" style={{animation:"holoFloat 2.4s ease-in-out infinite"}}/>
-        <path d="M 23 22 Q 13 10 16 2 Q 21 12 27 24 Z" fill={`${C}10`} stroke={`${C}35`} strokeWidth=".5"/>
-        <path d="M 79 24 Q 93 7 89 -5 Q 80 9 74 26 Z" fill={`${C}28`} stroke={`${C}78`} strokeWidth="1" filter="url(#soft)" style={{animation:"holoFloat 2.4s ease-in-out infinite",animationDelay:".8s"}}/>
-        <path d="M 77 22 Q 87 10 84 2 Q 79 12 73 24 Z" fill={`${C}10`} stroke={`${C}35`} strokeWidth=".5"/>
+      {/* INNER HALO */}
+      <div style={{
+        position:"absolute",top:"50%",left:"50%",
+        width:90,height:90,marginTop:-45,marginLeft:-45,
+        borderRadius:"50%",
+        background:`radial-gradient(circle, ${C}30 0%, ${C}0a 50%, transparent 70%)`,
+        animation:`ring1 2.8s ease-in-out infinite`,
+        zIndex:2,pointerEvents:"none",
+      }}/>
 
-        {/* HEAD — big round Digimon blob */}
-        <ellipse cx="50" cy="40" rx="34" ry="33" fill="#030c18" stroke={`${C}55`} strokeWidth="1.1" filter="url(#glow)"/>
-        <ellipse cx="50" cy="40" rx="32" ry="31" fill="url(#bG2)"/>
+      {/* CORE ENERGY BURST */}
+      <div style={{
+        position:"absolute",top:"50%",left:"50%",
+        width:62,height:62,marginTop:-31,marginLeft:-31,
+        borderRadius:"50%",
+        background:`radial-gradient(circle at 36% 30%, white 0%, ${C} 28%, ${C}cc 58%, ${C}33 82%, transparent 100%)`,
+        boxShadow:`0 0 28px ${C}, 0 0 56px ${C}99, 0 0 100px ${C}44`,
+        animation:cA,
+        zIndex:5,
+      }}/>
 
-        {/* Forehead marking — digital chevron */}
-        <path d="M 40 16 L 50 10 L 60 16" fill="none" stroke={C} strokeWidth=".9" opacity=".65"/>
-        <circle cx="50" cy="10" r="2.4" fill={C} opacity=".75" filter="url(#soft)" style={{animation:cA}}/>
-
-        {/* EYES — large oval with vertical slit pupils (Digimon style) */}
-        <ellipse cx="34" cy="41" rx="11.5" ry="10.5" fill={`${C}18`} stroke={`${C}52`} strokeWidth=".7"/>
-        <ellipse cx="34" cy="41" rx="9"    ry="8.2"  fill="url(#eyeGl)" style={{animation:cA}}/>
-        <ellipse cx="34" cy="41" rx="4.5"  ry="4"    fill="white" opacity=".1"/>
-        <ellipse cx="34" cy="41" rx="2.2"  ry="5.5"  fill="#010810"/>
-        <ellipse cx="31" cy="37.5" rx="1.8" ry="1.3" fill="white" opacity=".95"/>
-        <ellipse cx="36" cy="38.5" rx=".9"  ry=".7"  fill="white" opacity=".55"/>
-
-        <ellipse cx="66" cy="41" rx="11.5" ry="10.5" fill={`${C}18`} stroke={`${C}52`} strokeWidth=".7"/>
-        <ellipse cx="66" cy="41" rx="9"    ry="8.2"  fill="url(#eyeGr)" style={{animation:cA}}/>
-        <ellipse cx="66" cy="41" rx="4.5"  ry="4"    fill="white" opacity=".1"/>
-        <ellipse cx="66" cy="41" rx="2.2"  ry="5.5"  fill="#010810"/>
-        <ellipse cx="63" cy="37.5" rx="1.8" ry="1.3" fill="white" opacity=".95"/>
-        <ellipse cx="68" cy="38.5" rx=".9"  ry=".7"  fill="white" opacity=".55"/>
-
-        {/* CHEEK BLUSH */}
-        <ellipse cx="20" cy="53" rx="8" ry="5" fill={C} opacity=".18" filter="url(#soft)"/>
-        <ellipse cx="80" cy="53" rx="8" ry="5" fill={C} opacity=".18" filter="url(#soft)"/>
-
-        {/* SNOUT + NOSE DOTS */}
-        <ellipse cx="50" cy="57" rx="6" ry="4.5" fill="#02080f" stroke={`${C}48`} strokeWidth=".7"/>
-        <circle cx="48"  cy="55.5" r=".9" fill={C} opacity=".8"/>
-        <circle cx="52"  cy="55.5" r=".9" fill={C} opacity=".8"/>
-
-        {/* MOUTH — state-reactive */}
-        {!isP&&!isR&&<path d="M 45 60 Q 50 65 55 60" fill="none" stroke={`${C}75`} strokeWidth=".9"/>}
-        {isP&&<path d="M 44 61 Q 47 58 50 61 Q 53 58 56 61" fill="none" stroke={C} strokeWidth=".9" filter="url(#glow)"/>}
-        {isR&&<path d="M 44 59 Q 50 66 56 59" fill="none" stroke={C} strokeWidth="1.1" filter="url(#glow)"/>}
-
-        {/* BODY — compact round */}
-        <ellipse cx="50" cy="91" rx="20" ry="15" fill="#030c18" stroke={`${C}38`} strokeWidth=".9"/>
-        <ellipse cx="50" cy="91" rx="18" ry="13" fill={`${C}08`}/>
-
-        {/* DIGICORE — chest diamond jewel */}
-        <path d="M 50 83 L 57 90 L 50 97 L 43 90 Z" fill="url(#digiCore)" stroke={`${C}85`} strokeWidth=".7" filter="url(#glow)" style={{animation:cA}}/>
-        <path d="M 50 86 L 54 90 L 50 94 L 46 90 Z" fill="none" stroke="rgba(255,255,255,.28)" strokeWidth=".5"/>
-        <circle cx="50" cy="90" r="1.5" fill="white" opacity=".65"/>
-
-        {/* ARMS — stubby with claws */}
-        <ellipse cx="28" cy="85" rx="8" ry="5.5" fill="#04111e" stroke={`${C}35`} strokeWidth=".7"/>
-        <line x1="22" y1="88" x2="20"  y2="93"  stroke={`${C}62`} strokeWidth=".8"/>
-        <line x1="24" y1="89" x2="22.5"y2="94.5" stroke={`${C}62`} strokeWidth=".8"/>
-        <line x1="26" y1="90" x2="25"  y2="95.5" stroke={`${C}62`} strokeWidth=".8"/>
-        <ellipse cx="72" cy="85" rx="8" ry="5.5" fill="#04111e" stroke={`${C}35`} strokeWidth=".7"/>
-        <line x1="78" y1="88" x2="80"  y2="93"  stroke={`${C}62`} strokeWidth=".8"/>
-        <line x1="76" y1="89" x2="77.5"y2="94.5" stroke={`${C}62`} strokeWidth=".8"/>
-        <line x1="74" y1="90" x2="75"  y2="95.5" stroke={`${C}62`} strokeWidth=".8"/>
-
-        {/* LEGS — stubby with claws */}
-        <ellipse cx="41" cy="104" rx="9" ry="6" fill="#04111e" stroke={`${C}30`} strokeWidth=".7"/>
-        <line x1="36" y1="109" x2="34" y2="114" stroke={`${C}58`} strokeWidth=".8"/>
-        <line x1="39" y1="110" x2="38" y2="115" stroke={`${C}58`} strokeWidth=".8"/>
-        <line x1="43" y1="110" x2="43" y2="115" stroke={`${C}58`} strokeWidth=".8"/>
-        <ellipse cx="59" cy="104" rx="9" ry="6" fill="#04111e" stroke={`${C}30`} strokeWidth=".7"/>
-        <line x1="64" y1="109" x2="66" y2="114" stroke={`${C}58`} strokeWidth=".8"/>
-        <line x1="61" y1="110" x2="62" y2="115" stroke={`${C}58`} strokeWidth=".8"/>
-        <line x1="57" y1="110" x2="57" y2="115" stroke={`${C}58`} strokeWidth=".8"/>
-
-        {/* DATA TAIL */}
-        <path d="M 62 100 Q 76 108 83 100 Q 90 91 84 84" fill="none" stroke={C} strokeWidth="1.3" strokeDasharray="3,2.5" opacity=".6" filter="url(#glow)" style={{animation:"holoFloat 2s ease-in-out infinite"}}/>
-        <circle cx="84" cy="84" r="2.4" fill={C} opacity=".72" filter="url(#soft)" style={{animation:cA}}/>
-
-        {/* GUARDIAN SHIELD */}
-        {isG&&<ellipse cx="50" cy="58" rx="44" ry="58" fill="none" stroke="#44ff88" strokeWidth="1.6" filter="url(#glow)" style={{animation:"shieldPulse 1.9s ease-in-out infinite"}}/>}
-
-        {/* STRATEGIC GRID */}
-        {isS&&[28,50,72].flatMap(x=>[
-          <line key={"sv"+x} x1={x} y1="5" x2={x} y2="112" stroke={C} strokeWidth=".22" opacity=".18" strokeDasharray="3,7"/>,
-          <line key={"sh"+x} x1="5" y1={x} x2="95" y2={x} stroke={C} strokeWidth=".22" opacity=".18" strokeDasharray="3,7"/>
+      {/* STRATEGIC GRID */}
+      {isS&&<svg style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:.16,pointerEvents:"none"}}>
+        {[55,110,165].flatMap(x=>[
+          <line key={"v"+x} x1={x} y1={0} x2={x} y2={220} stroke={C} strokeWidth=".5" strokeDasharray="4,9"/>,
+          <line key={"h"+x} x1={0} y1={x} x2={220} y2={x} stroke={C} strokeWidth=".5" strokeDasharray="4,9"/>
         ])}
+      </svg>}
 
-        {/* MISSION RING */}
-        {isM&&<circle cx="50" cy="58" r="52" fill="none" stroke="#ffcc44" strokeWidth="1.3" opacity=".5" filter="url(#glow)" style={{animation:"shieldPulse 1s ease-in-out infinite"}}/>}
-
-        {/* MONARCH CROWN */}
-        {monarchMode&&<>
-          <path d="M 34 7 L 50 -9 L 66 7 L 62 0 L 57 7 L 50 1 L 43 7 L 38 0 Z"
-            fill="#ffcc44" filter="url(#glow)" opacity=".92" style={{animation:"monarchCrown 2s ease-in-out infinite"}}/>
-          <circle cx="50" cy="-9" r="3.5" fill="#ffcc44" filter="url(#cg2)" style={{animation:"monarchCrown 2s ease-in-out infinite"}}/>
-          <circle cx="34" cy="7"  r="2.2" fill="#ffcc44" filter="url(#soft)" opacity=".85"/>
-          <circle cx="66" cy="7"  r="2.2" fill="#ffcc44" filter="url(#soft)" opacity=".85"/>
-        </>}
-
-        {/* Form glyph */}
-        <text x="88" y="22" textAnchor="middle" fontSize="10" fill={C} opacity=".35" fontFamily="monospace">{fd.glyph}</text>
-      </svg>
+      {/* MONARCH CROWN */}
+      {monarchMode&&<div style={{
+        position:"absolute",top:-20,left:"50%",
+        transform:"translateX(-50%)",
+        fontFamily:"monospace",fontSize:26,color:"#ffcc44",
+        textShadow:"0 0 20px #ffcc44",
+        animation:"monarchCrown 2s ease-in-out infinite",
+        zIndex:6,
+      }}>{G.MONARCH}</div>}
     </div>
   );
 }
@@ -681,6 +641,24 @@ function BottomLane({ state, dispatch }) {
             <span style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginLeft:6}}>{d.status}</span>
           </div>
         ))}
+      </div>
+
+      {/* SEAL + TRANSMIT ACTION BUTTONS */}
+      <div className="bot-section" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10,minWidth:160}}>
+        <button
+          className="btn b-gold"
+          style={{padding:"10px 22px",fontSize:14,letterSpacing:".15em",fontFamily:"var(--fd)",fontWeight:900,
+            boxShadow:"0 0 18px rgba(255,204,68,.4)",minWidth:130}}
+          onClick={()=>dispatch({type:"SEAL"})}>
+          {G.SEAL} SEAL
+        </button>
+        <button
+          className="btn b-blue"
+          style={{padding:"10px 22px",fontSize:14,letterSpacing:".15em",fontFamily:"var(--fd)",fontWeight:900,
+            boxShadow:"0 0 18px rgba(0,200,255,.3)",minWidth:130}}
+          onClick={()=>dispatch({type:"TRANSMIT"})}>
+          {G.PULSE} TRANSMIT
+        </button>
       </div>
 
       {/* RESONANCE */}
@@ -1512,22 +1490,28 @@ export default function NexusmonCockpitV4() {
 
         {/* TOPBAR */}
         <div className="topbar">
-          <span className="seal-txt">{SEAL}</span>
-          <div>
+          {/* LEFT */}
+          <div style={{display:"flex",alignItems:"center",gap:10,minWidth:200}}>
+            <span className="seal-txt">{SEAL}</span>
+            {mode!=="NOMINAL"&&<div className="mode-pill">{md.glyph} {md.label} ACTIVE</div>}
+          </div>
+          {/* CENTER */}
+          <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
             <div className="logo">NEXUSMON</div>
             <div className="logo-sub">SOVEREIGN ORGANISM · COCKPIT v4.0 · FULL DOCTRINE</div>
           </div>
-          <div className="spacer"/>
-          <button className="btn b-pur b-sm" onClick={()=>dispatch({type:"HOLO",v:!holoActive})}
-            style={{borderColor:holoActive?"var(--cp)":undefined,background:holoActive?"rgba(170,68,255,.1)":undefined}}>
-            {G.PULSE} HOLO {holoActive?"ON":"OFF"}
-          </button>
-          <button className="btn b-blue b-sm" onClick={()=>dispatch({type:"DRAW_LEFT",v:!drawerLeft})}>{G.PULSE} WEIGHTS</button>
-          <button className="btn b-gold b-sm" onClick={()=>dispatch({type:"DRAW_RIGHT",v:!drawerRight})}>{G.MONARCH} AVATAR</button>
-          {mode!=="NOMINAL"&&<div className="mode-pill">{md.glyph} {md.label} ACTIVE</div>}
-          <div>
-            <div className="ttime">{clock}</div>
-            <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>:8012 ONLINE</div>
+          {/* RIGHT */}
+          <div style={{display:"flex",alignItems:"center",gap:8,minWidth:200,justifyContent:"flex-end"}}>
+            <button className="btn b-pur b-sm" onClick={()=>dispatch({type:"HOLO",v:!holoActive})}
+              style={{borderColor:holoActive?"var(--cp)":undefined,background:holoActive?"rgba(170,68,255,.1)":undefined}}>
+              {G.PULSE} HOLO {holoActive?"ON":"OFF"}
+            </button>
+            <button className="btn b-blue b-sm" onClick={()=>dispatch({type:"DRAW_LEFT",v:!drawerLeft})}>{G.PULSE} WEIGHTS</button>
+            <button className="btn b-gold b-sm" onClick={()=>dispatch({type:"DRAW_RIGHT",v:!drawerRight})}>{G.MONARCH} AVATAR</button>
+            <div style={{textAlign:"right"}}>
+              <div className="ttime">{clock}</div>
+              <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>:8012 ONLINE</div>
+            </div>
           </div>
         </div>
 
@@ -1554,7 +1538,7 @@ export default function NexusmonCockpitV4() {
           {drawerRight&&<AvatarDrawer state={state} dispatch={dispatch} onClose={()=>dispatch({type:"DRAW_RIGHT",v:false})}/>}
           {/* NEXUSMON centered hero */}
           <div className="az-center" style={{background:mode!=="NOMINAL"?md.bg:undefined}}>
-            <Avatar state={avatarState} mode={mode} form={state.currentForm} monarchMode={monarchMode}/>
+            <Organism state={avatarState} mode={mode} form={state.currentForm} monarchMode={monarchMode}/>
             <div className="aname" style={{color:md.color,fontSize:14}}>{EVO_FORMS[state.currentForm].form}</div>
             <div className="astate" style={{borderColor:md.color,color:md.color,background:md.bg}}>{avatarState}</div>
             <div className="aform-label">{EVO_FORMS[state.currentForm].rank} · {md.glyph} {mode}</div>
