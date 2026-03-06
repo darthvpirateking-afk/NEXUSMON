@@ -219,7 +219,7 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 @keyframes plugHealth  {0%,100%{width:var(--hw);}50%{width:calc(var(--hw) + 2%);}}
 
 /* ── Layout ── */
-.ck{display:grid;grid-template-rows:44px 1fr 56px 26px;grid-template-columns:248px 1fr 210px;height:100vh;gap:1px;background:var(--bd);animation:modeIn .3s ease;position:relative;}
+.ck{display:grid;grid-template-rows:48px 1fr 60px 28px;grid-template-columns:170px 1fr 220px;height:100vh;gap:1px;background:var(--bd);animation:modeIn .3s ease;position:relative;}
 .topbar{grid-column:1/-1;background:#020b12;border-bottom:1px solid var(--bda);display:flex;align-items:center;gap:12px;padding:0 16px;position:relative;overflow:hidden;z-index:10;}
 .topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--mc),transparent);opacity:.55;}
 .botlane{grid-column:1/-1;background:#030e18;border-top:1px solid var(--bd);display:flex;gap:0;overflow:hidden;position:relative;}
@@ -229,57 +229,58 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .rp{background:var(--bg1);display:flex;flex-direction:column;border-left:1px solid var(--bd);}
 
 /* ── Panel chrome ── */
-.ph{font-family:var(--fm);font-size:9px;letter-spacing:.20em;color:var(--td);padding:7px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.ph{font-family:var(--fm);font-size:11px;letter-spacing:.18em;color:var(--td);padding:8px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .pha{color:var(--mc);}
 .pc{flex:1;overflow-y:auto;padding:10px;}
 .pc::-webkit-scrollbar{width:2px;}
 .pc::-webkit-scrollbar-thumb{background:var(--bda);}
 
 /* ── Typography ── */
-.logo{font-family:var(--fd);font-size:16px;font-weight:900;letter-spacing:.25em;color:var(--mc);animation:glowText 3s ease-in-out infinite;}
-.logo-sub{font-family:var(--fm);font-size:9px;color:var(--td);letter-spacing:.2em;}
-.seal-txt{font-size:13px;letter-spacing:.05em;color:var(--cg);text-shadow:0 0 10px rgba(255,204,68,.5);}
-.ttime{font-family:var(--fm);font-size:10px;color:var(--tm);}
-.mode-pill{padding:3px 10px;border:1px solid var(--mc);border-radius:1px;font-family:var(--fm);font-size:9px;letter-spacing:.13em;color:var(--mc);background:var(--mb);animation:borderGlow 2.5s ease-in-out infinite;}
-.st{font-family:var(--fm);font-size:9px;letter-spacing:.20em;color:var(--td);padding-bottom:4px;margin-bottom:7px;border-bottom:1px solid var(--bd);}
+.logo{font-family:var(--fd);font-size:18px;font-weight:900;letter-spacing:.25em;color:var(--mc);animation:glowText 3s ease-in-out infinite;}
+.logo-sub{font-family:var(--fm);font-size:10px;color:var(--td);letter-spacing:.2em;}
+.seal-txt{font-size:14px;letter-spacing:.05em;color:var(--cg);text-shadow:0 0 10px rgba(255,204,68,.5);}
+.ttime{font-family:var(--fm);font-size:11px;color:var(--tm);}
+.mode-pill{padding:4px 11px;border:1px solid var(--mc);border-radius:1px;font-family:var(--fm);font-size:10px;letter-spacing:.13em;color:var(--mc);background:var(--mb);animation:borderGlow 2.5s ease-in-out infinite;}
+.st{font-family:var(--fm);font-size:11px;letter-spacing:.18em;color:var(--td);padding-bottom:5px;margin-bottom:8px;border-bottom:1px solid var(--bd);}
 .div{height:1px;background:var(--bd);margin:9px 0;}
 
-/* ── Avatar zone ── */
+/* ── Avatar zone (center-mounted) ── */
+.az-center{display:flex;flex-direction:column;align-items:center;gap:5px;padding:16px 12px 10px;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--bg1);position:relative;}
 .az{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px 11px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;flex-shrink:0;}
 .af{position:relative;width:124px;height:124px;}
 .ar{position:absolute;border-radius:50%;border:1px solid;pointer-events:none;}
 .ar1{inset:-8px;} .ar2{inset:-20px;animation:ring1 3.4s ease-in-out infinite;} .ar3{inset:-36px;animation:ring2 4.8s ease-in-out infinite;} .ar4{inset:-56px;animation:ring3 6.2s ease-in-out infinite;}
-.aname{font-family:var(--fd);font-size:12px;font-weight:900;letter-spacing:.2em;color:var(--mc);animation:glowText 2.5s ease-in-out infinite;}
-.astate{font-family:var(--fm);font-size:9px;letter-spacing:.16em;padding:2px 8px;border:1px solid var(--mc);color:var(--mc);border-radius:1px;background:var(--mb);}
-.aform-label{font-family:var(--fm);font-size:9px;letter-spacing:.1em;color:var(--td);}
-.state-btns{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;}
-.sbtn{font-family:var(--fm);font-size:8px;letter-spacing:.05em;padding:3px 6px;border:1px solid var(--bd);color:var(--td);background:none;border-radius:1px;cursor:pointer;transition:all .15s;}
+.aname{font-family:var(--fd);font-size:14px;font-weight:900;letter-spacing:.2em;color:var(--mc);animation:glowText 2.5s ease-in-out infinite;}
+.astate{font-family:var(--fm);font-size:11px;letter-spacing:.16em;padding:3px 10px;border:1px solid var(--mc);color:var(--mc);border-radius:1px;background:var(--mb);}
+.aform-label{font-family:var(--fm);font-size:10px;letter-spacing:.1em;color:var(--td);}
+.state-btns{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;}
+.sbtn{font-family:var(--fm);font-size:9px;letter-spacing:.05em;padding:4px 8px;border:1px solid var(--bd);color:var(--td);background:none;border-radius:1px;cursor:pointer;transition:all .15s;}
 .sbtn.on{border-color:var(--mc);color:var(--mc);background:var(--mb);}
 
 /* ── Nav ── */
-.nav{display:flex;flex-direction:column;flex:1;padding:7px 5px;gap:2px;overflow-y:auto;}
-.nb{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:2px;font-family:var(--fm);font-size:10px;letter-spacing:.09em;color:var(--td);background:none;border:1px solid transparent;cursor:pointer;transition:all .18s;text-align:left;width:100%;}
+.nav{display:flex;flex-direction:column;flex:1;padding:8px 6px;gap:3px;overflow-y:auto;}
+.nb{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:2px;font-family:var(--fm);font-size:11px;letter-spacing:.08em;color:var(--td);background:none;border:1px solid transparent;cursor:pointer;transition:all .18s;text-align:left;width:100%;}
 .nb.on{color:var(--mc);border-color:var(--mc);background:var(--mb);}
 .nb:hover:not(.on){color:var(--tp);border-color:var(--bd);}
-.ng{font-size:12px;width:15px;text-align:center;flex-shrink:0;}
-.op-badge{padding:7px 10px;border-top:1px solid var(--bd);font-family:var(--fm);font-size:9px;color:var(--td);flex-shrink:0;}
+.ng{font-size:13px;width:17px;text-align:center;flex-shrink:0;}
+.op-badge{padding:8px 10px;border-top:1px solid var(--bd);font-family:var(--fm);font-size:10px;color:var(--td);flex-shrink:0;line-height:1.7;}
 
 /* ── Buttons ── */
-.btn{padding:5px 13px;font-family:var(--fm);font-size:10px;letter-spacing:.09em;border:1px solid currentColor;border-radius:1px;cursor:pointer;background:none;transition:all .18s;}
-.b-blue{color:var(--mc);} .b-blue:hover{background:rgba(0,212,255,.12);}
-.b-gold{color:var(--cg);} .b-gold:hover{background:rgba(255,204,68,.12);}
-.b-red{color:var(--cr);}  .b-red:hover{background:rgba(255,60,60,.12);}
-.b-grn{color:var(--cgr);} .b-grn:hover{background:rgba(68,255,136,.12);}
-.b-teal{color:var(--ct);} .b-teal:hover{background:rgba(0,255,204,.12);}
-.b-pur{color:var(--cp);}  .b-pur:hover{background:rgba(170,68,255,.12);}
-.b-sm{padding:3px 8px;font-size:9px;} .b-xs{padding:2px 6px;font-size:8px;}
+.btn{padding:6px 14px;font-family:var(--fm);font-size:11px;letter-spacing:.09em;border:1px solid currentColor;border-radius:1px;cursor:pointer;background:none;transition:all .18s;}
+.b-blue{color:var(--mc);} .b-blue:hover{background:rgba(0,212,255,.14);}
+.b-gold{color:var(--cg);} .b-gold:hover{background:rgba(255,204,68,.14);}
+.b-red{color:var(--cr);}  .b-red:hover{background:rgba(255,60,60,.14);}
+.b-grn{color:var(--cgr);} .b-grn:hover{background:rgba(68,255,136,.14);}
+.b-teal{color:var(--ct);} .b-teal:hover{background:rgba(0,255,204,.14);}
+.b-pur{color:var(--cp);}  .b-pur:hover{background:rgba(170,68,255,.14);}
+.b-sm{padding:4px 10px;font-size:10px;} .b-xs{padding:3px 7px;font-size:9px;}
 
 /* ── Stat bars ── */
-.stat-row{display:flex;flex-direction:column;gap:2px;margin-bottom:6px;}
-.stat-lbl{display:flex;justify-content:space-between;font-family:var(--fm);font-size:9px;color:var(--td);}
+.stat-row{display:flex;flex-direction:column;gap:2px;margin-bottom:7px;}
+.stat-lbl{display:flex;justify-content:space-between;font-family:var(--fm);font-size:11px;color:var(--td);}
 .stat-bar{height:3px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;}
 .stat-fill{height:100%;border-radius:1px;transition:width .9s ease;}
-.chip{font-family:var(--fm);font-size:9px;padding:2px 6px;border:1px solid currentColor;border-radius:1px;letter-spacing:.07em;}
+.chip{font-family:var(--fm);font-size:10px;padding:2px 7px;border:1px solid currentColor;border-radius:1px;letter-spacing:.07em;}
 
 /* ── Chat ── */
 .cw{display:flex;flex-direction:column;height:100%;}
@@ -287,15 +288,15 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .cm::-webkit-scrollbar{width:2px;} .cm::-webkit-scrollbar-thumb{background:var(--bda);}
 .msg{display:flex;flex-direction:column;gap:2px;animation:fadeUp .3s ease;}
 .msg.op{align-items:flex-end;} .msg.nx{align-items:flex-start;}
-.mwho{font-family:var(--fm);font-size:9px;color:var(--td);letter-spacing:.13em;}
-.mb2{max-width:84%;padding:8px 11px;border-radius:2px;font-family:var(--fu);font-size:11.5px;line-height:1.55;}
-.msg.op .mb2{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.17);color:var(--tp);}
-.msg.nx .mb2{background:rgba(170,68,255,.06);border:1px solid rgba(170,68,255,.17);color:var(--tp);}
-.cbottom{border-top:1px solid var(--bd);padding:9px;display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
-.cinput{width:100%;background:rgba(0,212,255,.03);border:1px solid var(--bd);border-radius:2px;padding:7px 9px;color:var(--tp);font-family:var(--fm);font-size:11px;resize:none;outline:none;transition:border-color .2s;height:52px;}
+.mwho{font-family:var(--fm);font-size:10px;color:var(--td);letter-spacing:.13em;}
+.mb2{max-width:84%;padding:9px 13px;border-radius:2px;font-family:var(--fu);font-size:13px;line-height:1.6;}
+.msg.op .mb2{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--tp);}
+.msg.nx .mb2{background:rgba(170,68,255,.06);border:1px solid rgba(170,68,255,.2);color:var(--tp);}
+.cbottom{border-top:1px solid var(--bd);padding:10px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+.cinput{width:100%;background:rgba(0,212,255,.03);border:1px solid var(--bd);border-radius:2px;padding:8px 10px;color:var(--tp);font-family:var(--fm);font-size:12px;resize:none;outline:none;transition:border-color .2s;height:56px;}
 .cinput:focus{border-color:var(--bda);}
-.crow{display:flex;gap:5px;justify-content:flex-end;align-items:center;}
-.squeue{margin:0 9px 5px;padding:7px;border:1px solid var(--cg);border-radius:2px;background:rgba(255,204,68,.04);font-family:var(--fm);font-size:9px;color:var(--cg);display:flex;justify-content:space-between;align-items:center;gap:6px;animation:fadeUp .2s ease;}
+.crow{display:flex;gap:6px;justify-content:flex-end;align-items:center;}
+.squeue{margin:0 10px 6px;padding:8px;border:1px solid var(--cg);border-radius:2px;background:rgba(255,204,68,.05);font-family:var(--fm);font-size:10px;color:var(--cg);display:flex;justify-content:space-between;align-items:center;gap:6px;animation:fadeUp .2s ease;}
 
 /* ── Hologram overlay ── */
 .holo-layer{position:absolute;inset:0;pointer-events:none;z-index:8;animation:holoFloat 4s ease-in-out infinite;}
@@ -307,13 +308,13 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .botlane-inner{display:flex;width:100%;height:100%;}
 .bot-section{flex:1;border-right:1px solid var(--bd);padding:5px 10px;display:flex;flex-direction:column;gap:4px;overflow:hidden;}
 .bot-section:last-child{border-right:none;}
-.bot-title{font-family:var(--fm);font-size:8.5px;letter-spacing:.20em;color:var(--td);margin-bottom:3px;}
-.breath-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.bot-title{font-family:var(--fm);font-size:10px;letter-spacing:.18em;color:var(--td);margin-bottom:3px;}
+.breath-bar{height:5px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;}
 .breath-fill{height:100%;border-radius:2px;background:var(--ct);animation:breatheIn var(--breath-dur,4s) ease-in-out infinite;}
-.heart-dot{display:inline-block;font-size:15px;animation:heartPulse var(--heart-dur,0.83s) ease-in-out infinite;}
-.shadow-thought{font-family:var(--fm);font-size:9px;color:var(--td);animation:shadowThought .4s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.heart-dot{display:inline-block;font-size:16px;animation:heartPulse var(--heart-dur,0.83s) ease-in-out infinite;}
+.shadow-thought{font-family:var(--fm);font-size:10px;color:var(--td);animation:shadowThought .4s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .shadow-thought.diverge{color:var(--cr);}
-.dream-seed{font-family:var(--fm);font-size:9px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.dream-seed{font-family:var(--fm);font-size:10px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05);}
 
 /* ── Drawers ── */
 .drawer-left{position:absolute;top:0;left:0;bottom:0;width:200px;background:#040f1c;border-right:1px solid var(--bda);z-index:20;animation:drawerSlideL .2s ease;display:flex;flex-direction:column;}
@@ -333,12 +334,12 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .plg.ACTIVE{border-color:rgba(0,212,255,.22);}
 .plg.BETA{border-color:rgba(255,204,68,.22);}
 .plg.PENDING{border-color:rgba(255,255,255,.08);}
-.plg-name{font-family:var(--fm);font-size:10px;color:var(--tp);}
-.plg-manifest{font-family:var(--fm);font-size:9px;color:var(--td);margin-top:2px;}
-.plg-health{height:3px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;margin-top:5px;}
+.plg-name{font-family:var(--fm);font-size:11px;color:var(--tp);}
+.plg-manifest{font-family:var(--fm);font-size:10px;color:var(--td);margin-top:2px;}
+.plg-health{height:3px;background:rgba(255,255,255,.07);border-radius:1px;overflow:hidden;margin-top:5px;}
 .plg-hfill{height:100%;border-radius:1px;transition:width .8s ease;}
-.plg-perms{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
-.perm-chip{font-family:var(--fm);font-size:8px;padding:2px 5px;border:1px solid rgba(170,68,255,.4);color:var(--cp);border-radius:1px;}
+.plg-perms{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;}
+.perm-chip{font-family:var(--fm);font-size:9px;padding:2px 6px;border:1px solid rgba(170,68,255,.45);color:var(--cp);border-radius:1px;}
 
 /* ── Evolution ── */
 .es{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--bd);border-radius:2px;margin-bottom:4px;cursor:pointer;transition:all .3s;}
@@ -346,8 +347,8 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .es.unlocked{border-color:rgba(0,212,255,.25);background:rgba(0,212,255,.02);}
 .es.locked{opacity:.45;}
 .enode{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
-.erank{font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.1em;}
-.eform{font-family:var(--fm);font-size:9px;color:var(--td);margin-top:1px;}
+.erank{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.1em;}
+.eform{font-family:var(--fm);font-size:10px;color:var(--td);margin-top:1px;}
 .xpbar{height:3px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;margin-top:4px;}
 .xpfill{height:100%;border-radius:1px;transition:width 1s ease;}
 
@@ -360,44 +361,44 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .mi{padding:8px;border:1px solid var(--bd);border-radius:2px;margin-bottom:4px;cursor:pointer;transition:all .2s;animation:fadeUp .25s ease;}
 .mi:hover{border-color:var(--bda);}
 .mi.ACTIVE{animation:missionPulse 2s ease-in-out infinite;}
-.mtitle{font-family:var(--fu);font-size:12px;font-weight:600;}
-.mmeta{font-family:var(--fm);font-size:9px;color:var(--td);margin-top:2px;display:flex;gap:7px;flex-wrap:wrap;}
-.mlogs{font-family:var(--fm);font-size:9px;color:var(--td);margin-top:5px;padding-top:5px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:2px;}
+.mtitle{font-family:var(--fu);font-size:13px;font-weight:600;}
+.mmeta{font-family:var(--fm);font-size:10px;color:var(--td);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;}
+.mlogs{font-family:var(--fm);font-size:10px;color:var(--td);margin-top:5px;padding-top:5px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:3px;}
 
 /* ── Artifact ── */
-.ai{display:flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid var(--bd);border-radius:2px;margin-bottom:4px;cursor:pointer;transition:all .2s;font-family:var(--fm);font-size:10px;}
+.ai{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--bd);border-radius:2px;margin-bottom:5px;cursor:pointer;transition:all .2s;font-family:var(--fm);font-size:11px;}
 .ai:hover{border-color:var(--bda);}
 .ainfo{flex:1;min-width:0;}
 .aname2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ameta2{font-size:9px;color:var(--td);margin-top:1px;}
+.ameta2{font-size:10px;color:var(--td);margin-top:2px;}
 
 /* ── Log lines ── */
-.ll{font-family:var(--fm);font-size:9px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);display:flex;gap:7px;animation:dataDrop .25s ease;}
+.ll{font-family:var(--fm);font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:8px;animation:dataDrop .25s ease;}
 .lt{color:var(--td);flex-shrink:0;}
 .lOK{color:var(--cgr);flex-shrink:0;} .lINFO{color:var(--mc);flex-shrink:0;} .lWARN{color:var(--cg);flex-shrink:0;} .lERR{color:var(--cr);flex-shrink:0;}
 .lm{color:var(--tp);flex:1;}
 
 /* ── Shadow vis ── */
-.sth{display:flex;gap:6px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);animation:shadowThought .35s ease;}
-.sth-res{width:36px;flex-shrink:0;font-family:var(--fm);font-size:9px;}
-.sth-msg{font-family:var(--fm);font-size:9px;color:var(--td);flex:1;}
+.sth{display:flex;gap:6px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);animation:shadowThought .35s ease;}
+.sth-res{width:38px;flex-shrink:0;font-family:var(--fm);font-size:10px;}
+.sth-msg{font-family:var(--fm);font-size:10px;color:var(--td);flex:1;}
 .sth-div{color:var(--cr);}
 
 /* ── Approval modal ── */
 .aov{position:fixed;inset:0;background:rgba(1,5,7,.95);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease;}
 .amod{background:var(--bg3);border:1px solid var(--cg);border-radius:3px;padding:22px;width:370px;box-shadow:0 0 40px rgba(255,204,68,.14);animation:fadeUp .2s ease;}
-.atitle{font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--cg);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
-.abody{font-family:var(--fm);font-size:9.5px;color:var(--tp);margin-bottom:13px;line-height:1.65;padding:9px;background:rgba(255,204,68,.04);border:1px solid rgba(255,204,68,.14);border-radius:2px;white-space:pre-wrap;}
+.atitle{font-family:var(--fd);font-size:14px;font-weight:700;letter-spacing:.1em;color:var(--cg);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.abody{font-family:var(--fm);font-size:11px;color:var(--tp);margin-bottom:13px;line-height:1.7;padding:10px;background:rgba(255,204,68,.04);border:1px solid rgba(255,204,68,.14);border-radius:2px;white-space:pre-wrap;}
 .aacts{display:flex;gap:7px;justify-content:flex-end;}
 
 /* ── Evo overlay ── */
 .eov{position:fixed;inset:0;background:rgba(1,5,7,.97);z-index:300;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;animation:fadeIn .2s ease;}
 .eov-glyph{font-size:72px;animation:evoBloom .9s ease forwards;}
 .eov-name{font-family:var(--fd);font-size:17px;font-weight:900;letter-spacing:.3em;animation:glowText .9s ease-in-out infinite;}
-.eov-sub{font-family:var(--fm);font-size:10px;letter-spacing:.2em;color:var(--td);}
+.eov-sub{font-family:var(--fm);font-size:11px;letter-spacing:.2em;color:var(--td);}
 
 /* ── Ticker ── */
-.tck{white-space:nowrap;animation:ticker 32s linear infinite;font-family:var(--fm);font-size:9px;}
+.tck{white-space:nowrap;animation:ticker 32s linear infinite;font-family:var(--fm);font-size:10px;}
 .spacer{flex:1;}
 `;
 
@@ -416,67 +417,164 @@ function Avatar({ state, mode, form, monarchMode }) {
     :"coreIdle 2.8s ease-in-out infinite";
 
   return (
-    <div style={{position:"relative",width:124,height:124}}>
-      <div className="ar ar1" style={{borderColor:`${C}55`}}/>
-      <div className="ar ar2" style={{borderColor:`${C}18`}}/>
-      <div className="ar ar3" style={{borderColor:`${C}08`}}/>
-      <div className="ar ar4" style={{borderColor:`${C}04`}}/>
+    <div style={{position:"relative",width:168,height:168}}>
       {isP&&[G.ID,G.AUTH,G.SYS].map((g,i)=>(
-        <div key={i} style={{position:"absolute",top:"50%",left:"50%",marginTop:-5,marginLeft:-5,fontSize:9,color:C,
+        <div key={i} style={{position:"absolute",top:"50%",left:"50%",marginTop:-7,marginLeft:-7,fontSize:12,color:C,
           animation:`orbit${["A","B","C"][i]} ${1.4+i*.35}s linear infinite`,animationDelay:`${i*.4}s`}}>{g}</div>
       ))}
-      {isM&&<div style={{position:"absolute",top:"50%",left:"50%",marginTop:-7,marginLeft:-7,fontSize:12,color:"#ffcc44",animation:"orbitBig 3s linear infinite"}}>{G.MISS}</div>}
-      <svg viewBox="0 0 100 100" style={{width:"100%",height:"100%"}}>
+      {isM&&<div style={{position:"absolute",top:"28%",left:"50%",marginTop:-9,marginLeft:-9,fontSize:16,color:"#ffcc44",animation:"orbitBig 3s linear infinite"}}>{G.MISS}</div>}
+      <svg viewBox="0 0 100 112" style={{width:"100%",height:"100%"}} overflow="visible">
         <defs>
-          <filter id="glow"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="cg2"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <radialGradient id="bG" cx="50%" cy="38%" r="52%">
-            <stop offset="0%" stopColor={`${C}24`}/><stop offset="100%" stopColor="#040c13"/>
+          <filter id="glow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="cg2"><feGaussianBlur stdDeviation="4.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="soft"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <radialGradient id="bG2" cx="50%" cy="40%" r="55%">
+            <stop offset="0%" stopColor={`${C}22`}/><stop offset="100%" stopColor="#020810"/>
+          </radialGradient>
+          <radialGradient id="eyeGl" cx="38%" cy="32%" r="68%">
+            <stop offset="0%" stopColor="white" stopOpacity=".85"/><stop offset="60%" stopColor={C}/><stop offset="100%" stopColor={`${C}88`}/>
+          </radialGradient>
+          <radialGradient id="eyeGr" cx="62%" cy="32%" r="68%">
+            <stop offset="0%" stopColor="white" stopOpacity=".85"/><stop offset="60%" stopColor={C}/><stop offset="100%" stopColor={`${C}88`}/>
           </radialGradient>
         </defs>
-        <ellipse cx="50" cy="54" rx="28" ry="36" fill="url(#bG)" stroke={`${C}2a`} strokeWidth=".5"/>
-        <path d="M 31 42 Q 31 17 50 15 Q 69 17 69 42 L 67 52 Q 60 58 50 59 Q 40 58 33 52 Z" fill="#050f19" stroke={`${C}50`} strokeWidth=".8" filter="url(#glow)"/>
-        <path d="M 37 35 Q 37 27 50 26 Q 63 27 63 35 L 62 44 Q 56 48 50 48 Q 44 48 38 44 Z" fill={`${C}15`} stroke={`${C}70`} strokeWidth=".6"/>
-        {[42,58].map((x,i)=>(
-          <g key={i}>
-            <ellipse cx={x} cy="36" rx="4.4" ry="3.4" fill={`${C}2a`}/>
-            <ellipse cx={x} cy="36" rx="2.1" ry="1.9" fill={C} filter="url(#cg2)" style={{animation:cA}}/>
-            <ellipse cx={x-.6} cy="35.2" rx=".7" ry=".55" fill="white" opacity=".45"/>
-          </g>
-        ))}
-        {[{d:"M 33 58 L 26 78 L 38 82 L 44 60 Z"},{d:"M 67 58 L 74 78 L 62 82 L 56 60 Z"}].map((p,i)=>(
-          <path key={i} {...p} fill="#061220" stroke={`${C}24`} strokeWidth=".5"
-            style={{animation:isC?`armorSlide .28s ease ${i*.07}s both`:undefined}}/>
-        ))}
-        <ellipse cx="29" cy="56" rx="7.5" ry="5" fill="#061220" stroke={`${C}3a`} strokeWidth=".6"
-          style={{animation:isC?"armorSlide .24s ease .04s both":undefined}}/>
-        <ellipse cx="71" cy="56" rx="7.5" ry="5" fill="#061220" stroke={`${C}3a`} strokeWidth=".6"
-          style={{animation:isC?"armorSlide .24s ease .04s both":undefined}}/>
-        <circle cx="50" cy="64" r="8" fill={`${C}15`} stroke={`${C}50`} strokeWidth=".8" filter="url(#glow)"/>
-        <circle cx="50" cy="64" r="4.8" fill={C} filter="url(#cg2)" opacity=".9" style={{animation:cA}}/>
-        <text x="50" y="66.5" textAnchor="middle" fontSize="4.2" fill="#010810" fontFamily="monospace" opacity=".85">{G.SEAL}</text>
-        <line x1="50" y1="15" x2="50" y2="7" stroke={`${C}55`} strokeWidth=".9"/>
-        <circle cx="50" cy="6.5" r="2.2" fill={C} filter="url(#cg2)" style={{animation:cA}}/>
-        <circle cx="50" cy="50" r="40" fill="none" stroke={`${C}07`} strokeWidth=".4" strokeDasharray="2,7"/>
-        {isG&&<ellipse cx="50" cy="52" rx="34" ry="42" fill="none" stroke="#44ff88" strokeWidth="1.3" filter="url(#glow)" style={{animation:"shieldPulse 1.9s ease-in-out infinite"}}/>}
-        {isS&&[34,50,66].flatMap(x=>[
-          <line key={`v${x}`} x1={x} y1="18" x2={x} y2="84" stroke={C} strokeWidth=".22" opacity=".3" strokeDasharray="2,5"/>,
-          <line key={`h${x}`} x1="18" y1={x} x2="82" y2={x} stroke={C} strokeWidth=".22" opacity=".3" strokeDasharray="2,5"/>
+
+        {/* ENERGY WINGS — COMBAT + STRATEGIC */}
+        {(isC||isS)&&<>
+          <path d="M 20 58 Q -2 40 2 22 Q 15 36 22 52 Z" fill={`${C}28`} stroke={`${C}65`} strokeWidth=".7" filter="url(#glow)" style={{animation:"holoFloat 1.6s ease-in-out infinite"}}/>
+          <path d="M 22 54 Q 4 42 7 32 Q 18 42 24 52 Z" fill={`${C}14`} stroke={`${C}38`} strokeWidth=".4"/>
+          <path d="M 80 58 Q 102 40 98 22 Q 85 36 78 52 Z" fill={`${C}28`} stroke={`${C}65`} strokeWidth=".7" filter="url(#glow)" style={{animation:"holoFloat 1.6s ease-in-out infinite",animationDelay:".5s"}}/>
+          <path d="M 78 54 Q 96 42 93 32 Q 82 42 76 52 Z" fill={`${C}14`} stroke={`${C}38`} strokeWidth=".4"/>
+        </>}
+
+        {/* BODY GLOW BASE */}
+        <ellipse cx="50" cy="84" rx="26" ry="22" fill="url(#bG2)"/>
+
+        {/* SHOULDERS */}
+        <ellipse cx="27" cy="67" rx="10" ry="6.5" fill="#04111e" stroke={`${C}35`} strokeWidth=".9" filter="url(#soft)"/>
+        <ellipse cx="73" cy="67" rx="10" ry="6.5" fill="#04111e" stroke={`${C}35`} strokeWidth=".9" filter="url(#soft)"/>
+        <circle cx="27" cy="67" r="2.8" fill={C} opacity=".65" style={{animation:cA}}/>
+        <circle cx="73" cy="67" r="2.8" fill={C} opacity=".65" style={{animation:cA}}/>
+
+        {/* TORSO */}
+        <path d="M 36 64 L 64 64 L 61 96 L 39 96 Z" fill="#030c18" stroke={`${C}30`} strokeWidth=".9"/>
+        {/* circuit traces */}
+        <path d="M 44 67 L 41 72 L 37 72" fill="none" stroke={`${C}60`} strokeWidth=".55"/>
+        <path d="M 56 67 L 59 72 L 63 72" fill="none" stroke={`${C}60`} strokeWidth=".55"/>
+        <path d="M 46 78 L 44 83" fill="none" stroke={`${C}45`} strokeWidth=".4"/>
+        <path d="M 54 78 L 56 83" fill="none" stroke={`${C}45`} strokeWidth=".4"/>
+        <line x1="40" y1="78" x2="44" y2="78" stroke={`${C}35`} strokeWidth=".4"/>
+        <line x1="56" y1="78" x2="60" y2="78" stroke={`${C}35`} strokeWidth=".4"/>
+
+        {/* CHEST CORE — triple ring */}
+        <circle cx="50" cy="78" r="13" fill={`${C}09`} stroke={`${C}20`} strokeWidth=".5"/>
+        <circle cx="50" cy="78" r="9.5" fill={`${C}18`} stroke={`${C}45`} strokeWidth=".9" filter="url(#glow)"/>
+        <circle cx="50" cy="78" r="5.8" fill={C} filter="url(#cg2)" opacity=".96" style={{animation:cA}}/>
+        <text x="50" y="80" textAnchor="middle" fontSize="4.5" fill="#010810" fontFamily="monospace" fontWeight="bold">{G.SEAL}</text>
+
+        {/* LEGS */}
+        <rect x="40" y="95" width="9" height="11" rx="3" fill="#04101e" stroke={`${C}30`} strokeWidth=".6"/>
+        <rect x="51" y="95" width="9" height="11" rx="3" fill="#04101e" stroke={`${C}30`} strokeWidth=".6"/>
+        <rect x="39" y="104" width="11" height="5" rx="2.5" fill="#061825" stroke={`${C}25`} strokeWidth=".5"/>
+        <rect x="50" y="104" width="11" height="5" rx="2.5" fill="#061825" stroke={`${C}25`} strokeWidth=".5"/>
+
+        {/* ═══ CHIBI HEAD — dominant ═══ */}
+        {/* Helmet outer */}
+        <path d="M 16 43 Q 16 5 50 4 Q 84 5 84 43 L 82 57 Q 72 68 50 69 Q 28 68 18 57 Z"
+          fill="#030b17" stroke={`${C}58`} strokeWidth="1.2" filter="url(#glow)"/>
+        {/* Helmet tint */}
+        <path d="M 20 41 Q 20 10 50 9 Q 80 10 80 41 L 78 54 Q 69 63 50 64 Q 31 63 22 54 Z"
+          fill={`${C}07`}/>
+
+        {/* EAR VENTS */}
+        <rect x="11" y="32" width="7" height="14" rx="3" fill="#061828" stroke={`${C}45`} strokeWidth=".8"/>
+        <line x1="12.5" y1="36" x2="17" y2="36" stroke={C} strokeWidth=".5" opacity=".75"/>
+        <line x1="12.5" y1="39" x2="17" y2="39" stroke={C} strokeWidth=".5" opacity=".75"/>
+        <line x1="12.5" y1="42" x2="17" y2="42" stroke={C} strokeWidth=".5" opacity=".75"/>
+        <rect x="82" y="32" width="7" height="14" rx="3" fill="#061828" stroke={`${C}45`} strokeWidth=".8"/>
+        <line x1="83" y1="36" x2="87.5" y2="36" stroke={C} strokeWidth=".5" opacity=".75"/>
+        <line x1="83" y1="39" x2="87.5" y2="39" stroke={C} strokeWidth=".5" opacity=".75"/>
+        <line x1="83" y1="42" x2="87.5" y2="42" stroke={C} strokeWidth=".5" opacity=".75"/>
+
+        {/* VISOR PANEL */}
+        <path d="M 22 30 Q 22 16 50 15 Q 78 16 78 30 L 77 46 Q 69 53 50 54 Q 31 53 23 46 Z"
+          fill="#010810" stroke={`${C}42`} strokeWidth=".9"/>
+
+        {/* ── EYES — Big chibi anime ── */}
+        {/* Left eye outer glow */}
+        <ellipse cx="37" cy="35" rx="10" ry="9" fill={`${C}14`} stroke={`${C}45`} strokeWidth=".6"/>
+        {/* Left iris */}
+        <ellipse cx="37" cy="35" rx="7.2" ry="6.4" fill="url(#eyeGl)" style={{animation:cA}}/>
+        {/* Left inner shine */}
+        <ellipse cx="37" cy="35" rx="3.8" ry="3.5" fill="white" opacity=".14"/>
+        {/* Left pupil */}
+        <ellipse cx="37" cy="35.5" rx="2.8" ry="3" fill="#010810"/>
+        {/* Left highlight 1 */}
+        <ellipse cx="34.2" cy="32" rx="1.6" ry="1.2" fill="white" opacity=".95"/>
+        {/* Left highlight 2 */}
+        <ellipse cx="39" cy="33" rx=".8" ry=".65" fill="white" opacity=".55"/>
+
+        {/* Right eye outer glow */}
+        <ellipse cx="63" cy="35" rx="10" ry="9" fill={`${C}14`} stroke={`${C}45`} strokeWidth=".6"/>
+        {/* Right iris */}
+        <ellipse cx="63" cy="35" rx="7.2" ry="6.4" fill="url(#eyeGr)" style={{animation:cA}}/>
+        {/* Right inner shine */}
+        <ellipse cx="63" cy="35" rx="3.8" ry="3.5" fill="white" opacity=".14"/>
+        {/* Right pupil */}
+        <ellipse cx="63" cy="35.5" rx="2.8" ry="3" fill="#010810"/>
+        {/* Right highlight 1 */}
+        <ellipse cx="60.2" cy="32" rx="1.6" ry="1.2" fill="white" opacity=".95"/>
+        {/* Right highlight 2 */}
+        <ellipse cx="65" cy="33" rx=".8" ry=".65" fill="white" opacity=".55"/>
+
+        {/* CHEEK BLUSH */}
+        <ellipse cx="24" cy="49" rx="7" ry="4" fill={C} opacity=".2" filter="url(#soft)"/>
+        <ellipse cx="76" cy="49" rx="7" ry="4" fill={C} opacity=".2" filter="url(#soft)"/>
+
+        {/* NOSE */}
+        <path d="M 47 46 Q 50 48.5 53 46" fill="none" stroke={`${C}75`} strokeWidth=".8"/>
+
+        {/* MOUTH — state-reactive */}
+        {!isP&&!isR&&<path d="M 43 52 Q 50 57 57 52" fill="none" stroke={`${C}75`} strokeWidth="1"/>}
+        {isP&&<path d="M 43 53 Q 47 50 50 53 Q 53 50 57 53" fill="none" stroke={C} strokeWidth="1" filter="url(#glow)"/>}
+        {isR&&<path d="M 42 51 Q 50 58 58 51" fill="none" stroke={C} strokeWidth="1.2" filter="url(#glow)"/>}
+
+        {/* Helmet crest */}
+        <path d="M 32 8 Q 50 2 68 8" fill="none" stroke={`${C}55`} strokeWidth=".9"/>
+
+        {/* ANTENNA */}
+        <line x1="50" y1="4" x2="50" y2="-6" stroke={`${C}72`} strokeWidth="1.3"/>
+        <circle cx="50" cy="-8" r="3.5" fill={C} filter="url(#cg2)" style={{animation:cA}}/>
+        {/* side antennae */}
+        <line x1="34" y1="9" x2="27" y2=".5" stroke={`${C}58`} strokeWidth=".9"/>
+        <circle cx="26.5" cy="0" r="2.2" fill={C} opacity=".8" filter="url(#soft)"/>
+        <line x1="66" y1="9" x2="73" y2=".5" stroke={`${C}58`} strokeWidth=".9"/>
+        <circle cx="73.5" cy="0" r="2.2" fill={C} opacity=".8" filter="url(#soft)"/>
+
+        {/* GUARDIAN SHIELD */}
+        {isG&&<ellipse cx="50" cy="58" rx="44" ry="58" fill="none" stroke="#44ff88" strokeWidth="1.6" filter="url(#glow)" style={{animation:"shieldPulse 1.9s ease-in-out infinite"}}/>}
+
+        {/* STRATEGIC GRID */}
+        {isS&&[28,50,72].flatMap(x=>[
+          <line key={"sv"+x} x1={x} y1="8" x2={x} y2="104" stroke={C} strokeWidth=".22" opacity=".22" strokeDasharray="3,7"/>,
+          <line key={"sh"+x} x1="8" y1={x} x2="92" y2={x} stroke={C} strokeWidth=".22" opacity=".22" strokeDasharray="3,7"/>
         ])}
-        {isM&&<circle cx="50" cy="50" r="44" fill="none" stroke="#ffcc44" strokeWidth="1.1" opacity=".55" filter="url(#glow)" style={{animation:"shieldPulse 1s ease-in-out infinite"}}/>}
-        {monarchMode&&(
-          <>
-            <path d="M 50 2 L 53 8 L 56 5 L 54 12 L 60 10 L 55 15 L 50 13 L 45 15 L 40 10 L 46 12 L 44 5 L 47 8 Z" fill="#ffcc44" opacity=".8" filter="url(#glow)" style={{animation:"monarchCrown 2s ease-in-out infinite"}}/>
-          </>
-        )}
-        <text x="86" y="22" textAnchor="middle" fontSize="9" fill={C} opacity=".45" fontFamily="monospace">{fd.glyph}</text>
+
+        {/* MISSION ORBIT RING */}
+        {isM&&<circle cx="50" cy="56" r="52" fill="none" stroke="#ffcc44" strokeWidth="1.3" opacity=".5" filter="url(#glow)" style={{animation:"shieldPulse 1s ease-in-out infinite"}}/>}
+
+        {/* MONARCH CROWN */}
+        {monarchMode&&<>
+          <path d="M 34 5 L 50 -10 L 66 5 L 62 -1 L 57 6 L 50 0 L 43 6 L 38 -1 Z"
+            fill="#ffcc44" filter="url(#glow)" opacity=".92" style={{animation:"monarchCrown 2s ease-in-out infinite"}}/>
+          <circle cx="50" cy="-10" r="3.5" fill="#ffcc44" filter="url(#cg2)" style={{animation:"monarchCrown 2s ease-in-out infinite"}}/>
+          <circle cx="34" cy="5" r="2.2" fill="#ffcc44" filter="url(#soft)" opacity=".85"/>
+          <circle cx="66" cy="5" r="2.2" fill="#ffcc44" filter="url(#soft)" opacity=".85"/>
+        </>}
+
+        {/* Form glyph */}
+        <text x="88" y="24" textAnchor="middle" fontSize="10" fill={C} opacity=".38" fontFamily="monospace">{fd.glyph}</text>
       </svg>
-      {isS&&(
-        <div style={{position:"absolute",inset:0,pointerEvents:"none",overflow:"hidden"}}>
-          <div style={{position:"absolute",left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${C},transparent)`,opacity:.5,animation:"scanV 2.3s linear infinite"}}/>
-          <div style={{position:"absolute",top:0,bottom:0,width:1,background:`linear-gradient(180deg,transparent,${C},transparent)`,opacity:.3,animation:"scanH 3.6s linear infinite"}}/>
-        </div>
-      )}
     </div>
   );
 }
@@ -502,12 +600,12 @@ function HoloLayer({ weights, mode, active }) {
         <div key={n.label} className="holo-weight-node" style={{
           left:n.x, top:n.y, width:46, height:46,
           background:`${n.c}10`, border:`1px solid ${n.c}40`,
-          color:n.c, fontSize:7, flexDirection:"column",
+          color:n.c, fontSize:9, flexDirection:"column",
           animationDelay:`${Math.random()*.8}s`,
           textShadow:`0 0 8px ${n.c}`,
         }}>
-          <span style={{fontSize:9}}>{Math.round(n.v*100)}</span>
-          <span style={{fontSize:5.5,letterSpacing:".05em",opacity:.7}}>{n.label}</span>
+          <span style={{fontSize:11}}>{Math.round(n.v*100)}</span>
+          <span style={{fontSize:8,letterSpacing:".05em",opacity:.8}}>{n.label}</span>
         </div>
       ))}
     </div>
@@ -1415,23 +1513,9 @@ export default function NexusmonCockpitV4() {
           </div>
         </div>
 
-        {/* LEFT PANEL */}
+        {/* LEFT PANEL — nav only */}
         <div className="lp" style={{position:"relative"}}>
           {drawerLeft&&<WeightDrawer weights={state.weights} onClose={()=>dispatch({type:"DRAW_LEFT",v:false})}/>}
-          <div className="az" style={{background:mode!=="NOMINAL"?md.bg:undefined}}>
-            <Avatar state={avatarState} mode={mode} form={state.currentForm} monarchMode={monarchMode}/>
-            <div className="aname" style={{color:md.color}}>{EVO_FORMS[state.currentForm].form}</div>
-            <div className="astate" style={{borderColor:md.color,color:md.color,background:md.bg}}>{avatarState}</div>
-            <div className="aform-label">{EVO_FORMS[state.currentForm].rank} · {md.glyph} {mode}</div>
-            <div className="state-btns">
-              {["IDLE","LISTEN","PROCESS","RESPOND","MISSION"].map(s=>(
-                <button key={s} className={`sbtn ${avatarState===s.replace("LISTEN","LISTENING").replace("PROCESS","PROCESSING").replace("RESPOND","RESPONDING")?"on":""}`}
-                  onClick={()=>dispatch({type:"AVATAR",v:s==="LISTEN"?"LISTENING":s==="PROCESS"?"PROCESSING":s==="RESPOND"?"RESPONDING":s})}>
-                  {s.slice(0,4)}
-                </button>
-              ))}
-            </div>
-          </div>
           <div className="nav">
             {PANELS.map(p=>(
               <button key={p.id} className={`nb ${panel===p.id?"on":""}`} onClick={()=>dispatch({type:"PANEL",v:p.id})}>
@@ -1446,10 +1530,25 @@ export default function NexusmonCockpitV4() {
           </div>
         </div>
 
-        {/* MAIN */}
+        {/* MAIN — avatar hero + content */}
         <div className="mp" style={{position:"relative"}}>
           <HoloLayer weights={state.weights} mode={mode} active={holoActive}/>
           {drawerRight&&<AvatarDrawer state={state} dispatch={dispatch} onClose={()=>dispatch({type:"DRAW_RIGHT",v:false})}/>}
+          {/* NEXUSMON centered hero */}
+          <div className="az-center" style={{background:mode!=="NOMINAL"?md.bg:undefined}}>
+            <Avatar state={avatarState} mode={mode} form={state.currentForm} monarchMode={monarchMode}/>
+            <div className="aname" style={{color:md.color,fontSize:14}}>{EVO_FORMS[state.currentForm].form}</div>
+            <div className="astate" style={{borderColor:md.color,color:md.color,background:md.bg}}>{avatarState}</div>
+            <div className="aform-label">{EVO_FORMS[state.currentForm].rank} · {md.glyph} {mode}</div>
+            <div className="state-btns">
+              {["IDLE","LISTEN","PROCESS","RESPOND","MISSION"].map(s=>(
+                <button key={s} className={`sbtn ${avatarState===s.replace("LISTEN","LISTENING").replace("PROCESS","PROCESSING").replace("RESPOND","RESPONDING")?"on":""}`}
+                  onClick={()=>dispatch({type:"AVATAR",v:s==="LISTEN"?"LISTENING":s==="PROCESS"?"PROCESSING":s==="RESPOND"?"RESPONDING":s})}>
+                  {s.slice(0,4)}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="ph">
             <span><span className="pha">{PANELS.find(p=>p.id===panel)?.glyph}</span> {panel} ENGINE</span>
             <span style={{color:"var(--td)"}}>{EVO_FORMS[state.currentForm].form} · :8012</span>
@@ -1479,7 +1578,7 @@ export default function NexusmonCockpitV4() {
               PLUGINS: {PLUGINS.filter(p=>p.status==="ACTIVE").length} ACTIVE &nbsp;·&nbsp; ALL SYSTEMS NOMINAL &nbsp;{SEAL}&nbsp;
             </div>
           </div>
-          <span style={{color:md.color,fontFamily:"var(--fm)",fontSize:7.5}}>■ {mode}</span>
+          <span style={{color:md.color,fontFamily:"var(--fm)",fontSize:11}}>■ {mode}</span>
         </div>
       </div>
 
