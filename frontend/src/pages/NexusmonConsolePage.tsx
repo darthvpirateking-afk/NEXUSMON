@@ -37,6 +37,46 @@ interface MissionEvent {
   ts: string;
 }
 
+interface LiveAgent {
+  id: string;
+  label: string;
+  role: string;
+  status: string;
+  trigger: string;
+}
+
+function mapApiAgent(a: Record<string, unknown>): LiveAgent {
+  const rawId = String(a.id ?? "");
+  const shortId = rawId.split("@")[0];
+  const label = shortId.toUpperCase().replace(/-/g, "_");
+  const caps = (a.capabilities as string[] | undefined) ?? [];
+  const role = caps.slice(0, 2).join(" / ") || "Agent";
+  const status = caps.length > 0 ? "active" : "watching";
+  return { id: rawId, label, role, status, trigger: `${shortId}:` };
+}
+
+function mapAuditEntry(e: Record<string, unknown>): MissionEvent {
+  const eventType = String(e.event_type ?? "info");
+  const raw = String(e.timestamp ?? "");
+  const ts = raw.includes("T") ? raw.split("T")[1].split(".")[0].replace("Z", "") : new Date().toISOString().split("T")[1].split(".")[0];
+  const mid = e.mission_id ? `M-${String(e.mission_id).slice(-6)}` : "";
+  const data = ((e.data ?? e.payload ?? {}) as Record<string, unknown>);
+  const severity: Severity =
+    eventType.includes("fail") || eventType.includes("error") ? "warn"
+    : eventType.includes("complete") || eventType.includes("pass") || eventType.includes("seal") || eventType.includes("success") ? "success"
+    : "info";
+  const worker = data.worker ? String(data.worker) : AGENTS[0].label;
+  let msg = "";
+  if (eventType === "xp_awarded") msg = `XP +${data.xp_delta ?? "?"} — rank ${data.new_rank ?? "?"} ${mid}`;
+  else if (eventType === "mission_dispatch") msg = `Mission dispatched ${mid} — ${String(data.status ?? data.governance ?? "?")}`;
+  else if (eventType === "governance") msg = `Governance: ${String(data.result ?? "?")} — type: ${String(data.mission_type ?? "?")} ${mid}`;
+  else if (eventType === "worker_assigned") msg = `Worker ${String(data.worker ?? "?")} assigned ${mid}`;
+  else if (eventType === "artifact_sealed") msg = `Artifact sealed ${String(data.artifact_id ?? "").slice(-8)} (${String(data.size_bytes ?? "?")}b) ${mid}`;
+  else if (eventType === "status_change") msg = `Status → ${String(data.status ?? "?")} ${mid}`;
+  else msg = `${eventType} ${mid} — ${JSON.stringify(data).slice(0, 60)}`;
+  return { type: eventType, msg, agent: worker, severity, ts };
+}
+
 const EVENT_TEMPLATES: Omit<MissionEvent, "ts">[] = [
   { type: "mission",      msg: "Mission M-0042 cycle complete — 3 tasks resolved",              agent: "DAEMON",   severity: "info" },
   { type: "governance",   msg: "Tool gate: shell_executor blocked (policy: no-rm-rf)",           agent: "AUDITOR",  severity: "warn" },
@@ -112,6 +152,8 @@ export function NexusmonConsolePage() {
     { type: "system", text: "ATENGIC kernel loaded — allegiance: operator-bound" },
     { type: "system", text: 'Type "help" for available commands. Ready.' },
   ]);
+  const [liveAgents, setLiveAgents] = useState<LiveAgent[]>(AGENTS.map((a) => ({ ...a, id: a.id })));
+  const auditSeenRef = useRef<Set<string>>(new Set());
 
   const feedRef    = useRef<HTMLDivElement>(null);
   const termRef    = useRef<HTMLDivElement>(null);
@@ -147,6 +189,50 @@ export function NexusmonConsolePage() {
     }
   }, [tick]);
 
+  // ── Live agents from /v1/agents (poll 30s) ──
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const res = await fetch("/v1/agents");
+        if (!res.ok) return;
+        const data = (await res.json()) as { agents?: Record<string, unknown>[] };
+        const raw = Array.isArray(data.agents) ? data.agents : (data as unknown as Record<string, unknown>[]);
+        if (Array.isArray(raw) && raw.length > 0) {
+          setLiveAgents(raw.map(mapApiAgent));
+        }
+      } catch { /* keep static fallback */ }
+    };
+    void fetchAgents();
+    const id = setInterval(() => void fetchAgents(), 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  // ── Live audit events from /api/audit (poll 5s) ──
+  useEffect(() => {
+    const fetchAudit = async () => {
+      try {
+        const res = await fetch("/api/audit");
+        if (!res.ok) return;
+        const data = (await res.json()) as { entries?: Record<string, unknown>[] };
+        const entries = Array.isArray(data.entries) ? data.entries : [];
+        const newEvents: MissionEvent[] = [];
+        for (const e of entries) {
+          const key = `${String(e.timestamp ?? "")}-${String(e.event_type ?? "")}`;
+          if (!auditSeenRef.current.has(key)) {
+            auditSeenRef.current.add(key);
+            newEvents.push(mapAuditEntry(e));
+          }
+        }
+        if (newEvents.length > 0) {
+          setEvents((prev) => [...newEvents.reverse(), ...prev].slice(0, 80));
+        }
+      } catch { /* keep generated fallback */ }
+    };
+    void fetchAudit();
+    const id = setInterval(() => void fetchAudit(), 5000);
+    return () => clearInterval(id);
+  }, []);
+
   // ── Auto-scroll ──
   useEffect(() => { if (feedRef.current) feedRef.current.scrollTop = 0; }, [events]);
   useEffect(() => { if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight; }, [terminalHistory]);
@@ -170,7 +256,7 @@ export function NexusmonConsolePage() {
       next.push({ type: "output", text: `  Overall coherence: 0.97 | Drift: 0.02 | Uptime: ${Math.floor(tick * 3 / 60)}m ${(tick * 3) % 60}s` });
     } else if (c === "agents") {
       next.push({ type: "output", text: "SWARMZ AGENT GRAPH:" });
-      AGENTS.forEach((a) => next.push({ type: "output", text: `  ${a.label.padEnd(10)} [${a.status.padEnd(8)}] ${a.role} — triggers: ${a.trigger}` }));
+      liveAgents.forEach((a) => next.push({ type: "output", text: `  ${a.label.padEnd(14)} [${a.status.padEnd(8)}] ${a.role}` }));
     } else if (c.startsWith("plan:") || c.startsWith("scaffold:")) {
       const goal = cmd.slice(cmd.indexOf(":") + 1).trim();
       next.push({ type: "atengic", text: "ATENGIC responding..." });
@@ -199,7 +285,7 @@ export function NexusmonConsolePage() {
 
     setTerminalHistory(next);
     setCommandInput("");
-  }, [terminalHistory, tick]);
+  }, [terminalHistory, tick, liveAgents]);
 
   const overallHealth = Math.round(MODULES.reduce((sum, m) => sum + m.health, 0) / MODULES.length);
 
@@ -262,7 +348,7 @@ export function NexusmonConsolePage() {
             <span style={{ color: "#334155" }}>|</span>
             <span style={{ color: "#64748b" }}>Tests 806/806</span>
             <span style={{ color: "#334155" }}>|</span>
-            <span style={{ color: "#64748b" }}>Agents {AGENTS.filter(a => a.status === "active").length}/{AGENTS.length}</span>
+            <span style={{ color: "#64748b" }}>Agents {liveAgents.filter(a => a.status === "active").length}/{liveAgents.length}</span>
           </div>
         </div>
       </div>
@@ -324,7 +410,7 @@ export function NexusmonConsolePage() {
             SWARMZ Agents
           </div>
 
-          {AGENTS.map((agent) => (
+          {liveAgents.map((agent) => (
             <div key={agent.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #0d1117" }}>
               <div>
                 <div style={{ fontWeight: 600, fontSize: 11, color: "#e2e8f0", letterSpacing: 1 }}>{agent.label}</div>

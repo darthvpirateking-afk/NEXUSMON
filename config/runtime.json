@@ -1,31 +1,28 @@
 {
-  "apiBaseUrl": "http://localhost:8012",
-  "uiBaseUrl": "http://localhost:8012/app",
+  "apiBaseUrl": "http://localhost:8000",
+  "uiBaseUrl": "http://localhost:8000/cockpit",
   "bind": "0.0.0.0",
-  "port": 8012,
+  "port": 8000,
   "config_version": 2,
   "llm": {
     "cortex": {
-      "provider": "ollama",
-      "model": "llama3.2:3b",
-      "endpoint": "http://localhost:11434",
-      "base_url": "http://localhost:11434",
-      "purpose": "local sovereign reasoning via Ollama"
+      "provider": "openai",
+      "model": "gpt-4o",
+      "apiKeyEnv": "OPENAI_API_KEY",
+      "purpose": "deep reasoning — strategic mode"
     },
     "reflex": {
-      "provider": "ollama",
-      "model": "llama3.2:3b",
-      "endpoint": "http://localhost:11434",
-      "base_url": "http://localhost:11434",
-      "purpose": "fast local routing via Ollama"
+      "provider": "groq",
+      "model": "llama-3.1-70b-versatile",
+      "apiKeyEnv": "GROQ_API_KEY",
+      "purpose": "fast routing — combat mode"
     },
     "fallback": {
-      "provider": "ollama",
-      "model": "llama3.2:3b",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "apiKeyEnv": "OPENAI_API_KEY",
       "enabled": true,
-      "endpoint": "http://localhost:11434",
-      "base_url": "http://localhost:11434",
-      "purpose": "local fallback chain via Ollama"
+      "purpose": "fallback if primary tiers fail"
     }
   },
   "budget": {
@@ -40,14 +37,18 @@
   },
   "offlineMode": false,
   "models": {
-    "provider": "ollama",
+    "provider": "openai",
     "anthropic": {
       "model": "claude-sonnet-4-20250514",
       "apiKeyEnv": "ANTHROPIC_API_KEY"
     },
     "openai": {
-      "model": "gpt-4.1",
+      "model": "gpt-4o",
       "apiKeyEnv": "OPENAI_API_KEY"
+    },
+    "groq": {
+      "model": "llama-3.1-70b-versatile",
+      "apiKeyEnv": "GROQ_API_KEY"
     },
     "ollama": {
       "model": "llama3.2:3b",
@@ -60,7 +61,7 @@
       "endpoint": "https://generativelanguage.googleapis.com/v1beta"
     },
     "timeoutMs": 120000,
-    "maxTokens": 150
+    "maxTokens": 2048
   },
   "companion": {
     "enabled": true,

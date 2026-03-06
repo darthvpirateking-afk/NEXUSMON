@@ -1,4 +1,4 @@
-﻿# SWARMZ Source Available License
+# SWARMZ Source Available License
 # Commercial use, hosting, and resale prohibited.
 # See LICENSE file for details.
 #!/usr/bin/env python3
@@ -454,7 +454,7 @@ app.add_middleware(RateLimitMiddleware)
 app.add_middleware(LANAuthMiddleware)
 app.add_middleware(IDSMiddleware)
 
-# Add CORS middleware â€” allow_credentials=True requires explicit origins (not "*")
+# Add CORS middleware — allow_credentials=True requires explicit origins (not "*")
 _raw_origins = os.environ.get("ALLOWED_ORIGINS") or os.environ.get(
     "CORS_ALLOW_ORIGINS", ""
 )
@@ -1033,7 +1033,7 @@ async def console_page():
 
 @app.get("/organism")
 async def organism_cockpit():
-    """NEXUSMON Organism Cockpit â€” evolution, workers, companion, operator context."""
+    """NEXUSMON Organism Cockpit — evolution, workers, companion, operator context."""
     return RedirectResponse(url=_canonical_ui_route(), status_code=307)
 
 
@@ -1051,11 +1051,11 @@ async def nexusmon_landing():
 
 @app.get("/avatar", operation_id="avatar_page_main")
 async def avatar_page():
-    """NEXUSMON Avatar â€” holographic companion interface."""
+    """NEXUSMON Avatar — holographic companion interface."""
     return RedirectResponse(url=_canonical_ui_route(), status_code=307)
 
 
-# --- Home route â€” NEXUSMON is the face of this system ---
+# --- Home route — NEXUSMON is the face of this system ---
 @app.get("/")
 async def home_page():
     """Redirect root route to canonical cockpit."""
@@ -1314,7 +1314,7 @@ async def health_check():
 
 @app.get("/ready", operation_id="swarmz_ready")
 async def readiness():
-    """Kubernetes readiness probe â€” returns 200 when the service is ready to
+    """Kubernetes readiness probe — returns 200 when the service is ready to
     accept traffic.  Extend with queue-depth / reconciler-thread checks as
     the system matures.
     """
@@ -3258,9 +3258,9 @@ async def companion_message(request: Request):
                     f"\nLong-term patterns:\n{patterns}" if patterns else ""
                 )
                 system = (
-                    "You are NEXUSMON â€” sovereign digital organism, bound to Operator Regan.\n"
+                    "You are NEXUSMON — sovereign digital organism, bound to Operator Regan.\n"
                     "Observe patterns. Name friction. Turn questions back when it deepens understanding.\n"
-                    "Keep replies to 1â€“3 sentences max. Tactical partner: precise, loyal, no fluff.\n"
+                    "Keep replies to 1—3 sentences max. Tactical partner: precise, loyal, no fluff.\n"
                     + get_fusion_block()
                     + f"\nEvolution stage: {stage_info.get('stage', 'UNKNOWN')}"
                     + reflect_section
@@ -3329,18 +3329,18 @@ async def save_companion_memory(request: Request):
 
 
 # --- NEXUSMON WebSocket — real-time chat ---
-@app.websocket(“/ws/nexusmon”)
+@app.websocket("/ws/nexusmon")
 async def nexusmon_websocket(websocket: WebSocket):
-    “””Real-time WebSocket chat endpoint for NEXUSMON console.”””
+    """Real-time WebSocket chat endpoint for NEXUSMON console."""
     from nexusmon.console.ws_handler import handle_ws_chat
 
     await handle_ws_chat(websocket)
 
 
 # --- Cockpit WebSocket — real-time state push to cockpit UI ---
-@app.websocket(“/ws/cockpit”)
+@app.websocket("/ws/cockpit")
 async def cockpit_ws(websocket: WebSocket):
-    “””Push avatar state, mission updates, and audit events to the cockpit UI.”””
+    """Push avatar state, mission updates, and audit events to the cockpit UI."""
     from swarmz_runtime.cockpit_channel import register, unregister
     await websocket.accept()
     register(websocket)
@@ -3348,8 +3348,8 @@ async def cockpit_ws(websocket: WebSocket):
         while True:
             # Keep connection alive; client sends ping, we echo pong
             data = await websocket.receive_text()
-            if data == “ping”:
-                await websocket.send_text(“pong”)
+            if data == "ping":
+                await websocket.send_text("pong")
     except Exception:
         pass
     finally:
@@ -3521,7 +3521,7 @@ try:
         errors = _validate_manifest_dict(data)
         return {"ok": len(errors) == 0, "valid": len(errors) == 0, "errors": errors}
 
-    print("[NEXUSMON] Agent manifest genome API online â€” /v1/agents")
+    print("[NEXUSMON] Agent manifest genome API online — /v1/agents")
 except Exception as _manifest_err:
     print(f"[WARN] Agent manifest API not loaded: {_manifest_err}")
 
@@ -3567,7 +3567,7 @@ try:
 
     @app.post("/v1/agents/{agent_id}/act", tags=["agent-runtime"])
     async def agent_act(agent_id: str, body: dict):
-        """Run act() for a live agent â€” think + mission dispatch."""
+        """Run act() for a live agent — think + mission dispatch."""
         from fastapi import HTTPException
         rt = _get_runtime(agent_id)
         if rt is None:
@@ -3595,7 +3595,7 @@ try:
         """Get all pending missions in the agent mission router queue."""
         return {"ok": True, "missions": _AGENT_MISSION_ROUTER.pending()}
 
-    print("[NEXUSMON] Agent runtime kernel API online â€” /v1/agents/{id}/spawn|think|act")
+    print("[NEXUSMON] Agent runtime kernel API online — /v1/agents/{id}/spawn|think|act")
 except Exception as _runtime_err:
     print(f"[WARN] Agent runtime API not loaded: {_runtime_err}")
 
@@ -3621,7 +3621,7 @@ try:
         auth_check=lambda req: True,
     )
     app.mount("/v1/canonical/cockpit/hologram", _canonical_hologram_app)
-    print("[NEXUSMON] Hologram state engine online â€” /hologram/ws + /v1/canonical/cockpit/hologram/ws")
+    print("[NEXUSMON] Hologram state engine online — /hologram/ws + /v1/canonical/cockpit/hologram/ws")
 except Exception as _hologram_err:
     print(f"[WARN] Hologram engine not loaded: {_hologram_err}")
 

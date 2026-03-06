@@ -5,12 +5,24 @@ interface CompanionAvatarDockProps {
   heartbeatState?: "healthy" | "high_load" | "degraded" | "desync";
   runtimeStatus?: "running" | "stopped" | "restarting" | "degraded";
   avatarForm?: string;
+  avatarState?: string;
 }
+
+const AVATAR_STATE_COLOR: Record<string, string> = {
+  focused:          "#00f0ff",
+  kind:             "#34d399",
+  neutral:          "#00f0ff",
+  "operator-link":  "#FFD700",
+  overclock:        "#FFB020",
+  protector:        "#a78bfa",
+  "shadow-alert":   "#f87171",
+};
 
 export function CompanionAvatarDock({
   heartbeatState = "healthy",
   runtimeStatus = "running",
   avatarForm = "AvatarOmega",
+  avatarState,
 }: CompanionAvatarDockProps) {
   const [floatY, setFloatY] = useState(0);
   const [glowOpacity, setGlowOpacity] = useState(0.4);
@@ -26,15 +38,17 @@ export function CompanionAvatarDock({
   }, []);
 
   const accentColor =
-    avatarForm === "AvatarMonarch"
-      ? "#00FFFF"
-      : heartbeatState === "degraded"
-        ? colors.error
-        : heartbeatState === "high_load"
-          ? colors.warning
-          : runtimeStatus === "stopped"
-            ? colors.stopped
-            : colors.primaryAccent;
+    avatarState && AVATAR_STATE_COLOR[avatarState]
+      ? AVATAR_STATE_COLOR[avatarState]
+      : avatarForm === "AvatarMonarch"
+        ? "#00FFFF"
+        : heartbeatState === "degraded"
+          ? colors.error
+          : heartbeatState === "high_load"
+            ? colors.warning
+            : runtimeStatus === "stopped"
+              ? colors.stopped
+              : colors.primaryAccent;
 
   const containerStyle: CSSProperties = {
     display: "inline-flex",

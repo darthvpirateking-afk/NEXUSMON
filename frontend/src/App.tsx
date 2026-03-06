@@ -90,6 +90,24 @@ export default function App() {
     "running" | "stopped" | "restarting" | "degraded"
   >("running");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [avatarState, setAvatarState] = useState<string | undefined>(undefined);
+  const [avatarForm, setAvatarForm] = useState<string>("AvatarOmega");
+
+  // ── Avatar matrix polling ──
+  useEffect(() => {
+    const pollAvatar = async () => {
+      try {
+        const res = await fetch("/v1/avatar/matrix");
+        if (!res.ok) return;
+        const data = (await res.json()) as { current_state?: string; current_form?: string };
+        if (data.current_state) setAvatarState(data.current_state);
+        if (data.current_form) setAvatarForm(data.current_form);
+      } catch { /* non-fatal */ }
+    };
+    void pollAvatar();
+    const id = setInterval(() => void pollAvatar(), 10000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const poll = async () => {
@@ -150,6 +168,8 @@ export default function App() {
             <CompanionAvatarDock
               heartbeatState={heartbeatState}
               runtimeStatus={runtimeStatus}
+              avatarState={avatarState}
+              avatarForm={avatarForm}
             />
             {sidebarOpen && (
               <span style={shell.avatarLabel}>NEXUSMON</span>
