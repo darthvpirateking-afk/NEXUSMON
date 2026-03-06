@@ -3584,6 +3584,14 @@ except Exception as _hologram_err:
 # Serve cockpit/dist (Vite build output) so the browser gets bundled JS/CSS.
 # Raw cockpit/ source cannot run in a browser without Vite's transform pipeline.
 try:
+    _cockpit_modes = Path("cockpit/modes")
+    if _cockpit_modes.exists():
+        app.mount("/cockpit/modes", StaticFiles(directory=str(_cockpit_modes)), name="cockpit-modes")
+        print("[NEXUSMON] Cockpit modes mounted at /cockpit/modes")
+    _cockpit_assets_src = Path("cockpit/assets")
+    if _cockpit_assets_src.exists():
+        app.mount("/cockpit/assets", StaticFiles(directory=str(_cockpit_assets_src)), name="cockpit-assets")
+        print("[NEXUSMON] Cockpit assets mounted at /cockpit/assets")
     _cockpit_dist = Path("cockpit/dist")
     if _cockpit_dist.exists():
         app.mount("/cockpit", StaticFiles(directory=str(_cockpit_dist), html=True), name="cockpit-static")
