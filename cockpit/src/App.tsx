@@ -10,11 +10,11 @@ export function App() {
     <div class="nexusmon-shell">
       <header class="nexusmon-header">
         <div class="nexusmon-title">NEXUSMON</div>
-        <div class="nexusmon-subtitle">OPERATOR CONTROL PLANE - RUNTIME ACTIVE</div>
+        <div class="nexusmon-subtitle">OPERATOR CONTROL PLANE · v2.2 · RUNTIME ACTIVE</div>
       </header>
       <main class="nexusmon-grid">
-        <HealthGrid />
         <AvatarPanel />
+        <HealthGrid />
         <MissionConsole />
         <AuditTail />
         <CompanionChat />
