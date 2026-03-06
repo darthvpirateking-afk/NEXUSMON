@@ -860,7 +860,18 @@ async def api_get_mission_artifacts(mission_id: str):
     return response
 
 
-# --- UI state endpoint ---
+@app.get("/api/artifacts")
+async def api_list_all_artifacts():
+    """List all artifacts from the vault (unfiltered)."""
+    try:
+        from nexusmon_artifact_vault import list_artifacts
+        items = list_artifacts()
+        return {
+            "artifacts": items if isinstance(items, list) else [],
+            "count": len(items) if isinstance(items, list) else 0,
+        }
+    except Exception as exc:
+        return {"artifacts": [], "count": 0, "error": str(exc)}
 def compute_phase(total_missions: int, success_count: int) -> str:
     """Compute phase based on mission counts and success rate.
     QUARANTINE only when total >= 10 AND success_rate < 0.3.
@@ -1394,10 +1405,26 @@ async def companion_nexusmon(payload: dict):
     if not prompt:
         return {"error": "prompt is required"}
     try:
+        from swarmz_runtime.cockpit_channel import broadcast as _bcast
+        await _bcast({"type": "avatar_state", "state": "PROCESSING"})
+    except Exception:
+        pass
+    try:
         from swarmz_runtime.companion.voice import generate_response
         response = await generate_response(prompt=prompt, mode=mode)
-        return response.to_dict()
+        result = response.to_dict()
+        try:
+            from swarmz_runtime.cockpit_channel import broadcast as _bcast
+            await _bcast({"type": "avatar_state", "state": "RESPONDING"})
+        except Exception:
+            pass
+        return result
     except Exception as exc:
+        try:
+            from swarmz_runtime.cockpit_channel import broadcast as _bcast
+            await _bcast({"type": "avatar_state", "state": "IDLE"})
+        except Exception:
+            pass
         return {"error": str(exc), "mode": mode}
 
 
@@ -3301,13 +3328,32 @@ async def save_companion_memory(request: Request):
         return {"ok": False, "error": str(e)}
 
 
-# --- NEXUSMON WebSocket â€” real-time chat ---
-@app.websocket("/ws/nexusmon")
+# --- NEXUSMON WebSocket — real-time chat ---
+@app.websocket(“/ws/nexusmon”)
 async def nexusmon_websocket(websocket: WebSocket):
-    """Real-time WebSocket chat endpoint for NEXUSMON console."""
+    “””Real-time WebSocket chat endpoint for NEXUSMON console.”””
     from nexusmon.console.ws_handler import handle_ws_chat
 
     await handle_ws_chat(websocket)
+
+
+# --- Cockpit WebSocket — real-time state push to cockpit UI ---
+@app.websocket(“/ws/cockpit”)
+async def cockpit_ws(websocket: WebSocket):
+    “””Push avatar state, mission updates, and audit events to the cockpit UI.”””
+    from swarmz_runtime.cockpit_channel import register, unregister
+    await websocket.accept()
+    register(websocket)
+    try:
+        while True:
+            # Keep connection alive; client sends ping, we echo pong
+            data = await websocket.receive_text()
+            if data == “ping”:
+                await websocket.send_text(“pong”)
+    except Exception:
+        pass
+    finally:
+        unregister(websocket)
 
 
 # Load legacy route overlay migrated from server.py so swarmz_server remains

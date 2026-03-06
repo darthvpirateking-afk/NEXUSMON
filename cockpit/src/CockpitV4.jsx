@@ -150,6 +150,19 @@ function reducer(s, a) {
     case "DRAW_RIGHT": return {...s, drawerRight:a.v};
     case "HOLO":       return {...s, holoActive:a.v};
     case "MONARCH":    return {...s, monarchMode:a.v};
+    case "MISSIONS_SET": return {...s, missions:a.v};
+    case "ARTIFACTS_SET": return {...s, artifacts:a.v};
+    case "SEAL": {
+      const latest = s.artifacts[0];
+      if (!latest) return {...s, shadow:[{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"SEAL",level:"WARN",msg:`${G.SEAL} NO ARTIFACTS TO SEAL`},...s.shadow.slice(0,49)]};
+      return {...s,
+        artifacts: s.artifacts.map((x,i)=>i===0?{...x,sealed:true}:x),
+        shadow:[{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"SEAL",level:"INFO",msg:`${G.SEAL} OPERATOR SEAL APPLIED · ${latest.id}`},...s.shadow.slice(0,49)],
+      };
+    }
+    case "TRANSMIT":   return {...s, panel:"COMPANION",
+      shadow:[{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"TRANSMIT",level:"INFO",msg:`${G.PULSE} TRANSMIT INITIATED · ROUTING TO COMPANION`},...s.shadow.slice(0,49)],
+    };
     default:           return s;
   }
 }
@@ -1466,6 +1479,82 @@ export default function NexusmonCockpitV4() {
     },1200);
     return ()=>clearInterval(t);
   },[state.weights, state.resonance]);
+
+  // ── LIVE DATA: missions from /api/missions ──────────────────────────────────
+  useEffect(()=>{
+    const poll = async () => {
+      try {
+        const r = await fetch("/api/missions");
+        if (!r.ok) return;
+        const d = await r.json();
+        const ms = (d.missions || []).map(m => ({
+          id:      m.mission_id || m.id || "M-???",
+          title:   m.goal || m.title || m.mission_id || "(untitled)",
+          status:  (m.status || "active").toUpperCase(),
+          workers: m.workers || [],
+          risk:    m.risk || "LOW",
+          mode:    m.mode || "strategic",
+        }));
+        if (ms.length) dispatch({type:"MISSIONS_SET", v:ms});
+      } catch {}
+    };
+    poll();
+    const t = setInterval(poll, 10000);
+    return ()=>clearInterval(t);
+  },[]);
+
+  // ── LIVE DATA: artifacts from /api/artifacts ────────────────────────────────
+  useEffect(()=>{
+    const poll = async () => {
+      try {
+        const r = await fetch("/api/artifacts");
+        if (!r.ok) return;
+        const d = await r.json();
+        const arts = (d.artifacts || []).map(a => ({
+          id:      a.artifact_id || a.id || "A-???",
+          title:   a.title || a.artifact_id || "(untitled)",
+          type:    a.type || "ARTIFACT",
+          status:  a.status || "ACTIVE",
+          size:    a.size || "—",
+          version: a.version || 1,
+          sealed:  a.sealed || false,
+        }));
+        if (arts.length) dispatch({type:"ARTIFACTS_SET", v:arts});
+      } catch {}
+    };
+    poll();
+    const t = setInterval(poll, 30000);
+    return ()=>clearInterval(t);
+  },[]);
+
+  // ── WEBSOCKET: live state push from backend ─────────────────────────────────
+  useEffect(()=>{
+    let ws, dead = false;
+    const connect = () => {
+      if (dead) return;
+      try {
+        ws = new WebSocket(`ws://${window.location.host}/ws/cockpit`);
+        ws.onmessage = (e) => {
+          try {
+            const msg = JSON.parse(e.data);
+            if (msg.type === "avatar_state" && msg.state)
+              dispatch({type:"AVATAR", v:msg.state});
+            if (msg.type === "mission_update" && msg.id)
+              dispatch({type:"MISS_UP", id:msg.id, p:msg.data||{}});
+          } catch {}
+        };
+        ws.onclose = () => { if (!dead) setTimeout(connect, 3000); };
+        ws.onerror = () => ws.close();
+        // Keepalive ping every 20s
+        ws._ping = setInterval(()=>{ if (ws.readyState===1) ws.send("ping"); }, 20000);
+      } catch {}
+    };
+    connect();
+    return ()=>{
+      dead = true;
+      try { clearInterval(ws?._ping); ws?.close(); } catch {}
+    };
+  },[]);
 
   const renderMain = () => {
     const props = {state, dispatch, mode};
