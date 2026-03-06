@@ -3581,10 +3581,15 @@ except Exception as _hologram_err:
 
 
 # --- Static file mount for HUD assets (CSS, JS) ---
-# Legacy static mounts are intentionally removed; /cockpit is the sole UI surface.
+# Serve cockpit/dist (Vite build output) so the browser gets bundled JS/CSS.
+# Raw cockpit/ source cannot run in a browser without Vite's transform pipeline.
 try:
-    if Path("cockpit").exists():
-        app.mount("/cockpit", StaticFiles(directory="cockpit", html=True), name="cockpit-static")
+    _cockpit_dist = Path("cockpit/dist")
+    if _cockpit_dist.exists():
+        app.mount("/cockpit", StaticFiles(directory=str(_cockpit_dist), html=True), name="cockpit-static")
+        print("[NEXUSMON] Cockpit dist mounted at /cockpit")
+    elif Path("cockpit").exists():
+        print("[NEXUSMON] Warning: cockpit/dist not found — run 'cd cockpit && npm run build' first")
 except Exception as _cockpit_mount_err:
     print(f"Warning: cockpit static mount failed: {_cockpit_mount_err}")
 
