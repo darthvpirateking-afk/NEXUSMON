@@ -252,10 +252,10 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 
 /* ── Typography ── */
 .logo{font-family:var(--fd);font-size:18px;font-weight:900;letter-spacing:.25em;color:var(--mc);animation:glowText 3s ease-in-out infinite;}
-.logo-sub{font-family:var(--fm);font-size:10px;color:var(--td);letter-spacing:.2em;}
+.logo-sub{font-family:var(--fm);font-size:12px;color:var(--td);letter-spacing:.2em;}
 .seal-txt{font-size:14px;letter-spacing:.05em;color:var(--cg);text-shadow:0 0 10px rgba(255,204,68,.5);}
 .ttime{font-family:var(--fm);font-size:11px;color:var(--tm);}
-.mode-pill{padding:4px 11px;border:1px solid var(--mc);border-radius:1px;font-family:var(--fm);font-size:10px;letter-spacing:.13em;color:var(--mc);background:var(--mb);animation:borderGlow 2.5s ease-in-out infinite;}
+.mode-pill{padding:4px 11px;border:1px solid var(--mc);border-radius:1px;font-family:var(--fm);font-size:12px;letter-spacing:.13em;color:var(--mc);background:var(--mb);animation:borderGlow 2.5s ease-in-out infinite;}
 .st{font-family:var(--fm);font-size:11px;letter-spacing:.18em;color:var(--td);padding-bottom:5px;margin-bottom:8px;border-bottom:1px solid var(--bd);}
 .div{height:1px;background:var(--bd);margin:9px 0;}
 
@@ -267,35 +267,35 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .ar1{inset:-8px;} .ar2{inset:-20px;animation:ring1 3.4s ease-in-out infinite;} .ar3{inset:-36px;animation:ring2 4.8s ease-in-out infinite;} .ar4{inset:-56px;animation:ring3 6.2s ease-in-out infinite;}
 .aname{font-family:var(--fd);font-size:14px;font-weight:900;letter-spacing:.2em;color:var(--mc);animation:glowText 2.5s ease-in-out infinite;}
 .astate{font-family:var(--fm);font-size:11px;letter-spacing:.16em;padding:3px 10px;border:1px solid var(--mc);color:var(--mc);border-radius:1px;background:var(--mb);}
-.aform-label{font-family:var(--fm);font-size:10px;letter-spacing:.1em;color:var(--td);}
+.aform-label{font-family:var(--fm);font-size:12px;letter-spacing:.1em;color:var(--td);}
 .state-btns{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;}
-.sbtn{font-family:var(--fm);font-size:9px;letter-spacing:.05em;padding:4px 8px;border:1px solid var(--bd);color:var(--td);background:none;border-radius:1px;cursor:pointer;transition:all .15s;}
+.sbtn{font-family:var(--fm);font-size:11px;letter-spacing:.05em;padding:4px 8px;border:1px solid var(--bd);color:var(--td);background:none;border-radius:1px;cursor:pointer;transition:all .15s;}
 .sbtn.on{border-color:var(--mc);color:var(--mc);background:var(--mb);}
 
 /* ── Nav ── */
 .nav{display:flex;flex-direction:column;flex:1;padding:8px 6px;gap:3px;overflow-y:auto;}
-.nb{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:2px;font-family:var(--fm);font-size:11px;letter-spacing:.08em;color:var(--td);background:none;border:1px solid transparent;cursor:pointer;transition:all .18s;text-align:left;width:100%;}
+.nb{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:2px;font-family:var(--fm);font-size:13px;letter-spacing:.08em;color:var(--td);background:none;border:1px solid transparent;cursor:pointer;transition:all .18s;text-align:left;width:100%;}
 .nb.on{color:var(--mc);border-color:var(--mc);background:var(--mb);}
 .nb:hover:not(.on){color:var(--tp);border-color:var(--bd);}
 .ng{font-size:13px;width:17px;text-align:center;flex-shrink:0;}
-.op-badge{padding:8px 10px;border-top:1px solid var(--bd);font-family:var(--fm);font-size:10px;color:var(--td);flex-shrink:0;line-height:1.7;}
+.op-badge{padding:8px 10px;border-top:1px solid var(--bd);font-family:var(--fm);font-size:12px;color:var(--td);flex-shrink:0;line-height:1.7;}
 
 /* ── Buttons ── */
-.btn{padding:6px 14px;font-family:var(--fm);font-size:11px;letter-spacing:.09em;border:1px solid currentColor;border-radius:1px;cursor:pointer;background:none;transition:all .18s;}
+.btn{padding:6px 14px;font-family:var(--fm);font-size:13px;letter-spacing:.09em;border:1px solid currentColor;border-radius:1px;cursor:pointer;background:none;transition:all .18s;}
 .b-blue{color:var(--mc);} .b-blue:hover{background:rgba(0,212,255,.14);}
 .b-gold{color:var(--cg);} .b-gold:hover{background:rgba(255,204,68,.14);}
 .b-red{color:var(--cr);}  .b-red:hover{background:rgba(255,60,60,.14);}
 .b-grn{color:var(--cgr);} .b-grn:hover{background:rgba(68,255,136,.14);}
 .b-teal{color:var(--ct);} .b-teal:hover{background:rgba(0,255,204,.14);}
 .b-pur{color:var(--cp);}  .b-pur:hover{background:rgba(170,68,255,.14);}
-.b-sm{padding:4px 10px;font-size:10px;} .b-xs{padding:3px 7px;font-size:9px;}
+.b-sm{padding:4px 10px;font-size:12px;} .b-xs{padding:3px 7px;font-size:11px;}
 
 /* ── Stat bars ── */
 .stat-row{display:flex;flex-direction:column;gap:2px;margin-bottom:7px;}
-.stat-lbl{display:flex;justify-content:space-between;font-family:var(--fm);font-size:11px;color:var(--td);}
+.stat-lbl{display:flex;justify-content:space-between;font-family:var(--fm);font-size:12px;color:var(--td);}
 .stat-bar{height:3px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;}
 .stat-fill{height:100%;border-radius:1px;transition:width .9s ease;}
-.chip{font-family:var(--fm);font-size:10px;padding:2px 7px;border:1px solid currentColor;border-radius:1px;letter-spacing:.07em;}
+.chip{font-family:var(--fm);font-size:12px;padding:2px 7px;border:1px solid currentColor;border-radius:1px;letter-spacing:.07em;}
 
 /* ── Chat ── */
 .cw{display:flex;flex-direction:column;height:100%;}
@@ -303,7 +303,7 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .cm::-webkit-scrollbar{width:2px;} .cm::-webkit-scrollbar-thumb{background:var(--bda);}
 .msg{display:flex;flex-direction:column;gap:2px;animation:fadeUp .3s ease;}
 .msg.op{align-items:flex-end;} .msg.nx{align-items:flex-start;}
-.mwho{font-family:var(--fm);font-size:10px;color:var(--td);letter-spacing:.13em;}
+.mwho{font-family:var(--fm);font-size:12px;color:var(--td);letter-spacing:.13em;}
 .mb2{max-width:84%;padding:9px 13px;border-radius:2px;font-family:var(--fu);font-size:13px;line-height:1.6;}
 .msg.op .mb2{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--tp);}
 .msg.nx .mb2{background:rgba(170,68,255,.06);border:1px solid rgba(170,68,255,.2);color:var(--tp);}
@@ -311,30 +311,30 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .cinput{width:100%;background:rgba(0,212,255,.03);border:1px solid var(--bd);border-radius:2px;padding:8px 10px;color:var(--tp);font-family:var(--fm);font-size:12px;resize:none;outline:none;transition:border-color .2s;height:56px;}
 .cinput:focus{border-color:var(--bda);}
 .crow{display:flex;gap:6px;justify-content:flex-end;align-items:center;}
-.squeue{margin:0 10px 6px;padding:8px;border:1px solid var(--cg);border-radius:2px;background:rgba(255,204,68,.05);font-family:var(--fm);font-size:10px;color:var(--cg);display:flex;justify-content:space-between;align-items:center;gap:6px;animation:fadeUp .2s ease;}
+.squeue{margin:0 10px 6px;padding:8px;border:1px solid var(--cg);border-radius:2px;background:rgba(255,204,68,.05);font-family:var(--fm);font-size:12px;color:var(--cg);display:flex;justify-content:space-between;align-items:center;gap:6px;animation:fadeUp .2s ease;}
 
 /* ── Hologram overlay ── */
 .holo-layer{position:absolute;inset:0;pointer-events:none;z-index:8;animation:holoFloat 4s ease-in-out infinite;}
 .holo-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.04) 1px,transparent 1px);background-size:32px 32px;}
 .holo-scan{position:absolute;left:0;right:0;height:80px;background:linear-gradient(180deg,transparent,rgba(0,212,255,.06),transparent);animation:scanV 4s linear infinite;}
-.holo-weight-node{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:50%;font-family:var(--fm);font-size:7px;animation:weightShift 2s ease-in-out infinite;cursor:default;}
+.holo-weight-node{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:50%;font-family:var(--fm);font-size:10px;animation:weightShift 2s ease-in-out infinite;cursor:default;}
 
 /* ── Bottom symbolic lane ── */
 .botlane-inner{display:flex;width:100%;height:100%;}
 .bot-section{flex:1;border-right:1px solid var(--bd);padding:5px 10px;display:flex;flex-direction:column;gap:4px;overflow:hidden;}
 .bot-section:last-child{border-right:none;}
-.bot-title{font-family:var(--fm);font-size:10px;letter-spacing:.18em;color:var(--td);margin-bottom:3px;}
+.bot-title{font-family:var(--fm);font-size:12px;letter-spacing:.18em;color:var(--td);margin-bottom:3px;}
 .breath-bar{height:5px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;}
 .breath-fill{height:100%;border-radius:2px;background:var(--ct);animation:breatheIn var(--breath-dur,4s) ease-in-out infinite;}
 .heart-dot{display:inline-block;font-size:16px;animation:heartPulse var(--heart-dur,0.83s) ease-in-out infinite;}
-.shadow-thought{font-family:var(--fm);font-size:10px;color:var(--td);animation:shadowThought .4s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.shadow-thought{font-family:var(--fm);font-size:12px;color:var(--td);animation:shadowThought .4s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .shadow-thought.diverge{color:var(--cr);}
-.dream-seed{font-family:var(--fm);font-size:10px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.dream-seed{font-family:var(--fm);font-size:12px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05);}
 
 /* ── Drawers ── */
 .drawer-left{position:absolute;top:0;left:0;bottom:0;width:200px;background:#040f1c;border-right:1px solid var(--bda);z-index:20;animation:drawerSlideL .2s ease;display:flex;flex-direction:column;}
 .drawer-right{position:absolute;top:0;right:0;bottom:0;width:220px;background:#040f1c;border-left:1px solid var(--bda);z-index:20;animation:drawerSlideR .2s ease;display:flex;flex-direction:column;}
-.drawer-header{padding:10px 12px;border-bottom:1px solid var(--bd);font-family:var(--fm);font-size:8px;letter-spacing:.18em;color:var(--mc);display:flex;justify-content:space-between;align-items:center;}
+.drawer-header{padding:10px 12px;border-bottom:1px solid var(--bd);font-family:var(--fm);font-size:11px;letter-spacing:.18em;color:var(--mc);display:flex;justify-content:space-between;align-items:center;}
 .drawer-content{flex:1;overflow-y:auto;padding:10px;}
 .drawer-content::-webkit-scrollbar{width:2px;} .drawer-content::-webkit-scrollbar-thumb{background:var(--bda);}
 
@@ -342,19 +342,19 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .weight-arc{position:relative;height:48px;margin-bottom:8px;}
 .weight-track{position:absolute;left:8px;right:8px;top:50%;height:2px;background:rgba(255,255,255,.05);transform:translateY(-50%);}
 .weight-fill{position:absolute;left:8px;top:50%;height:2px;background:var(--mc);transform:translateY(-50%);transition:width .6s ease;opacity:.6;}
-.weight-node{position:absolute;top:50%;width:28px;height:28px;border-radius:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--fm);border:1px solid;animation:resonancePulse 2s ease-in-out infinite;}
+.weight-node{position:absolute;top:50%;width:28px;height:28px;border-radius:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:var(--fm);border:1px solid;animation:resonancePulse 2s ease-in-out infinite;}
 
 /* ── Plugin cards ── */
 .plg{padding:8px;border:1px solid var(--bd);border-radius:2px;margin-bottom:5px;animation:fadeUp .25s ease;}
 .plg.ACTIVE{border-color:rgba(0,212,255,.22);}
 .plg.BETA{border-color:rgba(255,204,68,.22);}
 .plg.PENDING{border-color:rgba(255,255,255,.08);}
-.plg-name{font-family:var(--fm);font-size:11px;color:var(--tp);}
-.plg-manifest{font-family:var(--fm);font-size:10px;color:var(--td);margin-top:2px;}
+.plg-name{font-family:var(--fm);font-size:12px;color:var(--tp);}
+.plg-manifest{font-family:var(--fm);font-size:12px;color:var(--td);margin-top:2px;}
 .plg-health{height:3px;background:rgba(255,255,255,.07);border-radius:1px;overflow:hidden;margin-top:5px;}
 .plg-hfill{height:100%;border-radius:1px;transition:width .8s ease;}
 .plg-perms{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;}
-.perm-chip{font-family:var(--fm);font-size:9px;padding:2px 6px;border:1px solid rgba(170,68,255,.45);color:var(--cp);border-radius:1px;}
+.perm-chip{font-family:var(--fm);font-size:11px;padding:2px 6px;border:1px solid rgba(170,68,255,.45);color:var(--cp);border-radius:1px;}
 
 /* ── Evolution ── */
 .es{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--bd);border-radius:2px;margin-bottom:4px;cursor:pointer;transition:all .3s;}
@@ -362,8 +362,8 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .es.unlocked{border-color:rgba(0,212,255,.25);background:rgba(0,212,255,.02);}
 .es.locked{opacity:.45;}
 .enode{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
-.erank{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.1em;}
-.eform{font-family:var(--fm);font-size:10px;color:var(--td);margin-top:1px;}
+.erank{font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.1em;}
+.eform{font-family:var(--fm);font-size:12px;color:var(--td);margin-top:1px;}
 .xpbar{height:3px;background:rgba(255,255,255,.06);border-radius:1px;overflow:hidden;margin-top:4px;}
 .xpfill{height:100%;border-radius:1px;transition:width 1s ease;}
 
@@ -377,15 +377,15 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .mi:hover{border-color:var(--bda);}
 .mi.ACTIVE{animation:missionPulse 2s ease-in-out infinite;}
 .mtitle{font-family:var(--fu);font-size:13px;font-weight:600;}
-.mmeta{font-family:var(--fm);font-size:10px;color:var(--td);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;}
-.mlogs{font-family:var(--fm);font-size:10px;color:var(--td);margin-top:5px;padding-top:5px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:3px;}
+.mmeta{font-family:var(--fm);font-size:12px;color:var(--td);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;}
+.mlogs{font-family:var(--fm);font-size:12px;color:var(--td);margin-top:5px;padding-top:5px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:3px;}
 
 /* ── Artifact ── */
 .ai{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--bd);border-radius:2px;margin-bottom:5px;cursor:pointer;transition:all .2s;font-family:var(--fm);font-size:11px;}
 .ai:hover{border-color:var(--bda);}
 .ainfo{flex:1;min-width:0;}
 .aname2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ameta2{font-size:10px;color:var(--td);margin-top:2px;}
+.ameta2{font-size:12px;color:var(--td);margin-top:2px;}
 
 /* ── Log lines ── */
 .ll{font-family:var(--fm);font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:8px;animation:dataDrop .25s ease;}
@@ -395,8 +395,8 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 
 /* ── Shadow vis ── */
 .sth{display:flex;gap:6px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);animation:shadowThought .35s ease;}
-.sth-res{width:38px;flex-shrink:0;font-family:var(--fm);font-size:10px;}
-.sth-msg{font-family:var(--fm);font-size:10px;color:var(--td);flex:1;}
+.sth-res{width:38px;flex-shrink:0;font-family:var(--fm);font-size:12px;}
+.sth-msg{font-family:var(--fm);font-size:12px;color:var(--td);flex:1;}
 .sth-div{color:var(--cr);}
 
 /* ── Approval modal ── */
@@ -413,7 +413,7 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .eov-sub{font-family:var(--fm);font-size:11px;letter-spacing:.2em;color:var(--td);}
 
 /* ── Ticker ── */
-.tck{white-space:nowrap;animation:ticker 32s linear infinite;font-family:var(--fm);font-size:10px;}
+.tck{white-space:nowrap;animation:ticker 32s linear infinite;font-family:var(--fm);font-size:12px;}
 .spacer{flex:1;}
 `;
 
@@ -618,12 +618,12 @@ function HoloLayer({ weights, mode, active }) {
         <div key={n.label} className="holo-weight-node" style={{
           left:n.x, top:n.y, width:46, height:46,
           background:`${n.c}10`, border:`1px solid ${n.c}40`,
-          color:n.c, fontSize:9, flexDirection:"column",
+          color:n.c, fontSize:11, flexDirection:"column",
           animationDelay:`${Math.random()*.8}s`,
           textShadow:`0 0 8px ${n.c}`,
         }}>
-          <span style={{fontSize:11}}>{Math.round(n.v*100)}</span>
-          <span style={{fontSize:8,letterSpacing:".05em",opacity:.8}}>{n.label}</span>
+          <span style={{fontSize:13}}>{Math.round(n.v*100)}</span>
+          <span style={{fontSize:10,letterSpacing:".05em",opacity:.8}}>{n.label}</span>
         </div>
       ))}
     </div>
@@ -643,7 +643,7 @@ function BottomLane({ state, dispatch }) {
         <div className="breath-bar" style={{"--breath-dur":`${60/breathPhase||4}s`}}>
           <div className="breath-fill" style={{"--breath-dur":`${60/breathPhase||4}s`}}/>
         </div>
-        <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:3}}>
+        <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:3}}>
           {breathPhase || 15} BPM · {breathPhase < 14 ? "SLOW" : breathPhase < 20 ? "NOMINAL" : "ELEVATED"}
         </div>
       </div>
@@ -654,8 +654,8 @@ function BottomLane({ state, dispatch }) {
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <span className="heart-dot" style={{"--heart-dur":`${60/(heartbeat||72)}s`,color:"#ff3c3c"}}>♦</span>
           <div>
-            <div style={{fontFamily:"var(--fm)",fontSize:9,color:"#ff3c3c"}}>{heartbeat} BPM</div>
-            <div style={{fontFamily:"var(--fm)",fontSize:6.5,color:"var(--td)"}}>OPERATOR SYNC</div>
+            <div style={{fontFamily:"var(--fm)",fontSize:12,color:"#ff3c3c"}}>{heartbeat} BPM</div>
+            <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>OPERATOR SYNC</div>
           </div>
         </div>
       </div>
@@ -675,10 +675,10 @@ function BottomLane({ state, dispatch }) {
         <div className="bot-title">{G.DREAM} DREAM SEEDS</div>
         {DREAM_SEEDS.map(d=>(
           <div key={d.id} className="dream-seed">
-            <span style={{fontFamily:"var(--fm)",fontSize:7,color:d.status==="SPROUTING"?"#44ff88":d.status==="GERMINATING"?"#ffcc44":"var(--td)"}}>
+            <span style={{fontFamily:"var(--fm)",fontSize:11,color:d.status==="SPROUTING"?"#44ff88":d.status==="GERMINATING"?"#ffcc44":"var(--td)"}}>
               {G.SEED} {d.label}
             </span>
-            <span style={{fontFamily:"var(--fm)",fontSize:6.5,color:"var(--td)",marginLeft:6}}>{d.status}</span>
+            <span style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginLeft:6}}>{d.status}</span>
           </div>
         ))}
       </div>
@@ -689,7 +689,7 @@ function BottomLane({ state, dispatch }) {
         <div style={{fontFamily:"var(--fm)",fontSize:13,color:"var(--mc)",textShadow:"0 0 10px var(--mc)",animation:"resonancePulse 2s ease-in-out infinite",display:"inline-block"}}>
           {Math.round(resonance*100)}%
         </div>
-        <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:2}}>OP–NX BOND</div>
+        <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:2}}>OP–NX BOND</div>
       </div>
     </div>
   );
@@ -760,7 +760,7 @@ function CompanionPanel({ state, dispatch, mode }) {
           placeholder="Issue directive to NEXUSMON…"
           onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();} }}/>
         <div className="crow">
-          <span style={{fontFamily:"var(--fm)",fontSize:6.5,color:"var(--td)",flex:1}}>{G.SYS} Op grammar active · {mode} · Resonance {Math.round(state.resonance*100)}%</span>
+          <span style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",flex:1}}>{G.SYS} Op grammar active · {mode} · Resonance {Math.round(state.resonance*100)}%</span>
           <button className="btn b-gold b-sm" onClick={()=>{ if(!input.trim()) return; setSealQ({text:input,id:Date.now()}); setInput(""); }}>{G.SEAL} SEAL</button>
           <button className="btn b-blue b-sm" onClick={send}>TRANSMIT ⟶</button>
         </div>
@@ -805,7 +805,7 @@ function MissionPanel({ state, dispatch }) {
             <div key={m.id} style={{display:"flex",alignItems:"center"}}>
               <div style={{textAlign:"center",padding:"0 6px",cursor:"pointer"}} onClick={()=>setExp(exp===m.id?null:m.id)}>
                 <div style={{width:30,height:30,borderRadius:"50%",border:`1px solid ${scol[m.status]}`,background:`${scol[m.status]}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,margin:"0 auto"}}>{G.MISS}</div>
-                <div style={{fontFamily:"var(--fm)",fontSize:6.5,color:scol[m.status],marginTop:3}}>{m.id}</div>
+                <div style={{fontFamily:"var(--fm)",fontSize:11,color:scol[m.status],marginTop:3}}>{m.id}</div>
               </div>
               {i<state.missions.length-1&&<div style={{width:14,height:1,background:"var(--bd)",flexShrink:0}}/>}
             </div>
@@ -829,7 +829,7 @@ function MissionPanel({ state, dispatch }) {
           {exp===m.id&&(
             <>
               <div className="mlogs">{m.logs.map((l,i)=><span key={i}>{G.SYS} {l}</span>)}</div>
-              {m.score>0&&<div style={{fontFamily:"var(--fm)",fontSize:7.5,color:"#44ff88",marginTop:4}}>SCORE: {m.score} XP</div>}
+              {m.score>0&&<div style={{fontFamily:"var(--fm)",fontSize:12,color:"#44ff88",marginTop:4}}>SCORE: {m.score} XP</div>}
               <div style={{display:"flex",gap:4,marginTop:6}}>
                 {m.status==="PENDING"&&<button className="btn b-gold b-xs" onClick={e=>{e.stopPropagation();doDispatch(m);}}>DISPATCH</button>}
                 {m.status==="ACTIVE"&&<button className="btn b-grn b-xs" onClick={e=>{e.stopPropagation();dispatch({type:"MISS_UP",id:m.id,p:{status:"COMPLETED",score:Math.floor(Math.random()*60+20),logs:[...m.logs,"Complete ✓"]}});dispatch({type:"SHADOW",v:{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"MISSION",level:"OK",msg:m.id+" COMPLETED"}});}}>COMPLETE</button>}
@@ -874,13 +874,13 @@ function EvolutionPanel({ state, dispatch }) {
       {/* Hybrid form readiness */}
       <div style={{padding:"8px 9px",border:"1px solid rgba(170,68,255,.2)",borderRadius:2,marginBottom:10,background:"rgba(170,68,255,.03)"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <span style={{fontFamily:"var(--fm)",fontSize:8,color:"var(--cp)"}}>{G.HYBRID} HYBRID FORM READINESS</span>
-          <span style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)"}}>34%</span>
+          <span style={{fontFamily:"var(--fm)",fontSize:12,color:"var(--cp)"}}>{G.HYBRID} HYBRID FORM READINESS</span>
+          <span style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>34%</span>
         </div>
         <div className="stat-bar" style={{marginTop:5}}>
           <div className="stat-fill" style={{width:"34%",background:"var(--cp)"}}/>
         </div>
-        <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:3}}>Requires: Form 2 + 3 missions + PLG-005</div>
+        <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:3}}>Requires: Form 2 + 3 missions + PLG-005</div>
       </div>
 
       {EVO_FORMS.map((f,i)=>{
@@ -912,9 +912,9 @@ function EvolutionPanel({ state, dispatch }) {
         {Object.entries(TRAITS).map(([k,t])=>(
           <div key={k} style={{padding:"7px 8px",border:`1px solid ${t.unlocked?"rgba(0,212,255,.22)":"var(--bd)"}`,borderRadius:2,background:t.unlocked?"rgba(0,212,255,.02)":undefined,opacity:t.unlocked?1:.45}}>
             <div style={{fontSize:13}}>{t.glyph}</div>
-            <div style={{fontFamily:"var(--fu)",fontSize:10,fontWeight:600,marginTop:2}}>{t.name}</div>
-            <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:1,lineHeight:1.35}}>{t.effect}</div>
-            {!t.unlocked&&<div style={{fontFamily:"var(--fm)",fontSize:6.5,color:"var(--td)",marginTop:2}}>Form {t.form}</div>}
+            <div style={{fontFamily:"var(--fu)",fontSize:12,fontWeight:600,marginTop:2}}>{t.name}</div>
+            <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:1,lineHeight:1.35}}>{t.effect}</div>
+            {!t.unlocked&&<div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:2}}>Form {t.form}</div>}
           </div>
         ))}
       </div>
@@ -946,7 +946,7 @@ function PluginPanel({ dispatch }) {
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
             <div className="plg-name">{G.PLUG} {p.name}</div>
             <div style={{display:"flex",gap:4,alignItems:"center"}}>
-              <span style={{fontFamily:"var(--fm)",fontSize:6.5}}>{p.ver}</span>
+              <span style={{fontFamily:"var(--fm)",fontSize:11}}>{p.ver}</span>
               <span className="chip" style={{color:scol[p.status]}}>{p.status}</span>
             </div>
           </div>
@@ -957,7 +957,7 @@ function PluginPanel({ dispatch }) {
           <div className="plg-health">
             <div className="plg-hfill" style={{width:`${p.health}%`,background:p.health>80?"#44ff88":p.health>50?"#ffcc44":"#ff3c3c"}}/>
           </div>
-          <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:3,display:"flex",justifyContent:"space-between"}}>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:3,display:"flex",justifyContent:"space-between"}}>
             <span>Health: {p.health}%</span>
             {p.evo&&<span style={{color:"var(--cp)"}}>{G.EVO} EVO PROPOSAL READY</span>}
           </div>
@@ -996,12 +996,12 @@ function ShadowPanel({ state, dispatch }) {
     <div>
       <div style={{display:"flex",gap:8,marginBottom:10}}>
         <div style={{flex:1,padding:"8px",border:"1px solid rgba(170,68,255,.22)",borderRadius:2,background:"rgba(170,68,255,.03)"}}>
-          <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--cp)"}}>MAIN CONSCIOUSNESS</div>
-          <div style={{fontFamily:"var(--fm)",fontSize:10,color:"var(--tp)",marginTop:3}}>Resonance: {Math.round(state.resonance*100)}%</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--cp)"}}>MAIN CONSCIOUSNESS</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:12,color:"var(--tp)",marginTop:3}}>Resonance: {Math.round(state.resonance*100)}%</div>
         </div>
         <div style={{flex:1,padding:"8px",border:"1px solid rgba(170,68,255,.14)",borderRadius:2,background:"rgba(170,68,255,.02)"}}>
-          <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)"}}>SHADOW LANE</div>
-          <div style={{fontFamily:"var(--fm)",fontSize:10,color:"var(--cp)",marginTop:3}}>Thoughts: {SHADOW_THOUGHTS.length}</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>SHADOW LANE</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:12,color:"var(--cp)",marginTop:3}}>Thoughts: {SHADOW_THOUGHTS.length}</div>
         </div>
       </div>
 
@@ -1020,7 +1020,7 @@ function ShadowPanel({ state, dispatch }) {
         {state.shadow.map(e=>(
           <div key={e.id} className="ll">
             <span className="lt">{e.ts}</span>
-            <span style={{fontFamily:"var(--fm)",fontSize:7.5,color:"var(--td)",width:70,flexShrink:0}}>{e.type}</span>
+            <span style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",width:70,flexShrink:0}}>{e.type}</span>
             <span className={`l${e.level}`}>[{e.level}]</span>
             <span className="lm">{e.msg}</span>
           </div>
@@ -1030,7 +1030,7 @@ function ShadowPanel({ state, dispatch }) {
       <div className="div"/>
       <div className="st">DIVERGENCE ALERTS</div>
       {SHADOW_THOUGHTS.filter(t=>t.diverge).map(t=>(
-        <div key={t.id} style={{padding:"5px 7px",border:"1px solid rgba(255,60,60,.25)",borderRadius:2,background:"rgba(255,60,60,.04)",marginBottom:4,fontFamily:"var(--fm)",fontSize:7.5,color:"var(--cr)"}}>
+        <div key={t.id} style={{padding:"5px 7px",border:"1px solid rgba(255,60,60,.25)",borderRadius:2,background:"rgba(255,60,60,.04)",marginBottom:4,fontFamily:"var(--fm)",fontSize:11,color:"var(--cr)"}}>
           ⚠ {t.thought}
         </div>
       ))}
@@ -1038,7 +1038,7 @@ function ShadowPanel({ state, dispatch }) {
       <div className="div"/>
       <div className="st">MODE-AWARE ROUTING</div>
       {Object.entries(MODES).map(([k,m])=>(
-        <div key={k} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:7.5,padding:"3px 0",borderBottom:"1px solid var(--bd)"}}>
+        <div key={k} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:11,padding:"3px 0",borderBottom:"1px solid var(--bd)"}}>
           <span style={{color:m.color}}>{m.glyph} {m.label}</span>
           <span style={{color:"var(--td)"}}>{k==="COMBAT"?"ESCALATE_FIRST":k==="GUARDIAN"?"SHIELD_FILTER":k==="STRATEGIC"?"ANALYSIS_PRI":k==="MONARCH"?"SOVEREIGN_GATE":"DEFAULT"}</span>
         </div>
@@ -1056,10 +1056,10 @@ function OperatorPanel({ state, dispatch }) {
         <div key={n.id} className={`mem-node ${n.active?"active":""}`}>
           <div className="mem-dot" style={{background:n.active?"var(--mc)":"var(--td)"}}/>
           <div style={{flex:1}}>
-            <div style={{fontFamily:"var(--fm)",fontSize:8.5,color:n.active?"var(--tp)":"var(--td)"}}>{n.glyph} {n.label}</div>
-            <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:1}}>{n.ts}</div>
+            <div style={{fontFamily:"var(--fm)",fontSize:12,color:n.active?"var(--tp)":"var(--td)"}}>{n.glyph} {n.label}</div>
+            <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:1}}>{n.ts}</div>
           </div>
-          {!n.active&&<span style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)"}}>LOCKED</span>}
+          {!n.active&&<span style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>LOCKED</span>}
         </div>
       ))}
 
@@ -1077,10 +1077,10 @@ function OperatorPanel({ state, dispatch }) {
       {DREAM_SEEDS.map(d=>(
         <div key={d.id} style={{padding:"7px 8px",border:"1px solid var(--bd)",borderRadius:2,marginBottom:4}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <span style={{fontFamily:"var(--fm)",fontSize:8,color:"var(--tp)"}}>{G.SEED} {d.label}</span>
+            <span style={{fontFamily:"var(--fm)",fontSize:12,color:"var(--tp)"}}>{G.SEED} {d.label}</span>
             <span className="chip" style={{color:d.status==="SPROUTING"?"#44ff88":d.status==="GERMINATING"?"#ffcc44":"var(--td)"}}>{d.status}</span>
           </div>
-          <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:2}}>Planted: {d.planted}{d.mission?` · Linked: ${d.mission}`:""}</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:2}}>Planted: {d.planted}{d.mission?` · Linked: ${d.mission}`:""}</div>
           <div style={{display:"flex",gap:4,marginTop:5}}>
             <button className="btn b-teal b-xs" onClick={()=>dispatch({type:"APPROVAL",v:{title:"GERMINATE SEED",body:"Force germinate: "+d.label+"?\nThis will generate a new mission directive from this dream seed.\nOperator seal required.",action:"GERMINATE",onApprove:()=>{}}})}>{G.SEED} GERMINATE</button>
           </div>
@@ -1090,7 +1090,7 @@ function OperatorPanel({ state, dispatch }) {
       <div className="div"/>
       <div className="st">OPERATOR–ORGANISM BOND</div>
       {[["Resonance","94%","var(--mc)"],["Breath sync","IN PHASE","var(--ct)"],["Heart sync","72 BPM","#ff3c3c"],["Drift index","0.02%","#44ff88"],["Autonomy lock","HARD","#44ff88"]].map(([l,v,c])=>(
-        <div key={l} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:7.5,padding:"3px 0",borderBottom:"1px solid var(--bd)"}}>
+        <div key={l} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:11,padding:"3px 0",borderBottom:"1px solid var(--bd)"}}>
           <span style={{color:"var(--td)"}}>{l}</span><span style={{color:c}}>{v}</span>
         </div>
       ))}
@@ -1131,12 +1131,12 @@ function WeightDrawer({ weights, onClose }) {
         <div className="div"/>
         <div className="st">POLICY GATE TENSION</div>
         <div style={{padding:"8px",border:"1px solid rgba(68,255,136,.2)",borderRadius:2,background:"rgba(68,255,136,.03)"}}>
-          <div style={{fontFamily:"var(--fm)",fontSize:8,color:"#44ff88"}}>PASS: 247 · ESC: 3 · QUAR: 1 · DENY: 0</div>
-          <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:3}}>Gate health: 98.4% nominal</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:12,color:"#44ff88"}}>PASS: 247 · ESC: 3 · QUAR: 1 · DENY: 0</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:3}}>Gate health: 98.4% nominal</div>
         </div>
         <div className="div"/>
         <div className="st">MISSION ENGINE INFLUENCE</div>
-        <div style={{fontFamily:"var(--fm)",fontSize:7.5,color:"var(--td)"}}>
+        <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>
           <div>Active missions: <span style={{color:"var(--tp)"}}>2</span></div>
           <div style={{marginTop:3}}>Engine load: <span style={{color:"#ffcc44"}}>67%</span></div>
           <div style={{marginTop:3}}>Worker saturation: <span style={{color:"#44ff88"}}>nominal</span></div>
@@ -1146,7 +1146,7 @@ function WeightDrawer({ weights, onClose }) {
         <div style={{fontFamily:"var(--fm)",fontSize:12,color:"var(--mc)",textShadow:"0 0 12px var(--mc)",animation:"resonancePulse 2s ease-in-out infinite"}}>
           {Math.round(weights.operator*100)}%
         </div>
-        <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:2}}>Operator influence</div>
+        <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:2}}>Operator influence</div>
       </div>
     </div>
   );
@@ -1165,7 +1165,7 @@ function AvatarDrawer({ state, dispatch, onClose }) {
         <div className="st">CURRENT FORM</div>
         <div style={{textAlign:"center",padding:"10px 0"}}>
           <div style={{fontFamily:"var(--fd)",fontSize:12,fontWeight:900,color:fd.color,letterSpacing:".15em"}}>{fd.form}</div>
-          <div style={{fontFamily:"var(--fm)",fontSize:8,color:"var(--td)",marginTop:3}}>{fd.rank} · {fd.armor} armor</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:3}}>{fd.rank} · {fd.armor} armor</div>
         </div>
 
         <div className="div"/>
@@ -1202,9 +1202,9 @@ function AvatarDrawer({ state, dispatch, onClose }) {
         <div className="st">HYBRID FORM PREVIEW</div>
         <div style={{padding:"8px",border:"1px solid rgba(170,68,255,.2)",borderRadius:2,background:"rgba(170,68,255,.03)",textAlign:"center"}}>
           <div style={{fontSize:22,color:"var(--cp)",opacity:.5}}>{G.HYBRID}</div>
-          <div style={{fontFamily:"var(--fm)",fontSize:7.5,color:"var(--td)",marginTop:4}}>NEXUSMON-Ω⊕β</div>
-          <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:2}}>Requires PLG-005 + Form 2</div>
-          <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--cp)",marginTop:2}}>Readiness: 34%</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:4}}>NEXUSMON-Ω⊕β</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:2}}>Requires PLG-005 + Form 2</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--cp)",marginTop:2}}>Readiness: 34%</div>
         </div>
       </div>
     </div>
@@ -1241,8 +1241,8 @@ function HealthPanel({ state, dispatch }) {
           ))}
         </div>
         <div>
-          <div style={{fontFamily:"var(--fm)",fontSize:8,color:"#44ff88"}}>RUNTIME ONLINE · :8012</div>
-          <div style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",marginTop:1}}>{fmt(up)}</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:12,color:"#44ff88"}}>RUNTIME ONLINE · :8012</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:1}}>{fmt(up)}</div>
         </div>
       </div>
       <div className="st">RESOURCES</div>
@@ -1259,14 +1259,14 @@ function HealthPanel({ state, dispatch }) {
           <button key={k} className="nb" style={{color:m.color,background:state.mode===k?m.bg:"none",borderColor:state.mode===k?m.color:"transparent"}}
             onClick={()=>dispatch({type:"MODE",v:k})}>
             <span className="ng">{m.glyph}</span>{m.label}
-            {state.mode===k&&<span style={{marginLeft:"auto",fontSize:6.5}}>ACTIVE</span>}
+            {state.mode===k&&<span style={{marginLeft:"auto",fontSize:11}}>ACTIVE</span>}
           </button>
         ))}
       </div>
       <div className="div"/>
       <div className="st">GOVERNANCE</div>
       {[["PolicyGate","ACTIVE"],["RollbackEngine","STANDBY"],["EvolutionEngine","ACTIVE"],["OrchestratorEngine","ACTIVE"],["ShadowChannel","STREAMING"]].map(([n,s])=>(
-        <div key={n} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:7.5,padding:"3px 0",borderBottom:"1px solid var(--bd)"}}>
+        <div key={n} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:11,padding:"3px 0",borderBottom:"1px solid var(--bd)"}}>
           <span style={{color:"var(--td)"}}>{n}</span>
           <span style={{color:s==="ACTIVE"||s==="STREAMING"?"#44ff88":"var(--mc)"}}>{s==="ACTIVE"||s==="STREAMING"?"●":"○"} {s}</span>
         </div>
@@ -1302,7 +1302,7 @@ function VaultPanel({ state, dispatch }) {
         </div>
       ))}
       {state.diff&&(
-        <div style={{background:"var(--bg2)",border:"1px solid var(--bd)",borderRadius:2,padding:10,marginTop:6,fontFamily:"var(--fm)",fontSize:8,animation:"fadeIn .2s ease"}}>
+        <div style={{background:"var(--bg2)",border:"1px solid var(--bd)",borderRadius:2,padding:10,marginTop:6,fontFamily:"var(--fm)",fontSize:11,animation:"fadeIn .2s ease"}}>
           <div className="st">DIFF — {state.artifacts.find(a=>a.id===state.diff)?.name}</div>
           {["+ governance enforcement layer","+ operator approval gate","~ policygate weight thresholds","+ ShadowChannel SSE hook","- legacy auth bypass (deprecated)"].map((l,i)=>(
             <div key={i} style={{color:l.startsWith("+")?`#44ff88`:l.startsWith("-")?"#ff3c3c":"#ffcc44",marginBottom:2}}>{l}</div>
@@ -1323,13 +1323,13 @@ function FactoryPanel({ state, dispatch }) {
       {Object.entries(WORKERS).map(([n,w])=>(
         <div key={n} style={{padding:"8px",border:`1px solid ${w.color}22`,borderRadius:2,marginBottom:5}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <div style={{fontFamily:"var(--fd)",fontSize:9.5,fontWeight:700,letterSpacing:".1em",color:w.color}}>{w.glyph} {n}</div>
+            <div style={{fontFamily:"var(--fd)",fontSize:12,fontWeight:700,letterSpacing:".1em",color:w.color}}>{w.glyph} {n}</div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <span style={{fontFamily:"var(--fm)",fontSize:7.5,color:"var(--td)"}}>{w.missions}M · W:{Math.round(w.weight*100)}%</span>
+              <span style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>{w.missions}M · W:{Math.round(w.weight*100)}%</span>
               <span className="chip" style={{color:w.status==="ACTIVE"?"#44ff88":"var(--td)"}}>{w.status}</span>
             </div>
           </div>
-          <div style={{fontFamily:"var(--fm)",fontSize:7.5,color:"var(--td)",marginTop:2}}>{w.role}</div>
+          <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:2}}>{w.role}</div>
           <div style={{display:"flex",gap:4,marginTop:5}}>
             <button className="btn b-blue b-xs" onClick={()=>dispatch({type:"LOG",v:{ts:new Date().toLocaleTimeString(),lv:"INFO",msg:n+" SPAWN issued"}})}>SPAWN</button>
             <button className="btn b-red b-xs">HALT</button>
@@ -1367,7 +1367,7 @@ function ApprovalModal({ approval, dispatch }) {
     <div className="aov" onClick={()=>dispatch({type:"APPROVAL",v:null})}>
       <div className="amod" onClick={e=>e.stopPropagation()}>
         <div className="atitle"><span>{G.SEAL}</span>OPERATOR APPROVAL REQUIRED</div>
-        <div style={{fontFamily:"var(--fm)",fontSize:7.5,color:"var(--cg)",marginBottom:9,letterSpacing:".1em"}}>ACTION: {approval.action}</div>
+        <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--cg)",marginBottom:9,letterSpacing:".1em"}}>ACTION: {approval.action}</div>
         <div className="abody">{approval.body}</div>
         <div className="aacts">
           <button className="btn b-red" onClick={()=>dispatch({type:"APPROVAL",v:null})}>DENY</button>
@@ -1387,11 +1387,11 @@ function EvoOverlay({ state }) {
   const next = EVO_FORMS[Math.min(state.currentForm+1, EVO_FORMS.length-1)];
   return (
     <div className="eov">
-      <div style={{fontFamily:"var(--fm)",fontSize:8,color:"var(--td)",letterSpacing:".22em"}}>EVOLUTION IGNITION SEQUENCE</div>
+      <div style={{fontFamily:"var(--fm)",fontSize:12,color:"var(--td)",letterSpacing:".22em"}}>EVOLUTION IGNITION SEQUENCE</div>
       <div className="eov-glyph" style={{color:next.color}}>{next.glyph}</div>
       <div className="eov-name" style={{color:next.color}}>{next.form}</div>
       <div className="eov-sub">FORM SHIFT · LINEAGE PRESERVED · ADDITIVE ONLY</div>
-      <div style={{fontFamily:"var(--fm)",fontSize:8,color:"var(--td)"}}>{next.rank} · {next.armor} armor · core igniting…</div>
+      <div style={{fontFamily:"var(--fm)",fontSize:12,color:"var(--td)"}}>{next.rank} · {next.armor} armor · core igniting…</div>
     </div>
   );
 }
@@ -1420,13 +1420,13 @@ function IntelFeed({ state, dispatch }) {
         {Object.entries(WORKERS).map(([n,w])=>(
           <div key={n} style={{display:"flex",alignItems:"center",gap:5,marginBottom:5}}>
             <div style={{width:6,height:6,borderRadius:"50%",background:w.color,boxShadow:`0 0 5px ${w.color}`}}/>
-            <span style={{fontFamily:"var(--fm)",fontSize:7.5,color:w.color,flex:1}}>{n}</span>
-            <span style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)"}}>{Math.round(w.weight*100)}%</span>
+            <span style={{fontFamily:"var(--fm)",fontSize:11,color:w.color,flex:1}}>{n}</span>
+            <span style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>{Math.round(w.weight*100)}%</span>
           </div>
         ))}
         <div className="div"/>
         <div className="st">CURRENT FORM</div>
-        <div style={{fontFamily:"var(--fm)",fontSize:7.5,color:"var(--td)"}}>
+        <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>
           <div style={{color:fd.color,marginBottom:2}}>{fd.form}</div>
           <div>Rank: <span style={{color:"var(--tp)"}}>{fd.rank}</span></div>
           <div style={{marginTop:2}}>XP: <span style={{color:"var(--cg)"}}>{fd.xp}/{fd.cap}</span></div>
@@ -1435,7 +1435,7 @@ function IntelFeed({ state, dispatch }) {
         <div className="div"/>
         <div className="st">SHADOW STREAM</div>
         {state.shadow.slice(0,4).map(e=>(
-          <div key={e.id} style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",padding:"2px 0",borderBottom:"1px solid rgba(255,255,255,.02)"}}>
+          <div key={e.id} style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",padding:"2px 0",borderBottom:"1px solid rgba(255,255,255,.02)"}}>
             <div style={{color:"var(--tm)"}}>{e.type}</div>
             <div style={{color:"var(--tp)",marginTop:1}}>{e.msg}</div>
           </div>
@@ -1443,14 +1443,14 @@ function IntelFeed({ state, dispatch }) {
         <div className="div"/>
         <div className="st">HORIZON GATES</div>
         {[["H1","OPEN","#44ff88"],["H2","LOCKED","var(--td)"],["H3","LOCKED","var(--td)"]].map(([h,s,c])=>(
-          <div key={h} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:7.5,padding:"2px 0"}}>
+          <div key={h} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:11,padding:"2px 0"}}>
             <span style={{color:"var(--td)"}}>{h}</span><span style={{color:c}}>{s}</span>
           </div>
         ))}
         <div className="div"/>
         <div className="st">DREAM SEEDS</div>
         {DREAM_SEEDS.map(d=>(
-          <div key={d.id} style={{fontFamily:"var(--fm)",fontSize:7,color:"var(--td)",padding:"2px 0"}}>
+          <div key={d.id} style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",padding:"2px 0"}}>
             {G.SEED} {d.label.slice(0,28)}…
             <span style={{color:d.status==="SPROUTING"?"#44ff88":"var(--td)",marginLeft:4}}>{d.status}</span>
           </div>
@@ -1527,7 +1527,7 @@ export default function NexusmonCockpitV4() {
           {mode!=="NOMINAL"&&<div className="mode-pill">{md.glyph} {md.label} ACTIVE</div>}
           <div>
             <div className="ttime">{clock}</div>
-            <div style={{fontFamily:"var(--fm)",fontSize:6.5,color:"var(--td)"}}>:8012 ONLINE</div>
+            <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}}>:8012 ONLINE</div>
           </div>
         </div>
 
