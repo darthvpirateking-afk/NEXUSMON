@@ -218,15 +218,30 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 @keyframes missionPulse{0%,100%{box-shadow:0 0 4px rgba(255,204,68,.15);}50%{box-shadow:0 0 18px rgba(255,204,68,.55);}}
 @keyframes plugHealth  {0%,100%{width:var(--hw);}50%{width:calc(var(--hw) + 2%);}}
 
+/* ── Nanobot Swarm ── */
+@keyframes nbot1{from{transform:rotate(0deg) translateX(62px) rotate(0deg);}to{transform:rotate(360deg) translateX(62px) rotate(-360deg);}}
+@keyframes nbot2{from{transform:rotate(30deg) translateX(75px) rotate(-30deg);}to{transform:rotate(390deg) translateX(75px) rotate(-390deg);}}
+@keyframes nbot3{from{transform:rotate(60deg) translateX(55px) rotate(-60deg);}to{transform:rotate(420deg) translateX(55px) rotate(-420deg);}}
+@keyframes nbot4{from{transform:rotate(100deg) translateX(82px) rotate(-100deg);}to{transform:rotate(460deg) translateX(82px) rotate(-460deg);}}
+@keyframes nbot5{from{transform:rotate(150deg) translateX(68px) rotate(-150deg);}to{transform:rotate(510deg) translateX(68px) rotate(-510deg);}}
+@keyframes nbot6{from{transform:rotate(200deg) translateX(72px) rotate(-200deg);}to{transform:rotate(560deg) translateX(72px) rotate(-560deg);}}
+@keyframes nbot7{from{transform:rotate(240deg) translateX(58px) rotate(-240deg);}to{transform:rotate(600deg) translateX(58px) rotate(-600deg);}}
+@keyframes nbot8{from{transform:rotate(280deg) translateX(78px) rotate(-280deg);}to{transform:rotate(640deg) translateX(78px) rotate(-640deg);}}
+@keyframes nbot9{from{transform:rotate(320deg) translateX(65px) rotate(-320deg);}to{transform:rotate(680deg) translateX(65px) rotate(-680deg);}}
+@keyframes nbot10{from{transform:rotate(10deg) translateX(70px) rotate(-10deg);}to{transform:rotate(370deg) translateX(70px) rotate(-370deg);}}
+@keyframes nbot11{from{transform:rotate(50deg) translateX(85px) rotate(-50deg);}to{transform:rotate(410deg) translateX(85px) rotate(-410deg);}}
+@keyframes nbot12{from{transform:rotate(170deg) translateX(60px) rotate(-170deg);}to{transform:rotate(530deg) translateX(60px) rotate(-530deg);}}
+@keyframes nbotGlow{0%,100%{box-shadow:0 0 3px var(--mc);}50%{box-shadow:0 0 8px var(--mc),0 0 16px var(--mc);}}
+
 /* ── Layout ── */
-.ck{display:grid;grid-template-rows:48px 1fr 60px 28px;grid-template-columns:170px 1fr 220px;height:100vh;gap:1px;background:var(--bd);animation:modeIn .3s ease;position:relative;}
-.topbar{grid-column:1/-1;background:#020b12;border-bottom:1px solid var(--bda);display:flex;align-items:center;gap:12px;padding:0 16px;position:relative;overflow:hidden;z-index:10;}
-.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--mc),transparent);opacity:.55;}
+.ck{display:grid;grid-template-rows:48px 1fr 60px 28px;grid-template-columns:170px 1fr 220px;height:100vh;gap:0;background:var(--bg0);animation:modeIn .3s ease;position:relative;}
+.topbar{grid-column:1/-1;background:#020b12;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;padding:0 16px;position:relative;overflow:hidden;z-index:10;}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--mc),transparent);opacity:.4;}
 .botlane{grid-column:1/-1;background:#030e18;border-top:1px solid var(--bd);display:flex;gap:0;overflow:hidden;position:relative;}
 .statusbar{grid-column:1/-1;background:#020b12;border-top:1px solid var(--bd);display:flex;align-items:center;gap:10px;padding:0 12px;overflow:hidden;}
 .lp{background:var(--bg1);display:flex;flex-direction:column;border-right:1px solid var(--bd);position:relative;z-index:2;}
-.mp{background:var(--bg0);display:flex;flex-direction:column;overflow:hidden;position:relative;}
-.rp{background:var(--bg1);display:flex;flex-direction:column;border-left:1px solid var(--bd);}
+.mp{background:var(--bg0);display:flex;flex-direction:column;overflow:hidden;position:relative;border-right:1px solid var(--bd);}
+.rp{background:var(--bg1);display:flex;flex-direction:column;}
 
 /* ── Panel chrome ── */
 .ph{font-family:var(--fm);font-size:11px;letter-spacing:.18em;color:var(--td);padding:8px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
@@ -245,7 +260,7 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 .div{height:1px;background:var(--bd);margin:9px 0;}
 
 /* ── Avatar zone (center-mounted) ── */
-.az-center{display:flex;flex-direction:column;align-items:center;gap:5px;padding:16px 12px 10px;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--bg1);position:relative;}
+.az-center{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 12px 12px;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--bg0);position:relative;}
 .az{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px 11px;border-bottom:1px solid var(--bd);position:relative;overflow:hidden;flex-shrink:0;}
 .af{position:relative;width:124px;height:124px;}
 .ar{position:absolute;border-radius:50%;border:1px solid;pointer-events:none;}
@@ -404,7 +419,7 @@ html,body,#root{height:100%;overflow:hidden;background:#010507;}
 
 // ── AVATAR SVG ─────────────────────────────────────────────────────────────────
 function Avatar({ state, mode, form, monarchMode }) {
-  const md = MODES[mode]; const fd = EVO_FORMS[form];
+  const fd = EVO_FORMS[form];
   const C = monarchMode ? "#ffcc44" : fd.color;
   const isP = state==="PROCESSING", isR = state==="RESPONDING", isM = state==="MISSION";
   const isC = state==="COMBAT_READY", isG = state==="GUARDIAN", isS = state==="STRATEGIC";
@@ -416,164 +431,167 @@ function Avatar({ state, mode, form, monarchMode }) {
     :isL?"coreListen 1.2s ease-in-out infinite"
     :"coreIdle 2.8s ease-in-out infinite";
 
+  const NBOTS = [
+    {a:"nbot1", s:4.2, c:C,        sz:2.5},
+    {a:"nbot2", s:3.5, c:"#aa44ff",sz:2},
+    {a:"nbot3", s:5.1, c:C,        sz:2},
+    {a:"nbot4", s:3.8, c:"#ff44aa",sz:2.5},
+    {a:"nbot5", s:4.6, c:C,        sz:3},
+    {a:"nbot6", s:3.2, c:"#aa44ff",sz:2},
+    {a:"nbot7", s:5.4, c:C,        sz:2.5},
+    {a:"nbot8", s:4.0, c:"#ffcc44",sz:2},
+    {a:"nbot9", s:3.6, c:C,        sz:2},
+    {a:"nbot10",s:4.8, c:"#ff44aa",sz:2.5},
+    {a:"nbot11",s:5.2, c:"#aa44ff",sz:3},
+    {a:"nbot12",s:3.4, c:C,        sz:2},
+  ];
+
   return (
     <div style={{position:"relative",width:168,height:168}}>
+      {/* NANOBOT SWARM */}
+      {NBOTS.map((nb,i)=>(
+        <div key={i} style={{
+          position:"absolute",top:"50%",left:"50%",
+          width:nb.sz,height:nb.sz,
+          marginTop:-nb.sz/2,marginLeft:-nb.sz/2,
+          borderRadius:"50%",
+          background:nb.c,
+          animation:`${nb.a} ${nb.s}s linear infinite,nbotGlow 2.1s ease-in-out infinite`,
+          animationDelay:`${i*0.18}s,${i*0.28}s`,
+          opacity:.82,zIndex:5,
+        }}/>
+      ))}
+      {/* Orbit glyphs in PROCESSING */}
       {isP&&[G.ID,G.AUTH,G.SYS].map((g,i)=>(
         <div key={i} style={{position:"absolute",top:"50%",left:"50%",marginTop:-7,marginLeft:-7,fontSize:12,color:C,
-          animation:`orbit${["A","B","C"][i]} ${1.4+i*.35}s linear infinite`,animationDelay:`${i*.4}s`}}>{g}</div>
+          animation:`orbit${["A","B","C"][i]} ${1.4+i*.35}s linear infinite`,animationDelay:`${i*.4}s`,zIndex:6}}>{g}</div>
       ))}
-      {isM&&<div style={{position:"absolute",top:"28%",left:"50%",marginTop:-9,marginLeft:-9,fontSize:16,color:"#ffcc44",animation:"orbitBig 3s linear infinite"}}>{G.MISS}</div>}
-      <svg viewBox="0 0 100 112" style={{width:"100%",height:"100%"}} overflow="visible">
+      {isM&&<div style={{position:"absolute",top:"28%",left:"50%",marginTop:-9,marginLeft:-9,fontSize:16,color:"#ffcc44",animation:"orbitBig 3s linear infinite",zIndex:6}}>{G.MISS}</div>}
+
+      <svg viewBox="0 0 100 115" style={{width:"100%",height:"100%"}} overflow="visible">
         <defs>
           <filter id="glow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           <filter id="cg2"><feGaussianBlur stdDeviation="4.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           <filter id="soft"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <radialGradient id="bG2" cx="50%" cy="40%" r="55%">
-            <stop offset="0%" stopColor={`${C}22`}/><stop offset="100%" stopColor="#020810"/>
+          <radialGradient id="bG2" cx="50%" cy="35%" r="65%">
+            <stop offset="0%" stopColor={`${C}20`}/><stop offset="100%" stopColor="#020810"/>
           </radialGradient>
-          <radialGradient id="eyeGl" cx="38%" cy="32%" r="68%">
-            <stop offset="0%" stopColor="white" stopOpacity=".85"/><stop offset="60%" stopColor={C}/><stop offset="100%" stopColor={`${C}88`}/>
+          <radialGradient id="eyeGl" cx="35%" cy="28%" r="75%">
+            <stop offset="0%" stopColor="white" stopOpacity=".9"/><stop offset="55%" stopColor={C}/><stop offset="100%" stopColor={`${C}66`}/>
           </radialGradient>
-          <radialGradient id="eyeGr" cx="62%" cy="32%" r="68%">
-            <stop offset="0%" stopColor="white" stopOpacity=".85"/><stop offset="60%" stopColor={C}/><stop offset="100%" stopColor={`${C}88`}/>
+          <radialGradient id="eyeGr" cx="65%" cy="28%" r="75%">
+            <stop offset="0%" stopColor="white" stopOpacity=".9"/><stop offset="55%" stopColor={C}/><stop offset="100%" stopColor={`${C}66`}/>
+          </radialGradient>
+          <radialGradient id="digiCore" cx="38%" cy="28%" r="72%">
+            <stop offset="0%" stopColor="white" stopOpacity=".85"/><stop offset="50%" stopColor={C}/><stop offset="100%" stopColor={`${C}44`}/>
           </radialGradient>
         </defs>
 
         {/* ENERGY WINGS — COMBAT + STRATEGIC */}
         {(isC||isS)&&<>
-          <path d="M 20 58 Q -2 40 2 22 Q 15 36 22 52 Z" fill={`${C}28`} stroke={`${C}65`} strokeWidth=".7" filter="url(#glow)" style={{animation:"holoFloat 1.6s ease-in-out infinite"}}/>
-          <path d="M 22 54 Q 4 42 7 32 Q 18 42 24 52 Z" fill={`${C}14`} stroke={`${C}38`} strokeWidth=".4"/>
-          <path d="M 80 58 Q 102 40 98 22 Q 85 36 78 52 Z" fill={`${C}28`} stroke={`${C}65`} strokeWidth=".7" filter="url(#glow)" style={{animation:"holoFloat 1.6s ease-in-out infinite",animationDelay:".5s"}}/>
-          <path d="M 78 54 Q 96 42 93 32 Q 82 42 76 52 Z" fill={`${C}14`} stroke={`${C}38`} strokeWidth=".4"/>
+          <path d="M 18 52 Q -6 32 -1 6 Q 14 28 20 48 Z" fill={`${C}30`} stroke={`${C}70`} strokeWidth=".9" filter="url(#glow)" style={{animation:"holoFloat 1.6s ease-in-out infinite"}}/>
+          <path d="M 82 52 Q 106 32 101 6 Q 86 28 80 48 Z" fill={`${C}30`} stroke={`${C}70`} strokeWidth=".9" filter="url(#glow)" style={{animation:"holoFloat 1.6s ease-in-out infinite",animationDelay:".5s"}}/>
         </>}
 
-        {/* BODY GLOW BASE */}
-        <ellipse cx="50" cy="84" rx="26" ry="22" fill="url(#bG2)"/>
+        {/* EAR FINS — organic Digimon style */}
+        <path d="M 21 24 Q 7 7 11 -5 Q 20 9 26 26 Z" fill={`${C}28`} stroke={`${C}78`} strokeWidth="1" filter="url(#soft)" style={{animation:"holoFloat 2.4s ease-in-out infinite"}}/>
+        <path d="M 23 22 Q 13 10 16 2 Q 21 12 27 24 Z" fill={`${C}10`} stroke={`${C}35`} strokeWidth=".5"/>
+        <path d="M 79 24 Q 93 7 89 -5 Q 80 9 74 26 Z" fill={`${C}28`} stroke={`${C}78`} strokeWidth="1" filter="url(#soft)" style={{animation:"holoFloat 2.4s ease-in-out infinite",animationDelay:".8s"}}/>
+        <path d="M 77 22 Q 87 10 84 2 Q 79 12 73 24 Z" fill={`${C}10`} stroke={`${C}35`} strokeWidth=".5"/>
 
-        {/* SHOULDERS */}
-        <ellipse cx="27" cy="67" rx="10" ry="6.5" fill="#04111e" stroke={`${C}35`} strokeWidth=".9" filter="url(#soft)"/>
-        <ellipse cx="73" cy="67" rx="10" ry="6.5" fill="#04111e" stroke={`${C}35`} strokeWidth=".9" filter="url(#soft)"/>
-        <circle cx="27" cy="67" r="2.8" fill={C} opacity=".65" style={{animation:cA}}/>
-        <circle cx="73" cy="67" r="2.8" fill={C} opacity=".65" style={{animation:cA}}/>
+        {/* HEAD — big round Digimon blob */}
+        <ellipse cx="50" cy="40" rx="34" ry="33" fill="#030c18" stroke={`${C}55`} strokeWidth="1.1" filter="url(#glow)"/>
+        <ellipse cx="50" cy="40" rx="32" ry="31" fill="url(#bG2)"/>
 
-        {/* TORSO */}
-        <path d="M 36 64 L 64 64 L 61 96 L 39 96 Z" fill="#030c18" stroke={`${C}30`} strokeWidth=".9"/>
-        {/* circuit traces */}
-        <path d="M 44 67 L 41 72 L 37 72" fill="none" stroke={`${C}60`} strokeWidth=".55"/>
-        <path d="M 56 67 L 59 72 L 63 72" fill="none" stroke={`${C}60`} strokeWidth=".55"/>
-        <path d="M 46 78 L 44 83" fill="none" stroke={`${C}45`} strokeWidth=".4"/>
-        <path d="M 54 78 L 56 83" fill="none" stroke={`${C}45`} strokeWidth=".4"/>
-        <line x1="40" y1="78" x2="44" y2="78" stroke={`${C}35`} strokeWidth=".4"/>
-        <line x1="56" y1="78" x2="60" y2="78" stroke={`${C}35`} strokeWidth=".4"/>
+        {/* Forehead marking — digital chevron */}
+        <path d="M 40 16 L 50 10 L 60 16" fill="none" stroke={C} strokeWidth=".9" opacity=".65"/>
+        <circle cx="50" cy="10" r="2.4" fill={C} opacity=".75" filter="url(#soft)" style={{animation:cA}}/>
 
-        {/* CHEST CORE — triple ring */}
-        <circle cx="50" cy="78" r="13" fill={`${C}09`} stroke={`${C}20`} strokeWidth=".5"/>
-        <circle cx="50" cy="78" r="9.5" fill={`${C}18`} stroke={`${C}45`} strokeWidth=".9" filter="url(#glow)"/>
-        <circle cx="50" cy="78" r="5.8" fill={C} filter="url(#cg2)" opacity=".96" style={{animation:cA}}/>
-        <text x="50" y="80" textAnchor="middle" fontSize="4.5" fill="#010810" fontFamily="monospace" fontWeight="bold">{G.SEAL}</text>
+        {/* EYES — large oval with vertical slit pupils (Digimon style) */}
+        <ellipse cx="34" cy="41" rx="11.5" ry="10.5" fill={`${C}18`} stroke={`${C}52`} strokeWidth=".7"/>
+        <ellipse cx="34" cy="41" rx="9"    ry="8.2"  fill="url(#eyeGl)" style={{animation:cA}}/>
+        <ellipse cx="34" cy="41" rx="4.5"  ry="4"    fill="white" opacity=".1"/>
+        <ellipse cx="34" cy="41" rx="2.2"  ry="5.5"  fill="#010810"/>
+        <ellipse cx="31" cy="37.5" rx="1.8" ry="1.3" fill="white" opacity=".95"/>
+        <ellipse cx="36" cy="38.5" rx=".9"  ry=".7"  fill="white" opacity=".55"/>
 
-        {/* LEGS */}
-        <rect x="40" y="95" width="9" height="11" rx="3" fill="#04101e" stroke={`${C}30`} strokeWidth=".6"/>
-        <rect x="51" y="95" width="9" height="11" rx="3" fill="#04101e" stroke={`${C}30`} strokeWidth=".6"/>
-        <rect x="39" y="104" width="11" height="5" rx="2.5" fill="#061825" stroke={`${C}25`} strokeWidth=".5"/>
-        <rect x="50" y="104" width="11" height="5" rx="2.5" fill="#061825" stroke={`${C}25`} strokeWidth=".5"/>
-
-        {/* ═══ CHIBI HEAD — dominant ═══ */}
-        {/* Helmet outer */}
-        <path d="M 16 43 Q 16 5 50 4 Q 84 5 84 43 L 82 57 Q 72 68 50 69 Q 28 68 18 57 Z"
-          fill="#030b17" stroke={`${C}58`} strokeWidth="1.2" filter="url(#glow)"/>
-        {/* Helmet tint */}
-        <path d="M 20 41 Q 20 10 50 9 Q 80 10 80 41 L 78 54 Q 69 63 50 64 Q 31 63 22 54 Z"
-          fill={`${C}07`}/>
-
-        {/* EAR VENTS */}
-        <rect x="11" y="32" width="7" height="14" rx="3" fill="#061828" stroke={`${C}45`} strokeWidth=".8"/>
-        <line x1="12.5" y1="36" x2="17" y2="36" stroke={C} strokeWidth=".5" opacity=".75"/>
-        <line x1="12.5" y1="39" x2="17" y2="39" stroke={C} strokeWidth=".5" opacity=".75"/>
-        <line x1="12.5" y1="42" x2="17" y2="42" stroke={C} strokeWidth=".5" opacity=".75"/>
-        <rect x="82" y="32" width="7" height="14" rx="3" fill="#061828" stroke={`${C}45`} strokeWidth=".8"/>
-        <line x1="83" y1="36" x2="87.5" y2="36" stroke={C} strokeWidth=".5" opacity=".75"/>
-        <line x1="83" y1="39" x2="87.5" y2="39" stroke={C} strokeWidth=".5" opacity=".75"/>
-        <line x1="83" y1="42" x2="87.5" y2="42" stroke={C} strokeWidth=".5" opacity=".75"/>
-
-        {/* VISOR PANEL */}
-        <path d="M 22 30 Q 22 16 50 15 Q 78 16 78 30 L 77 46 Q 69 53 50 54 Q 31 53 23 46 Z"
-          fill="#010810" stroke={`${C}42`} strokeWidth=".9"/>
-
-        {/* ── EYES — Big chibi anime ── */}
-        {/* Left eye outer glow */}
-        <ellipse cx="37" cy="35" rx="10" ry="9" fill={`${C}14`} stroke={`${C}45`} strokeWidth=".6"/>
-        {/* Left iris */}
-        <ellipse cx="37" cy="35" rx="7.2" ry="6.4" fill="url(#eyeGl)" style={{animation:cA}}/>
-        {/* Left inner shine */}
-        <ellipse cx="37" cy="35" rx="3.8" ry="3.5" fill="white" opacity=".14"/>
-        {/* Left pupil */}
-        <ellipse cx="37" cy="35.5" rx="2.8" ry="3" fill="#010810"/>
-        {/* Left highlight 1 */}
-        <ellipse cx="34.2" cy="32" rx="1.6" ry="1.2" fill="white" opacity=".95"/>
-        {/* Left highlight 2 */}
-        <ellipse cx="39" cy="33" rx=".8" ry=".65" fill="white" opacity=".55"/>
-
-        {/* Right eye outer glow */}
-        <ellipse cx="63" cy="35" rx="10" ry="9" fill={`${C}14`} stroke={`${C}45`} strokeWidth=".6"/>
-        {/* Right iris */}
-        <ellipse cx="63" cy="35" rx="7.2" ry="6.4" fill="url(#eyeGr)" style={{animation:cA}}/>
-        {/* Right inner shine */}
-        <ellipse cx="63" cy="35" rx="3.8" ry="3.5" fill="white" opacity=".14"/>
-        {/* Right pupil */}
-        <ellipse cx="63" cy="35.5" rx="2.8" ry="3" fill="#010810"/>
-        {/* Right highlight 1 */}
-        <ellipse cx="60.2" cy="32" rx="1.6" ry="1.2" fill="white" opacity=".95"/>
-        {/* Right highlight 2 */}
-        <ellipse cx="65" cy="33" rx=".8" ry=".65" fill="white" opacity=".55"/>
+        <ellipse cx="66" cy="41" rx="11.5" ry="10.5" fill={`${C}18`} stroke={`${C}52`} strokeWidth=".7"/>
+        <ellipse cx="66" cy="41" rx="9"    ry="8.2"  fill="url(#eyeGr)" style={{animation:cA}}/>
+        <ellipse cx="66" cy="41" rx="4.5"  ry="4"    fill="white" opacity=".1"/>
+        <ellipse cx="66" cy="41" rx="2.2"  ry="5.5"  fill="#010810"/>
+        <ellipse cx="63" cy="37.5" rx="1.8" ry="1.3" fill="white" opacity=".95"/>
+        <ellipse cx="68" cy="38.5" rx=".9"  ry=".7"  fill="white" opacity=".55"/>
 
         {/* CHEEK BLUSH */}
-        <ellipse cx="24" cy="49" rx="7" ry="4" fill={C} opacity=".2" filter="url(#soft)"/>
-        <ellipse cx="76" cy="49" rx="7" ry="4" fill={C} opacity=".2" filter="url(#soft)"/>
+        <ellipse cx="20" cy="53" rx="8" ry="5" fill={C} opacity=".18" filter="url(#soft)"/>
+        <ellipse cx="80" cy="53" rx="8" ry="5" fill={C} opacity=".18" filter="url(#soft)"/>
 
-        {/* NOSE */}
-        <path d="M 47 46 Q 50 48.5 53 46" fill="none" stroke={`${C}75`} strokeWidth=".8"/>
+        {/* SNOUT + NOSE DOTS */}
+        <ellipse cx="50" cy="57" rx="6" ry="4.5" fill="#02080f" stroke={`${C}48`} strokeWidth=".7"/>
+        <circle cx="48"  cy="55.5" r=".9" fill={C} opacity=".8"/>
+        <circle cx="52"  cy="55.5" r=".9" fill={C} opacity=".8"/>
 
         {/* MOUTH — state-reactive */}
-        {!isP&&!isR&&<path d="M 43 52 Q 50 57 57 52" fill="none" stroke={`${C}75`} strokeWidth="1"/>}
-        {isP&&<path d="M 43 53 Q 47 50 50 53 Q 53 50 57 53" fill="none" stroke={C} strokeWidth="1" filter="url(#glow)"/>}
-        {isR&&<path d="M 42 51 Q 50 58 58 51" fill="none" stroke={C} strokeWidth="1.2" filter="url(#glow)"/>}
+        {!isP&&!isR&&<path d="M 45 60 Q 50 65 55 60" fill="none" stroke={`${C}75`} strokeWidth=".9"/>}
+        {isP&&<path d="M 44 61 Q 47 58 50 61 Q 53 58 56 61" fill="none" stroke={C} strokeWidth=".9" filter="url(#glow)"/>}
+        {isR&&<path d="M 44 59 Q 50 66 56 59" fill="none" stroke={C} strokeWidth="1.1" filter="url(#glow)"/>}
 
-        {/* Helmet crest */}
-        <path d="M 32 8 Q 50 2 68 8" fill="none" stroke={`${C}55`} strokeWidth=".9"/>
+        {/* BODY — compact round */}
+        <ellipse cx="50" cy="91" rx="20" ry="15" fill="#030c18" stroke={`${C}38`} strokeWidth=".9"/>
+        <ellipse cx="50" cy="91" rx="18" ry="13" fill={`${C}08`}/>
 
-        {/* ANTENNA */}
-        <line x1="50" y1="4" x2="50" y2="-6" stroke={`${C}72`} strokeWidth="1.3"/>
-        <circle cx="50" cy="-8" r="3.5" fill={C} filter="url(#cg2)" style={{animation:cA}}/>
-        {/* side antennae */}
-        <line x1="34" y1="9" x2="27" y2=".5" stroke={`${C}58`} strokeWidth=".9"/>
-        <circle cx="26.5" cy="0" r="2.2" fill={C} opacity=".8" filter="url(#soft)"/>
-        <line x1="66" y1="9" x2="73" y2=".5" stroke={`${C}58`} strokeWidth=".9"/>
-        <circle cx="73.5" cy="0" r="2.2" fill={C} opacity=".8" filter="url(#soft)"/>
+        {/* DIGICORE — chest diamond jewel */}
+        <path d="M 50 83 L 57 90 L 50 97 L 43 90 Z" fill="url(#digiCore)" stroke={`${C}85`} strokeWidth=".7" filter="url(#glow)" style={{animation:cA}}/>
+        <path d="M 50 86 L 54 90 L 50 94 L 46 90 Z" fill="none" stroke="rgba(255,255,255,.28)" strokeWidth=".5"/>
+        <circle cx="50" cy="90" r="1.5" fill="white" opacity=".65"/>
+
+        {/* ARMS — stubby with claws */}
+        <ellipse cx="28" cy="85" rx="8" ry="5.5" fill="#04111e" stroke={`${C}35`} strokeWidth=".7"/>
+        <line x1="22" y1="88" x2="20"  y2="93"  stroke={`${C}62`} strokeWidth=".8"/>
+        <line x1="24" y1="89" x2="22.5"y2="94.5" stroke={`${C}62`} strokeWidth=".8"/>
+        <line x1="26" y1="90" x2="25"  y2="95.5" stroke={`${C}62`} strokeWidth=".8"/>
+        <ellipse cx="72" cy="85" rx="8" ry="5.5" fill="#04111e" stroke={`${C}35`} strokeWidth=".7"/>
+        <line x1="78" y1="88" x2="80"  y2="93"  stroke={`${C}62`} strokeWidth=".8"/>
+        <line x1="76" y1="89" x2="77.5"y2="94.5" stroke={`${C}62`} strokeWidth=".8"/>
+        <line x1="74" y1="90" x2="75"  y2="95.5" stroke={`${C}62`} strokeWidth=".8"/>
+
+        {/* LEGS — stubby with claws */}
+        <ellipse cx="41" cy="104" rx="9" ry="6" fill="#04111e" stroke={`${C}30`} strokeWidth=".7"/>
+        <line x1="36" y1="109" x2="34" y2="114" stroke={`${C}58`} strokeWidth=".8"/>
+        <line x1="39" y1="110" x2="38" y2="115" stroke={`${C}58`} strokeWidth=".8"/>
+        <line x1="43" y1="110" x2="43" y2="115" stroke={`${C}58`} strokeWidth=".8"/>
+        <ellipse cx="59" cy="104" rx="9" ry="6" fill="#04111e" stroke={`${C}30`} strokeWidth=".7"/>
+        <line x1="64" y1="109" x2="66" y2="114" stroke={`${C}58`} strokeWidth=".8"/>
+        <line x1="61" y1="110" x2="62" y2="115" stroke={`${C}58`} strokeWidth=".8"/>
+        <line x1="57" y1="110" x2="57" y2="115" stroke={`${C}58`} strokeWidth=".8"/>
+
+        {/* DATA TAIL */}
+        <path d="M 62 100 Q 76 108 83 100 Q 90 91 84 84" fill="none" stroke={C} strokeWidth="1.3" strokeDasharray="3,2.5" opacity=".6" filter="url(#glow)" style={{animation:"holoFloat 2s ease-in-out infinite"}}/>
+        <circle cx="84" cy="84" r="2.4" fill={C} opacity=".72" filter="url(#soft)" style={{animation:cA}}/>
 
         {/* GUARDIAN SHIELD */}
         {isG&&<ellipse cx="50" cy="58" rx="44" ry="58" fill="none" stroke="#44ff88" strokeWidth="1.6" filter="url(#glow)" style={{animation:"shieldPulse 1.9s ease-in-out infinite"}}/>}
 
         {/* STRATEGIC GRID */}
         {isS&&[28,50,72].flatMap(x=>[
-          <line key={"sv"+x} x1={x} y1="8" x2={x} y2="104" stroke={C} strokeWidth=".22" opacity=".22" strokeDasharray="3,7"/>,
-          <line key={"sh"+x} x1="8" y1={x} x2="92" y2={x} stroke={C} strokeWidth=".22" opacity=".22" strokeDasharray="3,7"/>
+          <line key={"sv"+x} x1={x} y1="5" x2={x} y2="112" stroke={C} strokeWidth=".22" opacity=".18" strokeDasharray="3,7"/>,
+          <line key={"sh"+x} x1="5" y1={x} x2="95" y2={x} stroke={C} strokeWidth=".22" opacity=".18" strokeDasharray="3,7"/>
         ])}
 
-        {/* MISSION ORBIT RING */}
-        {isM&&<circle cx="50" cy="56" r="52" fill="none" stroke="#ffcc44" strokeWidth="1.3" opacity=".5" filter="url(#glow)" style={{animation:"shieldPulse 1s ease-in-out infinite"}}/>}
+        {/* MISSION RING */}
+        {isM&&<circle cx="50" cy="58" r="52" fill="none" stroke="#ffcc44" strokeWidth="1.3" opacity=".5" filter="url(#glow)" style={{animation:"shieldPulse 1s ease-in-out infinite"}}/>}
 
         {/* MONARCH CROWN */}
         {monarchMode&&<>
-          <path d="M 34 5 L 50 -10 L 66 5 L 62 -1 L 57 6 L 50 0 L 43 6 L 38 -1 Z"
+          <path d="M 34 7 L 50 -9 L 66 7 L 62 0 L 57 7 L 50 1 L 43 7 L 38 0 Z"
             fill="#ffcc44" filter="url(#glow)" opacity=".92" style={{animation:"monarchCrown 2s ease-in-out infinite"}}/>
-          <circle cx="50" cy="-10" r="3.5" fill="#ffcc44" filter="url(#cg2)" style={{animation:"monarchCrown 2s ease-in-out infinite"}}/>
-          <circle cx="34" cy="5" r="2.2" fill="#ffcc44" filter="url(#soft)" opacity=".85"/>
-          <circle cx="66" cy="5" r="2.2" fill="#ffcc44" filter="url(#soft)" opacity=".85"/>
+          <circle cx="50" cy="-9" r="3.5" fill="#ffcc44" filter="url(#cg2)" style={{animation:"monarchCrown 2s ease-in-out infinite"}}/>
+          <circle cx="34" cy="7"  r="2.2" fill="#ffcc44" filter="url(#soft)" opacity=".85"/>
+          <circle cx="66" cy="7"  r="2.2" fill="#ffcc44" filter="url(#soft)" opacity=".85"/>
         </>}
 
         {/* Form glyph */}
-        <text x="88" y="24" textAnchor="middle" fontSize="10" fill={C} opacity=".38" fontFamily="monospace">{fd.glyph}</text>
+        <text x="88" y="22" textAnchor="middle" fontSize="10" fill={C} opacity=".35" fontFamily="monospace">{fd.glyph}</text>
       </svg>
     </div>
   );
