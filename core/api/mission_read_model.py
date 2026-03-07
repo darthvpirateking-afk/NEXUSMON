@@ -38,6 +38,54 @@ def _normalize_status(raw_status: str) -> str:
     return aliases.get(normalized, normalized or "unknown")
 
 
+def _has_execution_output(raw_mission: dict[str, Any]) -> bool:
+    bridge_output = raw_mission.get("bridge_output")
+    if isinstance(bridge_output, str):
+        return bool(bridge_output.strip())
+    return bridge_output is not None
+
+
+def _execution_truth_fields(raw_mission: dict[str, Any]) -> dict[str, Any]:
+    execution_backed = _has_execution_output(raw_mission)
+    if execution_backed:
+        return {
+            "execution_backed": True,
+            "execution_truth_label": "EXECUTION-BACKED",
+            "execution_truth_detail": "Execution output is present in the mission payload.",
+        }
+    return {
+        "execution_backed": False,
+        "execution_truth_label": "LIFECYCLE STATE ONLY",
+        "execution_truth_detail": "Execution not yet wired.",
+    }
+
+
+def _read_model_execution_truth_fields(raw_mission: dict[str, Any]) -> dict[str, Any]:
+    execution_backed = _has_execution_output(raw_mission)
+    if execution_backed:
+        return {
+            "execution_backed": True,
+            "execution_truth_label": "EXECUTION-BACKED",
+            "execution_truth_detail": "Execution output is present in the mission payload.",
+        }
+
+    normalized_status = _normalize_status(
+        _as_text(raw_mission.get("status") or raw_mission.get("state") or "UNKNOWN")
+    )
+    if normalized_status in {"queued", "validating"}:
+        return {
+            "execution_backed": False,
+            "execution_truth_label": "QUEUED RECORD",
+            "execution_truth_detail": "Queued in backend contract.",
+        }
+
+    return {
+        "execution_backed": False,
+        "execution_truth_label": "READ-MODEL ONLY",
+        "execution_truth_detail": "Display-only backend record.",
+    }
+
+
 def canonicalize_mission_record(
     raw_mission: dict[str, Any],
     *,
@@ -77,6 +125,7 @@ def canonicalize_mission_record(
         "latest_run_id": _as_text(raw_mission.get("latest_run_id") or raw_mission.get("run_id")),
         "source": source,
         "truth": "backend",
+        **_read_model_execution_truth_fields(raw_mission),
     }
 
 
@@ -87,7 +136,14 @@ def build_mission_list_payload(
     ok: bool = True,
     extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    mission_rows = [dict(mission) for mission in missions if isinstance(mission, dict)]
+    mission_rows = [
+        {
+            **dict(mission),
+            **_execution_truth_fields(dict(mission)),
+        }
+        for mission in missions
+        if isinstance(mission, dict)
+    ]
     payload = {
         "ok": ok,
         "missions": mission_rows,
@@ -114,7 +170,10 @@ def build_mission_detail_payload(
         "mission_id": _as_text(mission.get("mission_id") or mission.get("id")),
         "status": _as_text(mission.get("status") or mission.get("state") or "UNKNOWN"),
         "governance": governance,
-        "mission": mission,
+        "mission": {
+            **mission,
+            **_execution_truth_fields(mission),
+        },
         "read_model": canonicalize_mission_record(mission, source=source),
     }
     if extra:

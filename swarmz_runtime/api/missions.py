@@ -64,10 +64,11 @@ def run_mission(request: RunMissionRequest):
 @router.get("/list")
 def list_missions(status: Optional[str] = None):
     missions = get_engine().list_missions(status=status)
-    return build_mission_list_payload(
+    payload = build_mission_list_payload(
         missions,
         source="runtime_engine",
     )
+    return payload
 
 
 @router.get("")

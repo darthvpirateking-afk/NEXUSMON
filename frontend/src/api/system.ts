@@ -36,9 +36,16 @@ export interface LogsResponse {
 export interface MissionStatus {
   mission_id: string;
   state: string;
+  goal?: string;
+  category?: string;
+  constraints?: Record<string, unknown>;
+  created_at?: string;
   history: { state: string; timestamp: string }[];
   bridge_output?: string | null;
   mode?: string | null;
+  execution_backed?: boolean;
+  execution_truth_label?: string;
+  execution_truth_detail?: string;
   timestamp: string;
 }
 
@@ -62,6 +69,9 @@ export interface MissionReadItem {
   latest_run_id: string;
   source: string;
   truth: string;
+  execution_backed?: boolean;
+  execution_truth_label?: string;
+  execution_truth_detail?: string;
 }
 
 export interface MissionReadResponse {
@@ -90,12 +100,17 @@ export const systemApi = {
 };
 
 export const missionApi = {
-  start: (goal: string, category = "default") =>
+  start: (
+    goal: string,
+    category = "default",
+    mode?: "strategic" | "combat" | "guardian",
+  ) =>
     apiPost<{ mission_id: string; state: string; timestamp: string }>(
       "/v1/missions/start",
       {
         goal,
         category,
+        ...(mode ? { mode } : {}),
       },
     ),
   stop: (mission_id: string) =>

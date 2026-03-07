@@ -35,9 +35,10 @@ export interface ArtifactStats {
 }
 
 interface _ListResponse {
-  ok: boolean;
   artifacts: Artifact[];
   count: number;
+  ok?: boolean;
+  error?: string;
 }
 
 interface _SingleResponse {
@@ -59,15 +60,57 @@ interface _HistoryResponse {
   versions: number;
 }
 
+function sortArtifacts(items: Artifact[]): Artifact[] {
+  return [...items].sort((left, right) => {
+    const leftTime = Date.parse(left.created_at) || 0;
+    const rightTime = Date.parse(right.created_at) || 0;
+    return rightTime - leftTime;
+  });
+}
+
+function filterArtifacts(
+  items: Artifact[],
+  params?: {
+    status?: ArtifactStatus;
+    type?: ArtifactType;
+    mission_id?: string;
+    limit?: number;
+  },
+): Artifact[] {
+  const filtered = items.filter((artifact) => {
+    if (params?.status && artifact.status !== params.status) return false;
+    if (params?.type && artifact.type !== params.type) return false;
+    if (params?.mission_id && artifact.mission_id !== params.mission_id) return false;
+    return true;
+  });
+  const sorted = sortArtifacts(filtered);
+  if (params?.limit != null) {
+    return sorted.slice(0, params.limit);
+  }
+  return sorted;
+}
+
+function deriveArtifactStats(artifacts: Artifact[]): ArtifactStats {
+  const by_status: Record<string, number> = {};
+  const by_type: Record<string, number> = {};
+
+  for (const artifact of artifacts) {
+    by_status[artifact.status] = (by_status[artifact.status] ?? 0) + 1;
+    by_type[artifact.type] = (by_type[artifact.type] ?? 0) + 1;
+  }
+
+  return {
+    total: artifacts.length,
+    pending_review: by_status.PENDING_REVIEW ?? 0,
+    by_status,
+    by_type,
+  };
+}
+
 export const artifactsApi = {
   stats: () =>
-    apiGet<_StatsResponse>("/v1/vault/artifacts/stats").then(
-      (r): ArtifactStats => ({
-        total: r.total,
-        pending_review: r.pending_review,
-        by_status: r.by_status,
-        by_type: r.by_type,
-      }),
+    apiGet<_ListResponse>("/api/artifacts").then((r): ArtifactStats =>
+      deriveArtifactStats(Array.isArray(r.artifacts) ? r.artifacts : []),
     ),
 
   list: (params?: {
@@ -76,15 +119,14 @@ export const artifactsApi = {
     mission_id?: string;
     limit?: number;
   }) => {
-    const qs = new URLSearchParams();
-    if (params?.status) qs.set("status", params.status);
-    if (params?.type) qs.set("type", params.type);
-    if (params?.mission_id) qs.set("mission_id", params.mission_id);
-    if (params?.limit != null) qs.set("limit", String(params.limit));
-    const q = qs.toString();
-    return apiGet<_ListResponse>(
-      `/v1/vault/artifacts${q ? "?" + q : ""}`,
-    ).then((r) => ({ artifacts: r.artifacts, total: r.count }));
+    return apiGet<_ListResponse>("/api/artifacts").then((r) => {
+      const allArtifacts = Array.isArray(r.artifacts) ? r.artifacts : [];
+      const artifacts = filterArtifacts(allArtifacts, params);
+      return {
+        artifacts,
+        total: artifacts.length,
+      };
+    });
   },
 
   get: (id: string) =>

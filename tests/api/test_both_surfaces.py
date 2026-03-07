@@ -52,11 +52,35 @@ def test_get_missions_list_additive_read_model_available_on_both_surfaces():
         assert "read_model_version" in response
         assert response["count"] == len(response["missions"])
         assert response["count"] == len(response["items"])
+        if response["missions"]:
+            mission = response["missions"][0]
+            assert set(
+                ("execution_backed", "execution_truth_label", "execution_truth_detail")
+            ).issubset(set(mission.keys()))
         if response["items"]:
             item = response["items"][0]
             assert set(
-                ("id", "mission_id", "title", "status", "status_raw", "source", "truth")
+                (
+                    "id",
+                    "mission_id",
+                    "title",
+                    "status",
+                    "status_raw",
+                    "source",
+                    "truth",
+                    "execution_backed",
+                    "execution_truth_label",
+                    "execution_truth_detail",
+                )
             ).issubset(set(item.keys()))
+            if item["execution_backed"] is True:
+                assert item["execution_truth_label"] == "EXECUTION-BACKED"
+            elif item["status"] in {"queued", "validating"}:
+                assert item["execution_truth_label"] == "QUEUED RECORD"
+                assert item["execution_truth_detail"] == "Queued in backend contract."
+            else:
+                assert item["execution_truth_label"] == "READ-MODEL ONLY"
+                assert item["execution_truth_detail"] == "Display-only backend record."
 
 
 def test_get_mission_detail_additive_read_model_available_on_both_surfaces():

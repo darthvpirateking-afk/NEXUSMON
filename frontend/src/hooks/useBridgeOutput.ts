@@ -1,33 +1,45 @@
 import { useEffect, useState } from "react";
 
-type Listener = (output: string | null, mode: string | null) => void;
+export interface BridgeOutputState {
+  output: string | null;
+  mode: string | null;
+  backendBacked: boolean;
+}
 
-let latestOutput: string | null = null;
-let latestMode: string | null = null;
+type Listener = (state: BridgeOutputState) => void;
+
+let latestState: BridgeOutputState = {
+  output: null,
+  mode: null,
+  backendBacked: false,
+};
 const listeners = new Set<Listener>();
 
-export function setBridgeOutput(output: string | null, mode: string | null): void {
-  latestOutput = output;
-  latestMode = mode;
+export function setBridgeOutput(
+  output: string | null,
+  mode: string | null,
+  options?: { backendBacked?: boolean },
+): void {
+  latestState = {
+    output,
+    mode,
+    backendBacked: Boolean(output && options?.backendBacked),
+  };
   for (const listener of listeners) {
-    listener(output, mode);
+    listener(latestState);
   }
 }
 
-export function useBridgeOutput(): { output: string | null; mode: string | null } {
-  const [output, setOutput] = useState<string | null>(latestOutput);
-  const [mode, setMode] = useState<string | null>(latestMode);
+export function useBridgeOutput(): BridgeOutputState {
+  const [state, setState] = useState<BridgeOutputState>(latestState);
 
   useEffect(() => {
-    const listener: Listener = (nextOutput, nextMode) => {
-      setOutput(nextOutput);
-      setMode(nextMode);
-    };
+    const listener: Listener = (nextState) => setState(nextState);
     listeners.add(listener);
     return () => {
       listeners.delete(listener);
     };
   }, []);
 
-  return { output, mode };
+  return state;
 }

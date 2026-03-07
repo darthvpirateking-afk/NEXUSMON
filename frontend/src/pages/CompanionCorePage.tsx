@@ -1,9 +1,14 @@
 import { CompanionCoreCard } from "../components/CompanionCoreCard";
-import { useCompanionCore } from "../hooks/useCompanionCore";
+import {
+  clearCompanionComposer,
+  useCompanionComposerState,
+  useCompanionCore,
+} from "../hooks/useCompanionCore";
 
 export function CompanionCorePage() {
   const { status, messageResult, loading, error, refresh, message } =
     useCompanionCore();
+  const composerState = useCompanionComposerState();
 
   return (
     <CompanionCoreCard
@@ -12,7 +17,14 @@ export function CompanionCorePage() {
       loading={loading}
       error={error}
       onRefresh={refresh}
-      onMessage={message}
+      onMessage={(text) => {
+        void message(text);
+        clearCompanionComposer();
+      }}
+      armedIntent={composerState.intent}
+      armedDraft={composerState.draft}
+      composerNonce={composerState.nonce}
+      onClearArmedIntent={clearCompanionComposer}
     />
   );
 }

@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest";
 import {
   isRealMissionPanelEnabled,
   mapReadModelMission,
@@ -16,7 +17,7 @@ describe("missionPanelReadModel", () => {
     expect(isRealMissionPanelEnabled(undefined)).toBe(false);
   });
 
-  test("keeps lifecycle missions authoritative and appends read-model-only missions", () => {
+  test("keeps read-model missions authoritative and overlays lifecycle detail", () => {
     const lifecycleMission: MissionStatus = {
       mission_id: "mission-live",
       state: "RUNNING",
@@ -40,6 +41,9 @@ describe("missionPanelReadModel", () => {
         latest_run_id: "run-1",
         source: "runtime_engine",
         truth: "backend",
+        execution_backed: false,
+        execution_truth_label: "LIFECYCLE STATE ONLY",
+        execution_truth_detail: "Execution not yet wired.",
       },
       {
         id: "mission-persisted",
@@ -55,6 +59,9 @@ describe("missionPanelReadModel", () => {
         latest_run_id: "",
         source: "legacy_jsonl",
         truth: "backend",
+        execution_backed: false,
+        execution_truth_label: "QUEUED RECORD",
+        execution_truth_detail: "Queued in backend contract.",
       },
     ];
 
@@ -70,8 +77,19 @@ describe("missionPanelReadModel", () => {
     expect(merged.missions[1]).toMatchObject({
       mission_id: "mission-live",
       state: "RUNNING",
-      sourceLabel: "LIFECYCLE",
+      title: "Duplicate runtime mission",
+      sourceLabel: "API MISSIONS",
       actionsEnabled: true,
+      executionLabel: "LIFECYCLE STATE ONLY",
+      lifecycleState: "RUNNING",
+    });
+    expect(merged.missions[1].executionDetail).toContain("Execution not yet wired");
+    expect(merged.missions[1].lifecycleDetail).toContain("/v1/missions/status");
+    expect(merged.missions[0]).toMatchObject({
+      mission_id: "mission-persisted",
+      title: "Persisted mission",
+      executionLabel: "QUEUED RECORD",
+      sourceLabel: "API MISSIONS",
     });
   });
 
@@ -103,6 +121,7 @@ describe("missionPanelReadModel", () => {
         mission_id: "mission-complete",
         message: "Mission complete",
         mode: "combat",
+        backendBacked: true,
       },
     ]);
     expect(secondMerge.bridgeOutputs).toEqual([]);
@@ -124,7 +143,14 @@ describe("missionPanelReadModel", () => {
         latest_run_id: "",
         source: "runtime_engine",
         truth: "backend",
-      }).state,
-    ).toBe("FAILED");
+        execution_backed: false,
+        execution_truth_label: "READ-MODEL ONLY",
+        execution_truth_detail: "Display-only backend record.",
+      }),
+    ).toMatchObject({
+      state: "FAILED",
+      executionLabel: "READ-MODEL ONLY",
+      sourceLabel: "API MISSIONS",
+    });
   });
 });

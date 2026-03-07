@@ -1,8 +1,9 @@
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import type {
   CompanionCoreMessageResponse,
   CompanionCoreStatus,
 } from "../types/companionCore";
+import type { CompanionComposerIntent } from "../hooks/useCompanionCore";
 
 interface CompanionCoreCardProps {
   status: CompanionCoreStatus | null;
@@ -11,6 +12,10 @@ interface CompanionCoreCardProps {
   error: string | null;
   onRefresh: () => void;
   onMessage: (text: string) => void;
+  armedIntent: CompanionComposerIntent;
+  armedDraft: string;
+  composerNonce: number;
+  onClearArmedIntent: () => void;
 }
 
 export function CompanionCoreCard({
@@ -20,8 +25,18 @@ export function CompanionCoreCard({
   error,
   onRefresh,
   onMessage,
+  armedIntent,
+  armedDraft,
+  composerNonce,
+  onClearArmedIntent,
 }: CompanionCoreCardProps) {
   const [text, setText] = useState("");
+
+  useEffect(() => {
+    if (armedDraft) {
+      setText(armedDraft);
+    }
+  }, [armedDraft, composerNonce]);
 
   return (
     <section style={styles.card}>
@@ -48,6 +63,18 @@ export function CompanionCoreCard({
         <p style={styles.meta}>Summary: {status.summary}</p>
       ) : null}
 
+      {armedIntent ? (
+        <div style={styles.intentBar}>
+          <span style={styles.intentBadge}>{armedIntent.toUpperCase()} ARMED</span>
+          <span style={styles.intentCopy}>
+            Draft staged from the active cockpit. Review, edit, then send through the real companion route.
+          </span>
+          <button type="button" style={styles.dismissButton} onClick={onClearArmedIntent}>
+            Clear
+          </button>
+        </div>
+      ) : null}
+
       <div style={styles.row}>
         <input
           type="text"
@@ -60,9 +87,12 @@ export function CompanionCoreCard({
           type="button"
           style={styles.button}
           disabled={loading || text.trim().length === 0}
-          onClick={() => onMessage(text)}
+          onClick={() => {
+            onMessage(text);
+            setText("");
+          }}
         >
-          Send
+          {armedIntent === "seal" ? "Seal + Send" : armedIntent === "transmit" ? "Transmit" : "Send"}
         </button>
       </div>
 
@@ -125,6 +155,36 @@ const styles: Record<string, CSSProperties> = {
   meta: {
     margin: 0,
     color: "#b2c1d1",
+  },
+  intentBar: {
+    display: "grid",
+    gridTemplateColumns: "auto 1fr auto",
+    gap: "8px",
+    alignItems: "center",
+    border: "1px solid #4b6175",
+    borderRadius: "10px",
+    padding: "10px 12px",
+    background: "rgba(36,82,122,0.18)",
+  },
+  intentBadge: {
+    color: "#f3d173",
+    fontSize: "0.72rem",
+    fontWeight: 700,
+    letterSpacing: "0.12em",
+  },
+  intentCopy: {
+    color: "#d1dfed",
+    fontSize: "0.9rem",
+    lineHeight: 1.4,
+  },
+  dismissButton: {
+    border: "1px solid #53697c",
+    background: "transparent",
+    color: "#d1dfed",
+    borderRadius: "8px",
+    padding: "8px 10px",
+    cursor: "pointer",
+    font: "inherit",
   },
   ok: {
     margin: 0,

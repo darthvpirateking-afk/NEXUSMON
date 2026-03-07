@@ -22,6 +22,72 @@ const initialState: CompanionCoreState = {
   error: null,
 };
 
+export type CompanionComposerIntent = "seal" | "transmit" | null;
+
+export interface CompanionComposerState {
+  intent: CompanionComposerIntent;
+  draft: string;
+  nonce: number;
+}
+
+type CompanionComposerListener = (state: CompanionComposerState) => void;
+
+const initialComposerState: CompanionComposerState = {
+  intent: null,
+  draft: "",
+  nonce: 0,
+};
+
+let composerState: CompanionComposerState = initialComposerState;
+const composerListeners = new Set<CompanionComposerListener>();
+
+export function buildCompanionComposerDraft(intent: Exclude<CompanionComposerIntent, null>): string {
+  return intent === "seal" ? "Prepare sealed command: " : "Transmit directive: ";
+}
+
+export function getCompanionComposerState(): CompanionComposerState {
+  return composerState;
+}
+
+export function armCompanionComposer(
+  intent: Exclude<CompanionComposerIntent, null>,
+  draft?: string,
+): void {
+  composerState = {
+    intent,
+    draft: draft ?? buildCompanionComposerDraft(intent),
+    nonce: Date.now(),
+  };
+  for (const listener of composerListeners) {
+    listener(composerState);
+  }
+}
+
+export function clearCompanionComposer(): void {
+  composerState = {
+    intent: null,
+    draft: "",
+    nonce: Date.now(),
+  };
+  for (const listener of composerListeners) {
+    listener(composerState);
+  }
+}
+
+export function useCompanionComposerState(): CompanionComposerState {
+  const [state, setState] = useState<CompanionComposerState>(composerState);
+
+  useEffect(() => {
+    const listener: CompanionComposerListener = (nextState) => setState(nextState);
+    composerListeners.add(listener);
+    return () => {
+      composerListeners.delete(listener);
+    };
+  }, []);
+
+  return state;
+}
+
 export function useCompanionCore() {
   const [state, setState] = useState<CompanionCoreState>(initialState);
 

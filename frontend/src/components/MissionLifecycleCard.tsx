@@ -82,7 +82,9 @@ export function MissionLifecycleCard() {
     });
 
     for (const update of next.bridgeOutputs) {
-      setBridgeOutput(update.message, update.mode);
+      setBridgeOutput(update.message, update.mode, {
+        backendBacked: update.backendBacked,
+      });
     }
 
     prevStatesRef.current = next.previousStates;
@@ -129,7 +131,7 @@ export function MissionLifecycleCard() {
           <span style={styles.eyebrow}>Mission Command</span>
           <h2 style={styles.title}>Truthful Lifecycle Feed</h2>
           <p style={styles.subtitle}>
-            Runtime control remains on lifecycle endpoints. Backend read-model state is merged behind the real-panel flag.
+            /api/missions now drives the primary mission list when the real-panel flag is enabled. Lifecycle polling remains a supplemental control and status overlay.
           </p>
         </div>
         <div style={styles.headerBadgeGroup}>
@@ -140,9 +142,9 @@ export function MissionLifecycleCard() {
 
       <div style={styles.summaryGrid}>
         <div style={styles.summaryCard}>
-          <span style={styles.summaryLabel}>Running</span>
+          <span style={styles.summaryLabel}>Lifecycle RUNNING</span>
           <strong style={{ ...styles.summaryValue, color: colors.running }}>{missionSummary.running}</strong>
-          <span style={styles.summaryHint}>Live operator-controlled missions</span>
+          <span style={styles.summaryHint}>Execution not yet wired or engine-verified</span>
         </div>
         <div style={styles.summaryCard}>
           <span style={styles.summaryLabel}>Queued</span>
@@ -213,78 +215,85 @@ export function MissionLifecycleCard() {
         {missions.length === 0 ? (
           <p style={styles.empty}>No active missions.</p>
         ) : (
-          missions.slice(-5).map((m) => (
-            <div
-              key={m.mission_id}
-              style={{
-                ...styles.missionRow,
-                boxShadow:
-                  m.state === "RUNNING"
-                    ? shadows.glow(colors.primaryAccent)
-                    : m.state === "COMPLETED"
-                      ? shadows.glow(colors.secondaryAccent)
-                      : "none",
-              }}
-            >
+          missions.slice(-5).map((m) => {
+            const actionState = m.lifecycleState ?? m.state;
+            return (
               <div
+                key={m.mission_id}
                 style={{
-                  ...styles.missionAccent,
-                  background: STATE_COLOR[m.state] ?? colors.textSecondary,
+                  ...styles.missionRow,
+                  boxShadow:
+                    m.state === "RUNNING"
+                      ? shadows.glow(colors.primaryAccent)
+                      : m.state === "COMPLETED"
+                        ? shadows.glow(colors.secondaryAccent)
+                        : "none",
                 }}
-              />
-              <div style={styles.missionBody}>
-                <div style={styles.missionTopRow}>
-                  <div style={styles.missionMeta}>
-                    <span style={styles.missionId}>{m.mission_id}</span>
-                    {m.title && <span style={styles.missionTitle}>{m.title}</span>}
-                  </div>
-                  <div style={styles.missionStatusGroup}>
-                <span
+              >
+                <div
                   style={{
-                    ...styles.missionState,
-                    color: STATE_COLOR[m.state] ?? colors.textSecondary,
+                    ...styles.missionAccent,
+                    background: STATE_COLOR[m.state] ?? colors.textSecondary,
                   }}
-                >
-                  {m.state}
-                </span>
-                    {REAL_MISSION_PANEL_ENABLED && (
-                      <span style={styles.sourceBadge}>{m.sourceLabel}</span>
+                />
+                <div style={styles.missionBody}>
+                  <div style={styles.missionTopRow}>
+                    <div style={styles.missionMeta}>
+                      <span style={styles.missionId}>{m.mission_id}</span>
+                      {m.title && <span style={styles.missionTitle}>{m.title}</span>}
+                    </div>
+                    <div style={styles.missionStatusGroup}>
+                      <span
+                        style={{
+                          ...styles.missionState,
+                          color: STATE_COLOR[m.state] ?? colors.textSecondary,
+                        }}
+                      >
+                        {m.state}
+                      </span>
+                      {REAL_MISSION_PANEL_ENABLED && (
+                        <span style={styles.sourceBadge}>{m.sourceLabel}</span>
+                      )}
+                      {m.lifecycleState ? <span style={styles.sourceBadge}>LIFECYCLE {m.lifecycleState}</span> : null}
+                      <span style={styles.truthBadge}>{m.executionLabel}</span>
+                    </div>
+                  </div>
+                  <div style={styles.missionTelemetryRow}>
+                    <span style={styles.telemetryChip}>{m.actionsEnabled ? "LIFECYCLE CONTROL" : "READ ONLY"}</span>
+                    <span style={styles.telemetryTruthChip}>{m.executionDetail}</span>
+                    {m.lifecycleDetail ? <span style={styles.telemetryChip}>{m.lifecycleDetail}</span> : null}
+                    <span style={styles.telemetryChip}>{formatMissionTimestamp(m.updatedAt ?? m.createdAt)}</span>
+                  </div>
+                  <div style={styles.missionActions}>
+                    {m.actionsEnabled && actionState === "RUNNING" && (
+                      <button
+                        style={styles.actionBtn}
+                        onClick={() => void handleAction("pause", m.mission_id)}
+                      >
+                        Pause
+                      </button>
+                    )}
+                    {m.actionsEnabled && actionState === "PAUSED" && (
+                      <button
+                        style={styles.actionBtn}
+                        onClick={() => void handleAction("resume", m.mission_id)}
+                      >
+                        Resume
+                      </button>
+                    )}
+                    {m.actionsEnabled && !["COMPLETED", "FAILED", "ABORTED"].includes(actionState) && (
+                      <button
+                        style={{ ...styles.actionBtn, ...styles.abortBtn }}
+                        onClick={() => void handleAction("stop", m.mission_id)}
+                      >
+                        Abort
+                      </button>
                     )}
                   </div>
                 </div>
-                <div style={styles.missionTelemetryRow}>
-                  <span style={styles.telemetryChip}>{m.actionsEnabled ? "CONTROL" : "READ ONLY"}</span>
-                  <span style={styles.telemetryChip}>{formatMissionTimestamp(m.updatedAt ?? m.createdAt)}</span>
-                </div>
-                <div style={styles.missionActions}>
-                  {m.actionsEnabled && m.state === "RUNNING" && (
-                    <button
-                      style={styles.actionBtn}
-                      onClick={() => void handleAction("pause", m.mission_id)}
-                    >
-                      Pause
-                    </button>
-                  )}
-                  {m.actionsEnabled && m.state === "PAUSED" && (
-                    <button
-                      style={styles.actionBtn}
-                      onClick={() => void handleAction("resume", m.mission_id)}
-                    >
-                      Resume
-                    </button>
-                  )}
-                  {m.actionsEnabled && !["COMPLETED", "FAILED", "ABORTED"].includes(m.state) && (
-                    <button
-                      style={{ ...styles.actionBtn, ...styles.abortBtn }}
-                      onClick={() => void handleAction("stop", m.mission_id)}
-                    >
-                      Abort
-                    </button>
-                  )}
-                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </section>
@@ -576,6 +585,16 @@ const styles: Record<string, CSSProperties> = {
     letterSpacing: "0.08em",
     fontFamily: typography.fontFamily,
   },
+  truthBadge: {
+    color: colors.warning,
+    border: `1px solid ${colors.warning}55`,
+    borderRadius: radii.full,
+    padding: `2px ${spacing.sm}`,
+    fontSize: typography.fontSizeSm,
+    letterSpacing: "0.08em",
+    fontFamily: typography.fontFamily,
+    background: `${colors.warning}12`,
+  },
   missionTelemetryRow: {
     display: "flex",
     gap: spacing.xs,
@@ -589,6 +608,15 @@ const styles: Record<string, CSSProperties> = {
     fontSize: typography.fontSizeSm,
     fontFamily: typography.fontFamily,
     background: `${colors.bg}A6`,
+  },
+  telemetryTruthChip: {
+    color: colors.warning,
+    border: `1px solid ${colors.warning}44`,
+    borderRadius: radii.full,
+    padding: `2px ${spacing.sm}`,
+    fontSize: typography.fontSizeSm,
+    fontFamily: typography.fontFamily,
+    background: `${colors.warning}12`,
   },
   missionActions: {
     display: "flex",
