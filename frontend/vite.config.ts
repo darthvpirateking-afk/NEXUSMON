@@ -16,6 +16,9 @@ export default defineConfig({
   server: {
     proxy: {
       "/v1": { target: "http://localhost:8000", changeOrigin: true },
+      "/api": { target: "http://localhost:8000", changeOrigin: true },
+      "/bond": { target: "http://localhost:8000", changeOrigin: true },
+      "/supply": { target: "http://localhost:8000", changeOrigin: true },
       "/health": { target: "http://localhost:8000", changeOrigin: true },
     },
   },

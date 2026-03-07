@@ -1,3 +1,5 @@
+import { resolveApiBaseUrl } from "../api/client";
+
 /**
  * Generic API POST helper
  */
@@ -5,11 +7,11 @@ export async function apiPost<T>(
   endpoint: string,
   payload: Record<string, unknown>
 ): Promise<T> {
-  // Canonical API env with backward-compatible fallback.
-  const baseUrl =
-    import.meta.env.VITE_API_BASE_URL ||
-    import.meta.env.VITE_API_URL ||
-    window.location.origin;
+  const baseUrl = resolveApiBaseUrl(
+    import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL,
+    window.location.origin,
+    Boolean(import.meta.env.DEV),
+  ) || window.location.origin;
   const url = new URL(endpoint, baseUrl);
 
   const response = await fetch(url.toString(), {

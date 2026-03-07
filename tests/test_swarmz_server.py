@@ -37,7 +37,8 @@ class TestWebServer(unittest.TestCase):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("NEXUSMON", response.text)
-        self.assertIn("quick-nav", response.text)
+        self.assertIn('id="root"', response.text)
+        self.assertIn("NEXUSMON Frontend Chat", response.text)
 
     def test_manifest(self):
         """Test PWA manifest is served."""

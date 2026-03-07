@@ -1,8 +1,32 @@
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ??
-  import.meta.env.VITE_API_URL ??
-  "https://nexusmon.onrender.com"
-).replace(/\/+$/, "");
+export function resolveApiBaseUrl(
+  configuredBaseUrl: string | undefined,
+  currentOrigin?: string,
+  isDev: boolean = Boolean(import.meta.env.DEV),
+): string {
+  const normalized = (configuredBaseUrl ?? "https://nexusmon.onrender.com").replace(/\/+$/, "");
+  if (!isDev) {
+    return normalized;
+  }
+
+  try {
+    const url = new URL(normalized);
+    const isLocalBackend =
+      (url.hostname === "127.0.0.1" || url.hostname === "localhost") &&
+      url.port === "8000";
+    if (isLocalBackend && currentOrigin && currentOrigin !== url.origin) {
+      return "";
+    }
+  } catch {
+    return normalized;
+  }
+
+  return normalized;
+}
+
+const API_BASE_URL = resolveApiBaseUrl(
+  import.meta.env.VITE_API_BASE_URL ?? import.meta.env.VITE_API_URL,
+  typeof window !== "undefined" ? window.location.origin : undefined,
+);
 
 export class ApiError extends Error {
   readonly status: number;
