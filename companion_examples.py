@@ -3,13 +3,13 @@
 # See LICENSE file for details.
 #!/usr/bin/env python3
 """
-SWARMZ Companion Examples
+NEXUSMON Companion Examples
 
-Demonstrates various usage patterns for the SWARMZ Companion system.
+Demonstrates various usage patterns for the NEXUSMON Companion system.
 """
 
-from companion import SwarmzCompanion, CommitState, WorkerSwarm, TaskContext
-from swarmz import SwarmzCore
+from companion import NexusmonCompanion, CommitState, WorkerSwarm, TaskContext
+from nexusmon import NexusmonCore
 
 
 def example_basic_interaction():
@@ -18,12 +18,12 @@ def example_basic_interaction():
     print("Example 1: Basic Interaction")
     print("=" * 70)
 
-    companion = SwarmzCompanion()
+    companion = NexusmonCompanion()
 
     # Question â†’ Companion Mode
     print("\n1. Question (Companion Mode):")
-    response = companion.interact("What is SWARMZ?")
-    print("Input: 'What is SWARMZ?'")
+    response = companion.interact("What is NEXUSMON?")
+    print("Input: 'What is NEXUSMON?'")
     print(f"Mode: {companion.get_current_mode().value}")
     print(f"Response: {response[:100]}...")
 
@@ -37,21 +37,21 @@ def example_basic_interaction():
     print("\n" + "=" * 70 + "\n")
 
 
-def example_with_swarmz_core():
-    """Example 2: Integration with SWARMZ Core."""
+def example_with_nexusmon_core():
+    """Example 2: Integration with NEXUSMON Core."""
     print("=" * 70)
-    print("Example 2: Integration with SWARMZ Core")
+    print("Example 2: Integration with NEXUSMON Core")
     print("=" * 70)
 
-    # Initialize SWARMZ Core with plugins
-    core = SwarmzCore()
+    # Initialize NEXUSMON Core with plugins
+    core = NexusmonCore()
     core.load_plugin("plugins/filesystem.py")
 
     # Create companion with core integration
-    companion = SwarmzCompanion(swarmz_core=core)
+    companion = NexusmonCompanion(swarmz_core=core)
 
     # Execute real task through core
-    print("\nExecuting task through SWARMZ Core:")
+    print("\nExecuting task through NEXUSMON Core:")
     response = companion.interact("Run system info task")
     print(response)
 
@@ -92,7 +92,7 @@ def example_intelligence_learning():
     print("Example 4: Intelligence Layer & Learning")
     print("=" * 70)
 
-    companion = SwarmzCompanion()
+    companion = NexusmonCompanion()
 
     # Execute several tasks
     print("\nExecuting tasks to build history:")
@@ -277,14 +277,14 @@ def main():
     print("\n")
     print("#" * 70)
     print("#" + " " * 68 + "#")
-    print("#" + " " * 20 + "SWARMZ Companion Examples" + " " * 23 + "#")
+    print("#" + " " * 19 + "NEXUSMON Companion Examples" + " " * 21 + "#")
     print("#" + " " * 68 + "#")
     print("#" * 70)
     print("\n")
 
     examples = [
         ("Basic Interaction", example_basic_interaction),
-        ("SWARMZ Core Integration", example_with_swarmz_core),
+        ("NEXUSMON Core Integration", example_with_nexusmon_core),
         ("Worker Swarm System", example_worker_swarm),
         ("Intelligence & Learning", example_intelligence_learning),
         ("Memory Persistence", example_memory_persistence),

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "agent": "Nexusmon Runtime",
+  "deny_by_default": true,
+  "allowed_commands": [
+    "uv --version",
+    "uv self update",
+    "uv sync",
+    "uv run pytest tests/ --tb=short -q",
+    "pytest tests/ --tb=short -q",
+    "pytest <targeted test path> --tb=short -q",
+    "git status --short --branch",
+    "Get-ChildItem <approved path>"
+  ],
+  "denied_command_categories": [
+    "arbitrary-shell-exploration",
+    "destructive-git-commands",
+    "deployment-commands",
+    "unlisted-commands"
+  ],
+  "required_command_log_fields": [
+    "timestamp",
+    "agent",
+    "command",
+    "result"
+  ]
+}

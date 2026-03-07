@@ -570,9 +570,9 @@ class ModeManager:
         }
 
 
-class SwarmzCompanion:
+class NexusmonCompanion:
     """
-    Main SWARMZ Companion System.
+    Main NEXUSMON Companion System.
     Personal AI companion with dual-mode cognition.
     """
 
@@ -619,14 +619,17 @@ class SwarmzCompanion:
             pass  # No saved memory yet
 
 
+SwarmzCompanion = NexusmonCompanion
+
+
 def main():
-    """Demonstrate SWARMZ Companion."""
+    """Demonstrate NEXUSMON Companion."""
     print("=" * 60)
-    print("SWARMZ Companion - Personal AI Companion")
+    print("NEXUSMON Companion - Personal AI Companion")
     print("=" * 60)
     print()
 
-    companion = SwarmzCompanion()
+    companion = NexusmonCompanion()
 
     # Demo conversation mode
     print("1. Testing Companion Mode (conversation):")
@@ -647,7 +650,7 @@ def main():
         print(f"   {key}: {value}")
     print()
 
-    print("SWARMZ Companion is ready!")
+    print("NEXUSMON Companion is ready!")
 
 
 if __name__ == "__main__":

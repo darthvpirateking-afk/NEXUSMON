@@ -557,6 +557,51 @@ jobs:
           path: artifacts/manifest-validation-status.json
           if-no-files-found: error
 
+  agent-guardrails:
+    name: Agent Guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect agent guardrail changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            agent_guardrails:
+              - '.github/agents/**'
+              - 'docs/agent_orchestration_plan.md'
+              - 'config/agent_runtime_policy.json'
+              - 'config/agent_handoff.example.json'
+              - 'schemas/agent-handoff.v1.json'
+              - 'tools/validate_agent_guardrails.py'
+              - 'tests/test_agent_guardrails.py'
+              - '.github/workflows/ci.yml'
+
+      - name: Set up Python
+        if: steps.changes.outputs.agent_guardrails == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Python dependencies
+        if: steps.changes.outputs.agent_guardrails == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Validate agent guardrails
+        if: steps.changes.outputs.agent_guardrails == 'true'
+        run: |
+          python tools/validate_agent_guardrails.py
+          pytest tests/test_agent_guardrails.py --tb=short -q
+
+      - name: Skip guardrail checks (no relevant changes)
+        if: steps.changes.outputs.agent_guardrails != 'true'
+        run: |
+          echo "Skipping agent guardrail checks: no relevant changes detected."
+
   tests:
     name: Tests
     runs-on: ubuntu-latest

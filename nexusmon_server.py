@@ -16,6 +16,7 @@ import json
 import logging
 import traceback
 from collections import deque
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -433,6 +434,23 @@ class AvatarMatrixTriggerRequest(BaseModel):
     )
 
 
+@asynccontextmanager
+async def _nexusmon_lifespan(_: FastAPI):
+    """Run additive startup hooks without deprecated FastAPI event decorators."""
+    try:
+        from core.channels.telegram import start_telegram_channel
+
+        channel = await start_telegram_channel()
+        if channel:
+            print("[NEXUSMON] Telegram channel online")
+        else:
+            print("[NEXUSMON] Telegram channel disabled (set TELEGRAM_BOT_TOKEN to enable)")
+    except Exception as _tg_exc:
+        print(f"[NEXUSMON] Telegram channel failed to start: {_tg_exc}")
+
+    yield
+
+
 # Initialize FastAPI app
 app = FastAPI(
     title="SWARMZ API",
@@ -440,6 +458,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     openapi_url="/docs/openapi.json",
+    lifespan=_nexusmon_lifespan,
 )
 
 validate_startup_contract(Path(__file__).resolve().parent)
@@ -3892,22 +3911,6 @@ async def artifact_template_serve(name: str):
         return HTMLResponse(content=template_path.read_text(encoding="utf-8"))
     except Exception as exc:
         return {"error": str(exc)}
-
-
-# --- Telegram Channel Startup ---
-@app.on_event("startup")
-async def _start_telegram_channel():
-    """Start Telegram bot if TELEGRAM_BOT_TOKEN is set."""
-    try:
-        from core.channels.telegram import start_telegram_channel
-        channel = await start_telegram_channel()
-        if channel:
-            print("[NEXUSMON] Telegram channel online")
-        else:
-            print("[NEXUSMON] Telegram channel disabled (set TELEGRAM_BOT_TOKEN to enable)")
-    except Exception as _tg_exc:
-        print(f"[NEXUSMON] Telegram channel failed to start: {_tg_exc}")
-
 
 # --- Main Entry Point ---
 def main():

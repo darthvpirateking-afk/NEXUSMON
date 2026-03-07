@@ -15,7 +15,7 @@ export interface CountdownState {
 
 export class Countdown {
   private countdowns: Map<string, CountdownState> = new Map();
-  private intervals: Map<string, NodeJS.Timeout> = new Map();
+  private intervals: Map<string, ReturnType<typeof setInterval>> = new Map();
 
   /**
    * Start countdown for an action

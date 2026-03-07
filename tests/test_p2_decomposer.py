@@ -1,7 +1,19 @@
 import json
 import os
 from pathlib import Path
+import pytest
 from swarm_runner import _worker_nexusmon_mission
+from core.reflection import reflector
+from core.telemetry import telemetry
+
+
+@pytest.fixture(autouse=True)
+def _reset_mission_reflection_state():
+    telemetry.clear()
+    reflector.reset()
+    yield
+    telemetry.clear()
+    reflector.reset()
 
 
 def test_nexusmon_bio_decomposition():

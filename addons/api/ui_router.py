@@ -44,16 +44,16 @@ def _get_fallback_core():
     if _FALLBACK_CORE is not None:
         return _FALLBACK_CORE
     try:
-        from swarmz import SwarmzCore
+      from nexusmon import NexusmonCore
 
-        _FALLBACK_CORE = SwarmzCore()
+      _FALLBACK_CORE = NexusmonCore()
     except Exception:
         _FALLBACK_CORE = None
     return _FALLBACK_CORE
 
 
 # ---------------------------------------------------------------------------
-# Dependency-based SwarmzCore access via orchestrator
+# Dependency-based NexusmonCore access via orchestrator
 # ---------------------------------------------------------------------------
 def _get_core(orchestrator=Depends(get_orchestrator)):
     if orchestrator and hasattr(orchestrator, "core"):

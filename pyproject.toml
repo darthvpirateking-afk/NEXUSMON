@@ -14,7 +14,7 @@ include-package-data = false
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["swarmz*", "swarmz_runtime*", "swarmz_app*", "kernel_runtime*", "addons*"]
+include = ["nexusmon*", "nexusmon_runtime*", "swarmz*", "swarmz_runtime*", "swarmz_app*", "kernel_runtime*", "addons*"]
 exclude = [
   "swarmz-mobile*",
   "*.node_modules*",

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-05T13:46:27.167670Z",
+  "generated_at": "2026-03-07T00:19:57.386032Z",
   "project_root": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154",
-  "count": 67,
+  "count": 102,
   "entries": [
     {
       "id": "life.awakening_loop.core",
@@ -196,6 +196,251 @@
       "id": null,
       "path": "packs/galileo/G-20260304-131422-ae58d3a0/manifest.json",
       "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260304-131422-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-103311-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-103311-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-103313-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-103313-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-112716-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-112716-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-112717-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-112717-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-112718-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-112718-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-121426-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-121426-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-121427-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-121427-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-121428-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-121428-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-164245-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-164245-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-164249-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-164249-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-164251-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-164251-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-170855-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-170855-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-170857-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-170857-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-170859-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-170859-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-171834-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-171834-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-171838-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-171838-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-171839-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-171839-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-180431-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-180431-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-180437-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-180437-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-180444-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-180444-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-180752-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-180752-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-180757-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-180757-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-180759-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-180759-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-182933-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-182933-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-182937-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-182937-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-182941-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-182941-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-203909-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-203909-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-203914-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-203914-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-203916-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-203916-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-204131-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-204131-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-204138-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-204138-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-204144-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-204144-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-204206-d5dea1d0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-204206-d5dea1d0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-204219-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-204219-ae58d3a0\\manifest.json",
+      "schema_valid": false,
+      "error": "not-unified-manifest-schema"
+    },
+    {
+      "id": null,
+      "path": "packs/galileo/G-20260306-204232-ae58d3a0/manifest.json",
+      "absolute_path": "E:\\NEXUSMON-main\\NEXUSMON-main-backup-20260227-224154\\packs\\galileo\\G-20260306-204232-ae58d3a0\\manifest.json",
       "schema_valid": false,
       "error": "not-unified-manifest-schema"
     },

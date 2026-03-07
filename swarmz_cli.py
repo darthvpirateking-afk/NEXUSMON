@@ -3,21 +3,21 @@
 # See LICENSE file for details.
 #!/usr/bin/env python3
 """
-SWARMZ Command Line Interface
+NEXUSMON Command Line Interface
 
-Operator-sovereign interface for interacting with the SWARMZ system.
+Operator-sovereign interface for interacting with the NEXUSMON system.
 """
 
 import sys
 import argparse
 import json
 from pathlib import Path
-from swarmz import SwarmzCore
+from nexusmon import NexusmonCore
 
 
 def cli_main():
     parser = argparse.ArgumentParser(
-        description="SWARMZ - Operator-Sovereign 'Do Anything' System",
+        description="NEXUSMON - Operator-Sovereign 'Do Anything' System",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -43,13 +43,13 @@ Examples:
 
     args = parser.parse_args()
 
-    # Initialize SWARMZ
+    # Initialize NEXUSMON
     config = {}
     if args.config and Path(args.config).exists():
         with open(args.config, "r") as f:
             config = json.load(f)
 
-    swarmz = SwarmzCore(config)
+    swarmz = NexusmonCore(config)
 
     # Load plugin if specified
     if args.load_plugin:
@@ -63,7 +63,7 @@ Examples:
 
     # List capabilities
     if args.list:
-        print("Available SWARMZ Capabilities:")
+        print("Available NEXUSMON Capabilities:")
         print("=" * 60)
         capabilities = swarmz.list_capabilities()
 
@@ -105,7 +105,7 @@ Examples:
 
     # Show audit log
     if args.audit:
-        print("SWARMZ Audit Log:")
+        print("NEXUSMON Audit Log:")
         print("=" * 60)
         for idx, entry in enumerate(swarmz.get_audit_log(), 1):
             print(f"{idx}. {entry['action']}")
@@ -116,7 +116,7 @@ Examples:
     # Interactive mode
     if args.interactive:
         print("=" * 60)
-        print("SWARMZ Interactive Mode")
+        print("NEXUSMON Interactive Mode")
         print("Operator maintains full sovereignty")
         print("=" * 60)
         print("Commands: list, task <name> [params], load <plugin>, audit, help, exit")
@@ -124,7 +124,7 @@ Examples:
 
         while True:
             try:
-                command = input("swarmz> ").strip()
+                command = input("nexusmon> ").strip()
 
                 if not command:
                     continue

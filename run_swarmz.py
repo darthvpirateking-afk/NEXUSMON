@@ -1,4 +1,4 @@
-# --- SWARMZ Orchestrator Activation (additive-only) ---
+# --- NEXUSMON Orchestrator Activation (additive-only) ---
 try:
     from kernel_runtime.orchestrator import SwarmzOrchestrator
 
@@ -17,8 +17,8 @@ import cProfile
 import pstats
 import io
 import uvicorn
-import swarmz_runtime.api.server as server
-from swarmz_runtime.api.server import app
+import nexusmon_runtime.api.server as server
+from nexusmon_runtime.api.server import app
 import subprocess
 from core.activity_stream import record_event
 
@@ -44,7 +44,7 @@ def run_tool(tool_path):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run SWARMZ tools")
+    parser = argparse.ArgumentParser(description="Run NEXUSMON tools")
     parser.add_argument(
         "--verbose", action="store_true", help="Enable verbose runtime logging"
     )
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         print(f"  Operator PIN source: {pin_source} (stored at {pin_file})")
     print()
 
-    record_event({"event": "swarmz_started", "timestamp": "2026-02-17T00:00:00Z"})
+    record_event({"event": "nexusmon_started", "timestamp": "2026-02-17T00:00:00Z"})
     record_event(
         {
             "event": "runtime_arguments",

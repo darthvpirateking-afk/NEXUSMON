@@ -11,12 +11,12 @@
 
 **Governed. Sovereign. Operator-Centric. Additive Forever.**
 
-[![Tests](https://img.shields.io/badge/tests-1503%20passing-00ff88?style=flat-square&logo=pytest)](tests/)
+[![Tests](https://img.shields.io/badge/tests-1678%20passing-00ff88?style=flat-square&logo=pytest)](tests/)
 [![Version](https://img.shields.io/badge/version-v2.1.0-7c3aed?style=flat-square)](https://github.com/darthvpirateking-afk/NEXUSMON/releases)
 [![Evolution](https://img.shields.io/badge/evolution-ZERO--POINT%20FORM-00cfff?style=flat-square)](#evolution)
 [![License](https://img.shields.io/badge/license-Proprietary-ff4444?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11-3776ab?style=flat-square&logo=python)](pyproject.toml)
-[![Stack](https://img.shields.io/badge/stack-FastAPI%20·%20Preact%20·%20TypeScript-00cfff?style=flat-square)](#stack)
+[![Stack](https://img.shields.io/badge/stack-FastAPI%20·%20React%20%2F%20Preact%20·%20TypeScript-00cfff?style=flat-square)](#stack)
 [![Doctrine](https://img.shields.io/badge/doctrine-PRIME%20DIRECTIVE%20ACTIVE-ff6600?style=flat-square)](#doctrine)
 
 </div>
@@ -81,11 +81,43 @@ cost.py   XP-tick   artifact  XP-tick     artifacts
 ```
 
 ```
-COCKPIT (Preact + Vite · port 5173)
+ACTIVE FRONTEND (React + Vite · frontend/)
+  MissionLifecycleCard · NexusmonChat · Evolution pages · system API client
+
+LEGACY COCKPIT (Preact + Vite · cockpit/)
   HealthGrid · AvatarPanel · MissionConsole · AuditTail
   SwarmPanel · FederationPanel · MonarchPage · ZeroPointPage
   CosmicQueryPanel · WorldSpacePanel · TimelinePanel
 ```
+
+## Repository Layout
+
+NEXUSMON currently preserves active runtime code, legacy surfaces, generated artifacts, and operator tooling in one root. That is intentional historically, but it makes the tree hard to navigate unless the active surfaces are called out explicitly.
+
+Primary development paths:
+
+| Path | Role |
+|------|------|
+| `nexusmon_server.py` | Primary FastAPI server surface |
+| `swarmz_runtime/api/server.py` | Mirrored runtime/kernel FastAPI surface |
+| `core/` | Shared backend logic, manifests, canonical read-model helpers |
+| `swarmz_runtime/` | Runtime engine, bridge, storage, API routers |
+| `frontend/` | Active React + Vite frontend |
+| `tests/` | Primary pytest suite |
+| `docs/` | Architecture, audit, and migration documents |
+
+Secondary or historical surfaces:
+
+| Path | Role |
+|------|------|
+| `cockpit/` | Older Preact cockpit prototype |
+| `operator_console/`, `operator_interface/` | Alternative UI surfaces and experiments |
+| `observatory/` | Cleanup reports, logs, and operational artifacts |
+| `artifacts/`, `data/`, `hologram_snapshots/` | Runtime-generated state and evidence |
+
+If you are trying to understand the product quickly, start with `README.md`, `CLAUDE.md`, `docs/`, `frontend/`, `core/`, and `swarmz_runtime/`.
+
+For a fuller map of the active vs historical folders, see [docs/repository_layout.md](docs/repository_layout.md).
 
 ---
 
@@ -201,7 +233,7 @@ SOVEREIGN   →  Operator key + doctrine hash (Zero-Point Form only)
 
 ```
 pytest tests/ --tb=short -q
-1503 passed · 1 skipped · 0 failed
+1678 passed · 1 skipped · 0 failed
 ```
 
 | Suite | Tests |
@@ -225,7 +257,8 @@ pytest tests/ --tb=short -q
 | Layer | Technology |
 |-------|-----------|
 | Backend | Python 3.11 · FastAPI · Pydantic v2 · LiteLLM |
-| Frontend | Preact · Vite 6 · TypeScript strict |
+| Frontend | React 18 · Vite 6 · TypeScript strict |
+| Legacy cockpit | Preact · Vite |
 | Persistence | JSONL artifacts (additive, never destructive) · SQLite |
 | Testing | pytest · asyncio · monkeypatch |
 | CI | GitHub Actions — guards `master` + `evolution/**` + `feature/**` + `fix/**` |
@@ -242,12 +275,15 @@ pip install -r requirements-dev.txt
 python nexusmon_server.py
 
 # Start runtime kernel server
-python -m swarmz_runtime.api.server
+python -m nexusmon_runtime.api.server
 
-# Start cockpit  (port 5173)
-cd cockpit && npm install && node node_modules/vite/dist/node/cli.js
+# Start active frontend  (port 5173)
+cd frontend && npm install && npm run dev
 
-# Or use start.bat (Windows — launches both servers + browser)
+# Optional: start legacy cockpit prototype
+cd cockpit && npm install && npm run dev
+
+# Optional Windows launcher if present locally
 start.bat
 
 # Run tests

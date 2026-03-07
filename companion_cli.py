@@ -3,7 +3,7 @@
 # See LICENSE file for details.
 #!/usr/bin/env python3
 """
-SWARMZ Companion CLI - Interactive Interface
+NEXUSMON Companion CLI - Interactive Interface
 
 Command-line interface for the SWARMZ Companion system.
 Provides both conversational and operational capabilities.
@@ -13,8 +13,8 @@ import sys
 import argparse
 import json
 from pathlib import Path
-from companion import SwarmzCompanion, SystemMode
-from swarmz import SwarmzCore
+from companion import NexusmonCompanion, SystemMode
+from nexusmon import NexusmonCore
 
 
 def print_mode_indicator(mode: SystemMode):
@@ -25,10 +25,10 @@ def print_mode_indicator(mode: SystemMode):
         print("âš™ï¸  [OPERATOR MODE]", end=" ")
 
 
-def interactive_mode(companion: SwarmzCompanion, use_core: bool = False):
+def interactive_mode(companion: NexusmonCompanion, use_core: bool = False):
     """Run interactive companion mode."""
     print("=" * 70)
-    print("SWARMZ Companion - Interactive Mode")
+    print("NEXUSMON Companion - Interactive Mode")
     print("=" * 70)
     print()
     print("Dual-Mode Cognition System:")
@@ -113,13 +113,13 @@ def interactive_mode(companion: SwarmzCompanion, use_core: bool = False):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="SWARMZ Companion - Personal AI Companion with Dual-Mode Cognition",
+        description="NEXUSMON Companion - Personal AI Companion with Dual-Mode Cognition",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   companion_cli.py --interactive              Start interactive mode
-  companion_cli.py --input "What is SWARMZ?"  Process single input
-  companion_cli.py --use-core --interactive   Use full SWARMZ core
+    companion_cli.py --input "What is NEXUSMON?"  Process single input
+    companion_cli.py --use-core --interactive   Use full NEXUSMON core
   companion_cli.py --metrics                  Show system metrics
         """,
     )
@@ -130,7 +130,7 @@ Examples:
     parser.add_argument("--input", type=str, help="Process a single input")
     parser.add_argument("--params", type=str, help="JSON parameters for the input")
     parser.add_argument(
-        "--use-core", action="store_true", help="Integrate with full SWARMZ core"
+        "--use-core", action="store_true", help="Integrate with full NEXUSMON core"
     )
     parser.add_argument("--metrics", action="store_true", help="Show system metrics")
     parser.add_argument(
@@ -143,12 +143,12 @@ Examples:
     args = parser.parse_args()
 
     # Initialize companion
-    swarmz_core = None
+    nexusmon_core = None
     if args.use_core:
-        swarmz_core = SwarmzCore()
-        print("âœ“ Integrated with SWARMZ Core")
+        nexusmon_core = NexusmonCore()
+        print("âœ“ Integrated with NEXUSMON Core")
 
-    companion = SwarmzCompanion(swarmz_core)
+    companion = NexusmonCompanion(nexusmon_core)
 
     # Load memory if exists
     if Path(args.memory_file).exists():
@@ -157,7 +157,7 @@ Examples:
 
     # Show metrics
     if args.metrics:
-        print("SWARMZ Companion Metrics")
+        print("NEXUSMON Companion Metrics")
         print("=" * 60)
         metrics = companion.get_metrics()
         print(

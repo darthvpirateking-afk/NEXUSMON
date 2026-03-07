@@ -3,13 +3,13 @@
 # See LICENSE file for details.
 #!/usr/bin/env python3
 """
-SWARMZ Companion Feature Showcase
+NEXUSMON Companion Feature Showcase
 
 Demonstrates all implemented features in a single comprehensive demo.
 """
 
-from companion import SwarmzCompanion
-from swarmz import SwarmzCore
+from companion import NexusmonCompanion
+from nexusmon import NexusmonCore
 import time  # For profiling
 
 
@@ -27,13 +27,13 @@ def print_success(message):
 
 def main():
     print("\n" + "#" * 70)
-    print("#" + " " * 20 + "SWARMZ COMPANION SHOWCASE" + " " * 25 + "#")
+    print("#" + " " * 19 + "NEXUSMON COMPANION SHOWCASE" + " " * 23 + "#")
     print("#" * 70)
 
     # 1. Initialize system
     print_header("1. System Initialization")
-    companion = SwarmzCompanion()
-    print_success("SWARMZ Companion initialized")
+    companion = NexusmonCompanion()
+    print_success("NEXUSMON Companion initialized")
     print(f"   Initial mode: {companion.get_current_mode().value}")
 
     # 2. Demonstrate Companion Mode

@@ -36,7 +36,7 @@ services:
     name: nexusmon-backend
     runtime: python3
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python swarmz_server.py"
+    startCommand: "python nexusmon_server.py"
     envVars:
       - key: PORT
         value: 8000
@@ -128,7 +128,7 @@ export default defineConfig({
 
 ### Backend:
 ```python
-# Add to swarmz_server.py
+# Add to nexusmon_server.py
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -152,7 +152,7 @@ cd frontend && npx vercel --prod
 1. Connect GitHub repo to Render.com
 2. Select "Web Service" 
 3. Build: `pip install -r requirements.txt`
-4. Start: `python swarmz_server.py`
+4. Start: `python nexusmon_server.py`
 5. Port: 8000
 
 ### Test Full Stack:

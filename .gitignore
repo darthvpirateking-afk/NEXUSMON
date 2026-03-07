@@ -1,6 +1,7 @@
 # Node
 node_modules/
 node_modules_*/
+node_modules.bak_*/
 
 # Local IDE/Claude settings
 .claude/settings.local.json
@@ -129,18 +130,12 @@ website/public/llms.txt
 FULL_PATH_LIST.txt
 FULL_READ_MANIFEST.csv
 *.bundle
-FULL_PATH_LIST.txt
-FULL_READ_MANIFEST.csv
-*.bundle
 
 hologram_snapshots/
 observatory/
 artifacts/audit/
 .validation_baseline.json
 *.hologram
-FULL_PATH_LIST.txt
-FULL_READ_MANIFEST.csv
-*.bundle
 artifacts/
 test_results.txt
 cockpit/src/panels/generated/*.tsx

@@ -1,7 +1,7 @@
-"""Expose core SWARMZ classes for legacy imports.
+"""Expose core NEXUSMON classes while preserving legacy imports.
 
 This package-level shim loads the top-level ``swarmz.py`` module (which
-contains ``SwarmzCore``, ``OperatorSovereignty``, and ``TaskExecutor``) so that
+contains ``NexusmonCore``, ``SwarmzCore``, ``OperatorSovereignty``, and ``TaskExecutor``) so that
 ``from swarmz import SwarmzCore`` continues to work even though ``swarmz`` is a
 package directory.
 """
@@ -15,8 +15,9 @@ _module = module_from_spec(_spec)
 assert _spec is not None and _spec.loader is not None
 _spec.loader.exec_module(_module)
 
+NexusmonCore = _module.NexusmonCore
 SwarmzCore = _module.SwarmzCore
 OperatorSovereignty = _module.OperatorSovereignty
 TaskExecutor = _module.TaskExecutor
 
-__all__ = ["SwarmzCore", "OperatorSovereignty", "TaskExecutor"]
+__all__ = ["NexusmonCore", "SwarmzCore", "OperatorSovereignty", "TaskExecutor"]

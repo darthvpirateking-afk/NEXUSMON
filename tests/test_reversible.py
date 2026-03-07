@@ -8,6 +8,7 @@ Validates snapshot/restore functionality and exactly-once guarantees.
 """
 
 import pytest
+import core.reversible as reversible_module
 from core.reversible import (
     ReversibleLayer,
     begin_transaction,
@@ -19,9 +20,13 @@ from core.reversible import (
 )
 
 
-def test_begin_transaction():
+def _layer(tmp_path):
+    return ReversibleLayer(tmp_path / "reversible_snapshots.jsonl")
+
+
+def test_begin_transaction(tmp_path):
     """Should create snapshot and return snapshot_id."""
-    layer = ReversibleLayer()
+    layer = _layer(tmp_path)
     snapshot_id = layer.begin_transaction(
         action_id="test_action_1",
         state_description="Test state before action",
@@ -39,9 +44,9 @@ def test_begin_transaction():
     assert not snapshot.rolled_back
 
 
-def test_commit_snapshot():
+def test_commit_snapshot(tmp_path):
     """Should mark snapshot as committed."""
-    layer = ReversibleLayer()
+    layer = _layer(tmp_path)
     snapshot_id = layer.begin_transaction("action_1", "state before")
 
     result = layer.commit(snapshot_id)
@@ -55,9 +60,9 @@ def test_commit_snapshot():
     assert not snapshot.rolled_back
 
 
-def test_rollback_snapshot():
+def test_rollback_snapshot(tmp_path):
     """Should restore state and mark as rolled back."""
-    layer = ReversibleLayer()
+    layer = _layer(tmp_path)
     snapshot_id = layer.begin_transaction(
         "action_1",
         "state before",
@@ -78,9 +83,9 @@ def test_rollback_snapshot():
     assert not snapshot.committed
 
 
-def test_rollback_exactly_once():
+def test_rollback_exactly_once(tmp_path):
     """Should prevent double rollback (exactly-once guarantee)."""
-    layer = ReversibleLayer()
+    layer = _layer(tmp_path)
     snapshot_id = layer.begin_transaction("action_1", "state")
 
     result1 = layer.rollback(snapshot_id)
@@ -91,9 +96,9 @@ def test_rollback_exactly_once():
     assert "already rolled back" in result2.reason.lower()
 
 
-def test_cannot_commit_after_rollback():
+def test_cannot_commit_after_rollback(tmp_path):
     """Should prevent commit after rollback."""
-    layer = ReversibleLayer()
+    layer = _layer(tmp_path)
     snapshot_id = layer.begin_transaction("action_1", "state")
 
     layer.rollback(snapshot_id)
@@ -103,9 +108,9 @@ def test_cannot_commit_after_rollback():
     assert "rolled-back" in result.reason.lower()
 
 
-def test_cannot_rollback_after_commit():
+def test_cannot_rollback_after_commit(tmp_path):
     """Should prevent rollback after commit."""
-    layer = ReversibleLayer()
+    layer = _layer(tmp_path)
     snapshot_id = layer.begin_transaction("action_1", "state")
 
     layer.commit(snapshot_id)
@@ -115,9 +120,9 @@ def test_cannot_rollback_after_commit():
     assert "committed" in result.reason.lower()
 
 
-def test_list_active_snapshots():
+def test_list_active_snapshots(tmp_path):
     """Should return only uncommitted, non-rolled-back snapshots."""
-    layer = ReversibleLayer()
+    layer = _layer(tmp_path)
 
     snap1 = layer.begin_transaction("action_1", "state1")
     snap2 = layer.begin_transaction("action_2", "state2")
@@ -144,8 +149,9 @@ def test_evaluate_always_passes():
     assert result.metadata["rollback_available"]
 
 
-def test_module_level_functions():
+def test_module_level_functions(tmp_path, monkeypatch):
     """Module-level convenience functions should work."""
+    monkeypatch.setattr(reversible_module, "_reversible", _layer(tmp_path))
     snapshot_id = begin_transaction("test_action", "test state")
     assert snapshot_id is not None
 
@@ -158,3 +164,39 @@ def test_module_level_functions():
     snapshot_id2 = begin_transaction("test_action2", "state2")
     result2 = rollback(snapshot_id2)
     assert result2.passed
+
+
+def test_malformed_snapshot_line_is_skipped(tmp_path):
+    snapshots_file = tmp_path / "reversible_snapshots.jsonl"
+    snapshots_file.write_text(
+        "\n".join(
+            [
+                '{"snapshot_id":"one","action_id":"a","state_description":"ok","artifacts":[],"metrics":{},"created_at":1.0,"committed":false,"rolled_back":false}',
+                ': 1.0, "committed": false, "rolled_back": false}',
+                '{"snapshot_id":"two","action_id":"b","state_description":"ok2","artifacts":[],"metrics":{},"created_at":2.0,"committed":true,"rolled_back":false}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    layer = ReversibleLayer(snapshots_file)
+
+    assert layer.skipped_snapshot_lines == 1
+    assert layer.get_snapshot("one") is not None
+    assert layer.get_snapshot("two") is not None
+
+
+def test_invalid_utf8_snapshot_bytes_are_skipped(tmp_path):
+    snapshots_file = tmp_path / "reversible_snapshots.jsonl"
+    snapshots_file.write_bytes(
+        b'{"snapshot_id":"one","action_id":"a","state_description":"ok","artifacts":[],"metrics":{},"created_at":1.0,"committed":false,"rolled_back":false}\n'
+        + b'\xff\xfe\x80not-json\n'
+        + b'{"snapshot_id":"two","action_id":"b","state_description":"ok2","artifacts":[],"metrics":{},"created_at":2.0,"committed":true,"rolled_back":false}\n'
+    )
+
+    layer = ReversibleLayer(snapshots_file)
+
+    assert layer.skipped_snapshot_lines == 1
+    assert layer.get_snapshot("one") is not None
+    assert layer.get_snapshot("two") is not None

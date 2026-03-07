@@ -3,9 +3,9 @@
 # See LICENSE file for details.
 #!/usr/bin/env python3
 """
-SWARMZ Examples - Demonstrating Operator Sovereignty
+NEXUSMON Examples - Demonstrating Operator Sovereignty
 
-This script demonstrates various features of the SWARMZ system.
+This script demonstrates various features of the NEXUSMON system.
 """
 
 import sys
@@ -14,7 +14,7 @@ from pathlib import Path
 # Add current directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from swarmz import SwarmzCore
+from nexusmon import NexusmonCore
 
 
 def example_basic_tasks():
@@ -23,10 +23,10 @@ def example_basic_tasks():
     print("Example 1: Basic Task Execution")
     print("=" * 60)
 
-    swarmz = SwarmzCore()
+    swarmz = NexusmonCore()
 
     # Echo task
-    result = swarmz.execute("echo", message="Hello from SWARMZ!")
+    result = swarmz.execute("echo", message="Hello from NEXUSMON!")
     print(f"Echo result: {result}")
 
     # System info
@@ -42,7 +42,7 @@ def example_operator_sovereignty():
     print("Example 2: Operator Sovereignty")
     print("=" * 60)
 
-    swarmz = SwarmzCore()
+    swarmz = NexusmonCore()
 
     # Execute some tasks
     swarmz.execute("echo", message="Task 1")

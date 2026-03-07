@@ -1,9 +1,20 @@
 import time
+import pytest
 from core.mission_engine import MissionEngine
 from core.capability_flags import registry, CapabilityStatus, Capability
+from core.reflection import reflector
 from core.sovereign import PolicyRule, SovereignOutcome, add_rule
 from core.reversible import LayerResult
 from core.telemetry import telemetry
+
+
+@pytest.fixture(autouse=True)
+def _reset_mission_reflection_state():
+    telemetry.clear()
+    reflector.reset()
+    yield
+    telemetry.clear()
+    reflector.reset()
 
 
 def test_mission_engine_full_dag_execution():

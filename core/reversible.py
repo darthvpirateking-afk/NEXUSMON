@@ -19,7 +19,6 @@ Doctrine: Reversible = Universal safeguard enabling maximum velocity under uncer
 from __future__ import annotations
 
 import json
-import os
 import time
 import uuid
 from dataclasses import dataclass, asdict
@@ -56,25 +55,35 @@ class Snapshot:
 class ReversibleLayer:
     """Safety layer providing snapshot/restore for all risky actions."""
 
-    def __init__(self):
-        _DATA_DIR.mkdir(parents=True, exist_ok=True)
+    def __init__(self, snapshots_file: Optional[Path] = None):
+        self.snapshots_file = Path(snapshots_file) if snapshots_file else _SNAPSHOTS_FILE
+        self.snapshots_file.parent.mkdir(parents=True, exist_ok=True)
         self._snapshots: Dict[str, Snapshot] = {}
+        self.skipped_snapshot_lines = 0
         self._load_snapshots()
 
     def _load_snapshots(self):
         """Load existing snapshots from JSONL."""
-        if not _SNAPSHOTS_FILE.exists():
+        if not self.snapshots_file.exists():
             return
-        with open(_SNAPSHOTS_FILE, "r") as f:
+        with open(self.snapshots_file, "r", encoding="utf-8", errors="replace") as f:
             for line in f:
-                if line.strip():
+                line = line.strip()
+                if not line:
+                    continue
+
+                try:
                     data = json.loads(line)
                     snapshot = Snapshot(**data)
-                    self._snapshots[snapshot.snapshot_id] = snapshot
+                except (json.JSONDecodeError, TypeError, ValueError):
+                    self.skipped_snapshot_lines += 1
+                    continue
+
+                self._snapshots[snapshot.snapshot_id] = snapshot
 
     def _append_snapshot(self, snapshot: Snapshot):
         """Persist snapshot to JSONL."""
-        with open(_SNAPSHOTS_FILE, "a") as f:
+        with open(self.snapshots_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(asdict(snapshot)) + "\n")
 
     def begin_transaction(

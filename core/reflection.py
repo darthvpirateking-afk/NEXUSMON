@@ -43,7 +43,14 @@ class SystemReflector:
             l for l in logs if now - l.get("timestamp", 0) < self.observation_window
         ]
 
-        critical_count = len([l for l in recent_logs if l.get("level") == "CRITICAL"])
+        critical_count = len(
+            [
+                l
+                for l in recent_logs
+                if l.get("level") == "CRITICAL"
+                and not self._is_successful_self_heal(l)
+            ]
+        )
         error_count = len([l for l in recent_logs if l.get("level") == "ERROR"])
         warning_count = len([l for l in recent_logs if l.get("level") == "WARNING"])
 
@@ -62,7 +69,7 @@ class SystemReflector:
             state = CognitiveState.OPTIMAL
 
         self._cached_state = state
-        self._last_reflect_time = now
+        self.last_reflect_time = now
         self._metrics = {
             "total_logs": total_logs,
             "critical": critical_count,
@@ -84,6 +91,16 @@ class SystemReflector:
             "stable": self._cached_state
             in [CognitiveState.OPTIMAL, CognitiveState.CAUTIOUS],
         }
+
+    def reset(self):
+        """Reset cached reflection state for isolated test or runtime scopes."""
+        self.last_reflect_time = 0
+        self._cached_state = CognitiveState.OPTIMAL
+        self._metrics = {}
+
+    @staticmethod
+    def _is_successful_self_heal(log: Dict[str, Any]) -> bool:
+        return log.get("component") == "SelfHealing" and "Restored integrity for:" in log.get("message", "")
 
 
 # Global singleton

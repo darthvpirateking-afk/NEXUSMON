@@ -1,6 +1,6 @@
 # ── NEXUSMON backend ──────────────────────────────────────────────────────────
 # Builds a production-ready image for the FastAPI / Uvicorn service.
-# Entry point: swarmz_server:app
+# Entry point: nexusmon_server:app
 # ─────────────────────────────────────────────────────────────────────────────
 
 FROM python:3.11-slim
@@ -55,7 +55,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s \
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 # Override workers / loop in compose or k8s via CMD or ENTRYPOINT extension.
-CMD ["uvicorn", "swarmz_server:app", \
+CMD ["uvicorn", "nexusmon_server:app", \
      "--host", "0.0.0.0", \
      "--port", "8000", \
      "--workers", "1", \

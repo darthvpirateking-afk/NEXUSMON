@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusmon.swarmz/schemas/agent-handoff/1.0.0",
+  "title": "Nexusmon Agent Handoff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "summary",
+    "gate_status",
+    "next_agent",
+    "changed_files",
+    "commands_run",
+    "runtime_needed",
+    "tests_status",
+    "remaining_steps",
+    "confidence"
+  ],
+  "properties": {
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gate_status": {
+      "type": "string",
+      "enum": [
+        "ready-for-review",
+        "ready-for-runtime",
+        "approved",
+        "changes-requested",
+        "completed",
+        "handoff-required",
+        "blocked"
+      ]
+    },
+    "next_agent": {
+      "type": "string",
+      "enum": [
+        "Nexusmon Builder",
+        "Nexusmon Reviewer",
+        "Nexusmon Cockpit",
+        "Nexusmon Runtime",
+        "none"
+      ]
+    },
+    "changed_files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "commands_run": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "runtime_needed": {
+      "type": "boolean"
+    },
+    "tests_status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "remaining_steps": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "suggested_reviewer": {
+      "type": "string"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# --- SWARMZ Orchestrator Activation (additive-only) ---
+# --- NEXUSMON Orchestrator Activation (additive-only) ---
 try:
     from kernel_runtime.orchestrator import SwarmzOrchestrator
 
@@ -11,7 +11,7 @@ except ImportError:
 # See LICENSE file for details.
 #!/usr/bin/env python3
 """
-SWARMZ - Operator-Sovereign "Do Anything" System
+NEXUSMON - Operator-Sovereign "Do Anything" System
 
 A flexible, extensible system that empowers operators with full sovereignty
 to execute any task through a plugin-based architecture.
@@ -122,9 +122,9 @@ class TaskExecutor:
         return plugin_name
 
 
-class SwarmzCore:
+class NexusmonCore:
     """
-    Main SWARMZ system - Operator-Sovereign "Do Anything" System
+    Main NEXUSMON system - Operator-Sovereign "Do Anything" System
     """
 
     def __init__(self, config: Optional[Dict] = None):
@@ -221,21 +221,24 @@ except ImportError:
     # OpenTelemetry not installed - tracing will be disabled
     pass
 except Exception as e:
-    print(f"[SWARMZ] Warning: Could not configure tracing: {e}")
+    print(f"[NEXUSMON] Warning: Could not configure tracing: {e}")
+
+
+SwarmzCore = NexusmonCore
 
 
 def main():
-    """Main entry point for SWARMZ system."""
+    """Main entry point for NEXUSMON system."""
     print("=" * 60)
-    print("SWARMZ - Operator-Sovereign 'Do Anything' System")
+    print("NEXUSMON - Operator-Sovereign 'Do Anything' System")
     print("=" * 60)
     print()
 
     # Initialize the system
-    swarmz = SwarmzCore()
+    nexusmon = NexusmonCore()
 
     print("System initialized successfully!")
-    print(f"Available capabilities: {len(swarmz.list_capabilities())}")
+    print(f"Available capabilities: {len(nexusmon.list_capabilities())}")
     print()
 
     # Demo the system
@@ -243,11 +246,11 @@ def main():
     print()
 
     # Test echo task
-    result = swarmz.execute("echo", message="Hello, SWARMZ!")
+    result = nexusmon.execute("echo", message="Hello, NEXUSMON!")
     print(f"1. Echo test: {result}")
 
     # Get system info
-    info = swarmz.execute("system_info")
+    info = nexusmon.execute("system_info")
     print("2. System info:")
     for key, value in info.items():
         print(f"   - {key}: {value}")
@@ -255,7 +258,7 @@ def main():
     # Show audit log
     print()
     print("Audit log:")
-    for idx, entry in enumerate(swarmz.get_audit_log(), 1):
+    for idx, entry in enumerate(nexusmon.get_audit_log(), 1):
         print(f"   {idx}. {entry['action']} - Approved: {entry['approved']}")
 
     print()
