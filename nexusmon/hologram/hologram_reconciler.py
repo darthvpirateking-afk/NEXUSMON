@@ -8,8 +8,10 @@ from pathlib import Path
 
 # Resolve snapshot directory from env var so Docker / k8s volume mounts work.
 # Falls back to a local directory when running outside containers.
-SNAPSHOT_DIR = Path(os.environ.get("HLOG_SNAPSHOT_DIR", "hologram_snapshots"))
-SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
+def _snapshot_dir() -> Path:
+    path = Path(os.environ.get("HLOG_SNAPSHOT_DIR", "hologram_snapshots")).expanduser().resolve()
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 class HologramPublisher:
@@ -130,15 +132,15 @@ class HologramReconciler:
                 "events": list(self.state["events"]),
                 "meta": dict(self.state["meta"])
             }
-        SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
+        snapshot_dir = _snapshot_dir()
         ts = int(time.time())
         # Include a random suffix to avoid collisions under concurrent writers.
-        path = SNAPSHOT_DIR / f"snapshot_{ts}_{uuid.uuid4().hex[:8]}.json"
+        path = snapshot_dir / f"snapshot_{ts}_{uuid.uuid4().hex[:8]}.json"
         tmp_path = path.with_suffix(".tmp")
         tmp_path.write_text(json.dumps(snap), encoding="utf-8")
         os.replace(tmp_path, path)
         snaps = []
-        for p in SNAPSHOT_DIR.glob("snapshot_*.json"):
+        for p in snapshot_dir.glob("snapshot_*.json"):
             try:
                 snaps.append((p.stat().st_mtime, p))
             except (FileNotFoundError, PermissionError):
@@ -154,8 +156,9 @@ class HologramReconciler:
         return snap
 
     def get_latest_snapshot(self):
+        snapshot_dir = _snapshot_dir()
         snaps = []
-        for p in SNAPSHOT_DIR.glob("snapshot_*.json"):
+        for p in snapshot_dir.glob("snapshot_*.json"):
             try:
                 snaps.append((p.stat().st_mtime, p))
             except (FileNotFoundError, PermissionError):

@@ -42,8 +42,7 @@ def reset_state():
     """Reset operator state before each test."""
     _save_state(_default_state())
     yield
-    if os.path.exists(RANK_FILE):
-        os.remove(RANK_FILE)
+    _save_state(_default_state())
 
 
 # ─── rank_from_xp ───────────────────────────────────────────────────────────
