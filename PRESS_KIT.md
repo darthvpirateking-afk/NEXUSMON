@@ -1,358 +1,264 @@
-﻿# NEXUSMON // LAUNCH INTEL ⚡🟢
+﻿# NEXUSMON // PRESS KIT
 
-LAUNCH CONTENT FOR NEXUSMON — DOCTRINE, LAUNCH THREAD, PITCH DECK, ARCHITECTURE DIAGRAMS, TAGLINES, AND PRESS RELEASE.
+Public-facing launch copy for NEXUSMON.
 
-Signal-heavy. Human tone. Zero corporate fog. 🧠⚔️
-
-```text
-┌─────────────────────────────────────┐
-│              NEXUSMON               │
-│          LAUNCH BRIEFING            │
-│      MODE: PUBLIC RELEASE READY     │
-└─────────────────────────────────────┘
-```
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│ NEXUS SIGNAL BEASTS // OUR VERSION                         │
-├─────────────────────────────────────────────────────────────┤
-│ BYTEWOLF   /\_/\      code-hunter • path-finder            │
-│           ( o.o )                                           │
-│            > ^ <                                            │
-│                                                             │
-│ GLITCHRA   <\\=//>     anomaly-seer • gate-caller           │
-│             /_ _\                                            │
-│              /_\                                             │
-│                                                             │
-│ SIGILDRONE [::]=>      task-runner • vault-courier          │
-└─────────────────────────────────────────────────────────────┘
-```
+This file is for outward-facing messaging: repository description, launch blurbs, public framing, and a press-release-style summary that match the current verified state of the repo.
 
 ---
 
-## BRIEF // ONE-LINER
+## Core Statement
 
-NEXUSMON is an open-source governed autonomy system — mission execution infrastructure that turns intent into task DAGs, runs workers, stores versioned artifacts, and unlocks capability from real mission history. One operator. Full control. No lock-in. 🟢
+NEXUSMON is a governed AI mission runtime with a cockpit-grade operator interface.
 
----
+It began as SWARMZ, a multi-agent execution kernel focused on governed mission routing, persistence, and auditability. It evolved into NEXUSMON when that kernel gained a control deck, artifact memory, a companion layer, and a doctrine centered on operator sovereignty.
 
-## BRIEF // SIGNAL MODULES (EXPANSION LANE)
+The public law underneath all of it is simple:
 
-Language set for upcoming module families:
-
-- 🌐 All-language interaction
-- 👁️ Computational vision + feature extraction
-- ⚡ Real-time visual pattern interpretation
-- 🕶️ Augmented reality overlays
-- 🐾 Shape-shift expression modes
-- 🔊 Animal-voice sound layer
-- 🎛️ Instant LLM dials (live steer controls)
-- 🧿 Bio aura dial telemetry
-- 🌌 Particle simulation + strange attractor maps
-
-These are expansion lanes, not hand-wavy branding — each maps to a module or capability gate.
+> The cockpit must tell the truth.
 
 ---
 
-## BRIEF // DOCTRINE
+## One-Liners
 
-**1. OPERATOR SOVEREIGNTY**
-One operator. One organism. Non-transferable bond earned through use. The system exists to serve the operator, not the platform.
-
-**2. EARNED AUTONOMY**
-Every capability must be unlocked through demonstrated performance. You don't start with autonomous execution. You earn it. E-rank missions first. S-rank when the system has proven itself.
-
-**3. MANDATORY GOVERNANCE**
-Every action is logged. Every artifact is versioned. Every A/S-rank mission requires explicit approval. Reproducibility is legitimacy. If you can't replay it, it didn't happen.
-
-**4. CAPABILITY-BASED EVOLUTION**
-Traits are permissions. Stages are access levels. The organism does not have feelings. It has an expanding operational envelope. DORMANT cannot spawn workers. SOVEREIGN can chain them autonomously. That is the only difference that matters.
-
-**5. INFRASTRUCTURE BEFORE AESTHETICS**
-The cockpit is real only if the engine is real. The evolution is meaningful only if the permissions are enforced. Build the nervous system first. Dress it after.
-
-**6. OPEN ARCHITECTURE**
-Workers are plugins. Missions are templates. Evolution paths are modules. If a contributor cannot add capability without editing core code, the architecture has failed.
-
-**7. LOCAL-FIRST OWNERSHIP**
-All data belongs to the operator. No cloud dependency required. The organism runs on your hardware, stores to your disk, answers to no one but you.
+- Governed AI mission runtime with a truthful cockpit interface.
+- A cockpit-grade control plane for governed AI missions.
+- Sovereign operator runtime for real AI mission flow.
+- AI mission orchestration with live state, artifacts, and guardrails.
+- Steel behind the glow: governed AI operations with a truthful cockpit.
 
 ---
 
-## BRIEF // LAUNCH THREAD (X / TWITTER)
+## Short Description
+
+Use this for the GitHub repository description or short directory blurbs:
+
+> Governed AI mission runtime with a truthful cockpit interface.
+
+Alternate version:
+
+> Cockpit-grade operator runtime for AI missions, audit trails, and guardrails.
+
+---
+
+## About Blurb
+
+Use this for repository About text, pinned-repo blurbs, or public project cards:
+
+NEXUSMON is a governed AI mission runtime built for operators who need execution they can inspect, control, and trust. It combines real mission flow, multi-provider routing, artifact persistence, audit streaming, evolution state, and an operator cockpit that is moving from simulation toward increasingly truthful live state.
+
+---
+
+## Hero Copy
+
+### Public Hero
+
+# NEXUSMON
+### Governed AI Mission Runtime · Truthful Cockpit · Sovereign Operator Control
+
+NEXUSMON is a cockpit-grade runtime for governed AI missions.
+
+Born from the SWARMZ execution kernel, it turns raw model capability into an operator-facing control plane with mission flow, artifact memory, audit trails, and doctrinal guardrails.
+
+> If it glows on screen, it should have a wire behind it.
+
+### Heavier Hero
+
+# NEXUSMON
+### Steel Behind the Glass
+
+This is not a dashboard for vibes.
+
+It is a governed operator runtime built to expose real execution, persistent state, and traceable action without surrendering control to theatrics or hidden automation.
+
+---
+
+## What Makes It Different
+
+Most AI products optimize for one of two failures:
+
+- polished interfaces that hide execution
+- autonomous claims that collapse under inspection
+
+NEXUSMON is built around a harder standard:
+
+- actions should be governable
+- runtime state should be visible
+- outputs should be persistent
+- autonomy should stay bounded
+- operator control should remain intact
+
+In plain language:
+
+> If a panel claims to be live, it should be backed by live system state.
+
+---
+
+## Verified Public Facts
+
+These are safe present-tense claims based on the validated local state and current repo structure.
+
+- Primary backend surface: `nexusmon_server.py`
+- Mirrored runtime surface: `swarmz_runtime/api/server.py`
+- Active frontend: `frontend/`
+- Legacy cockpit surface: `cockpit/`
+- Agent guardrail manifests: `.github/agents/`
+- Current local validation snapshot: `1689 passed, 1 skipped` on 2026-03-07
+- Canonical branch: `main`
+
+The backend currently includes real mission execution, provider routing, artifact persistence, reversible snapshots, audit streaming, evolution state, and guardrail validation.
+
+The cockpit is increasingly truthful, but not every panel is fully migrated from placeholder state yet.
+
+---
+
+## Worker Forms
+
+### BYTEWOLF
+
+Pathfinder · Analysis · Intelligence
+
+Reads terrain, inspects unknown systems, and returns operator-useful truth.
+
+### GLITCHRA
+
+Anomaly · Transform · Edge
+
+Finds fractures, tests assumptions, and reshapes unstable matter into something usable.
+
+### SIGILDRON
+
+Artifact Courier · Seal · Delivery
+
+Signs, seals, and delivers operator-grade work without losing integrity on the way out.
+
+These forms are symbolic, but they are grounded in concrete worker roles in the runtime.
+
+---
+
+## Launch Thread
+
+### Thread Version
 
 **1/**
-I built an autonomous execution system called NEXUSMON ⚡
+I built an AI mission runtime called NEXUSMON.
 
-Not a chatbot. Not an agent wrapper. Not another dashboard skin.
+Not a chatbot skin. Not a dashboard demo.
 
-A governed autonomy system — mission engine, worker swarm, artifact vault, evolution layer. One operator. Full control.
-
-Matrix vibe, but real infrastructure under it.
-
-Here’s what it actually is:
+A governed operator runtime with real mission flow, artifact persistence, audit trails, evolution state, and a cockpit that is being forced toward truth instead of simulation.
 
 **2/**
-Six real systems under the hood 🧠
+It started as SWARMZ: a multi-agent execution kernel for structured missions, routing, and persistence.
 
-→ Mission Engine: accepts goals, decomposes into tasks, executes as DAG
-→ Worker Layer: tool runners, API connectors, script executors
-→ Artifact Vault: versioned outputs with full operator review trails
-→ Governance: risk tiers, approval gates, capability flags
-→ Evolution State: unlocked permissions, not personality
-→ Cockpit UI: command the system, don't chat with it
+NEXUSMON is what happened when that kernel grew a control deck, a companion layer, an artifact memory, and a doctrine built around operator sovereignty.
 
 **3/**
-Evolution is a permissions system.
+The public rule is simple:
 
-DORMANT: can observe
-AWAKENING: can recall, companion active
-FORGING: can spawn workers, track beliefs
-SOVEREIGN: autonomous chain execution, operator fusion
-APEX: everything
+If it glows on screen, it should have a wire behind it.
 
-You don't buy capabilities. You earn them through missions.
-Progression implemented as real access control.
+That means no fake telemetry, no decorative omniscience, and no pretending a live control plane exists where the backend does not support it yet.
 
 **4/**
-Mission ranks map to risk tiers:
+Current validated state:
 
-E/D → auto-execute
-C/B → log and flag
-A/S → blocked until you approve
-
-No autonomous S-rank execution without explicit operator sign-off.
-This is how you build trustworthy autonomy — not by trusting it, by architecting the constraints first.
+- real FastAPI runtime
+- real mission execution path
+- real provider routing
+- real artifact persistence
+- real audit / SSE flow
+- real evolution state
+- `1689 passed, 1 skipped` locally
 
 **5/**
-Every output is stored as a versioned artifact 📜
+The backend is real.
 
-Title. Content. The exact input that produced it.
-Operator approval or rejection.
-Full version history.
+The cockpit is increasingly real.
 
-Every mission is replayable. Reproducibility = legitimacy.
+Some panels are fully live. Some are still in migration from placeholder data to backend truth.
+
+That honesty boundary matters.
 
 **6/**
-The cockpit is real because the engine is real.
+The system has named worker forms too:
 
-GET /organism → evolution stage, active traits, workers, beliefs
-GET /v1/engine/missions → full DAG task breakdown
-GET /v1/vault/artifacts → versioned outputs with review trails
-GET /v1/cognition/status → prediction calibration, error taxonomy
+- BYTEWOLF for analysis and pathfinding
+- GLITCHRA for anomaly and transform work
+- SIGILDRON for artifact sealing and delivery
 
-All routes. All local. All yours.
+Symbolic layer on top. Real runtime underneath.
 
 **7/**
-Built with 🛠️
-→ FastAPI + Python
-→ SQLite + JSONL (no cloud dependency)
-→ Anthropic Claude (optional, graceful fallback)
-→ Railway for deploy, volume mount for persistence
+The repo lives on `main` now.
 
-Open source. MIT. Run your own.
+Primary backend: `nexusmon_server.py`
+Runtime mirror: `swarmz_runtime/api/server.py`
+Active cockpit: `frontend/`
+Legacy cockpit: `cockpit/`
 
 **8/**
-The name is NEXUSMON.
+NEXUSMON is not trying to be the prettiest AI dashboard on the internet.
 
-Operator/partner execution dynamic.
-Evolution and identity through usage.
-Progression tied directly to mission outcomes.
+It is trying to solve a harder problem:
 
-The aesthetic is signal.
-The infrastructure is still the organism.
-
-github.com/darthvpirateking-afk/NEXUSMON
+how to make AI execution governable, inspectable, and real from an operator cockpit.
 
 ---
 
-## BRIEF // PITCH DECK (TEXT)
+## Press Release
 
-**SLIDE 1 — TITLE**
-NEXUSMON
-Governed Autonomy Organism
-One operator. One system. Full control.
+### Public Release Version
 
-**SLIDE 2 — THE PROBLEM**
-Current autonomy systems are either:
-- Too constrained — chatbots with tools
-- Too unconstrained — agents that act without accountability
-- Vendor-locked — your data, their servers
-- Stateless — no memory, no growth, no context
+**NEXUSMON: A GOVERNED AI MISSION RUNTIME WITH A TRUTHFUL COCKPIT**
 
-**SLIDE 3 — THE SOLUTION**
-An autonomous execution system that:
-→ Decomposes goals into executable task DAGs
-→ Runs workers with risk-tiered governance
-→ Stores every output as a versioned artifact
-→ Evolves capabilities based on proven performance
-→ Runs entirely on your infrastructure
+NEXUSMON is a governed AI mission runtime designed for operators who need more than output. It is built to expose execution, preserve artifacts, maintain audit trails, and keep operator authority intact while AI systems perform real work.
 
-**SLIDE 4 — THE SIX SYSTEMS**
-Mission Engine | Workers | Artifact Vault | Governance | Evolution | Cockpit UI
+The project began as SWARMZ, a multi-agent execution kernel focused on structured mission routing, persistence, and auditability. NEXUSMON is the next stage of that system: a more complete operator-facing platform with real backend execution, artifact memory, audit streaming, evolution state, and a control surface moving toward increasingly truthful live state.
 
-**SLIDE 5 — EVOLUTION AS PERMISSIONS**
-Not a creature. A capability ladder.
-DORMANT → observe
-AWAKENING → recall and companion
-FORGING → spawn workers
-SOVEREIGN → autonomous chains
-APEX → full operational envelope
+The system combines a FastAPI backend, provider routing, mission persistence, reversible snapshots, artifact storage, audit streaming, and a React-based cockpit. Its custom agent and guardrail layer is backed by machine-readable policy, validation tooling, and CI checks.
 
-Earned through missions. Never granted.
+As of the latest validated local state on 2026-03-07, the full pytest suite passed with `1689 passed, 1 skipped`.
 
-**SLIDE 6 — GOVERNANCE FIRST**
-Every action: logged
-Every artifact: versioned and reviewable
-A/S missions: blocked until operator approves
-Full replay: any mission reproducible from artifacts
+NEXUSMON is not presented as a finished autonomous organism where every surface is already live. It is presented more honestly: a truthful backend with an increasingly truthful cockpit.
 
-Autonomy without accountability is liability.
-NEXUSMON makes accountability the architecture.
+That boundary is part of the product.
 
-**SLIDE 7 — OPEN SOURCE / PLUGIN SYSTEM**
-```python
-class WorkerPlugin:
-    name, capabilities, risk_level
-    async def execute(task) -> Result: ...
-```
-Add capability without touching core.
-Worker plugins. Mission templates. Evolution modules.
+### Public Quote
 
-**SLIDE 8 — TRACTION**
-✓ Mission engine + worker swarm: live
-✓ Artifact vault: live
-✓ Evolution system: live
-✓ Cockpit UI: live
-✓ Cognitive instrumentation layer: live (13 systems)
-✓ Deployed on Railway
-✓ 22 integration tests passing
-✓ 368 routes registered
-
-**SLIDE 9 — ROADMAP**
-Phase 1 ✅ Core engine
-Phase 2 ✅ Cockpit UI
-Phase 3 ✅ Evolution layer
-Phase 4 🔲 Plugin ecosystem + module registry
-
-**SLIDE 10 — THE THESIS**
-Most autonomy systems are built for the platform.
-NEXUSMON is built for the operator.
-
-One operator. One organism.
-Non-transferable bond. Earned through use.
-Your data. Your hardware. Your rules.
+"Most AI tooling either hides execution behind abstraction or fakes liveness with polished UI. NEXUSMON is built around a harder standard: the operator should be able to see, govern, and verify what the system is doing."
 
 ---
 
-## BRIEF // ARCHITECTURE DIAGRAM (ASCII)
+## Suggested Taglines
 
-```
-OPERATOR
-   │
-   ▼
-╔══════════════════════════════════════════╗
-║           COCKPIT UI (/organism)         ║
-║  Mission Feed │ Workers │ Vault │ Evo    ║
-╚══════════════╤═══════════════════════════╝
-               │ HTTP + WebSocket
-               ▼
-╔══════════════════════════════════════════╗
-║         nexusmon_server.py (FastAPI)       ║
-║                                          ║
-║  ┌─────────────┐  ┌────────────────────┐ ║
-║  │ nexusmon_   │  │ nexusmon_          │ ║
-║  │ mission_    │  │ artifact_vault.py  │ ║
-║  │ engine.py   │  │                    │ ║
-║  │             │  │ POST /vault/       │ ║
-║  │ POST /engine│  │ GET  /vault/       │ ║
-║  │ /missions   │  │ POST /approve      │ ║
-║  └──────┬──────┘  └─────────┬──────────┘ ║
-║         │                   │            ║
-║  ┌──────▼──────┐  ┌─────────▼──────────┐ ║
-║  │ nexusmon_   │  │ nexusmon_          │ ║
-║  │ organism.py │  │ cognition.py       │ ║
-║  │             │  │                    │ ║
-║  │ Evolution   │  │ Predictions        │ ║
-║  │ Workers     │  │ Belief Graph       │ ║
-║  │ Operator Ctx│  │ Error Taxonomy     │ ║
-║  │ ClaimLab    │  │ Causality Sandbox  │ ║
-║  └──────┬──────┘  └─────────┬──────────┘ ║
-╚═════════╪═══════════════════╪════════════╝
-          │                   │
-          ▼                   ▼
-╔══════════════════════════════════════════╗
-║              DATA LAYER                  ║
-║                                          ║
-║  missions_v2.jsonl   artifacts.jsonl     ║
-║  evolution.json      beliefs.jsonl       ║
-║  operator_context.json  workers.jsonl    ║
-║  predictions.jsonl   error_taxonomy.json ║
-║  belief_graph.json   concept_maps.jsonl  ║
-╚══════════════════════════════════════════╝
-
-GOVERNANCE FLOW:
-  Mission created
-      │
-      ├─ Rank E/D → auto-execute
-      ├─ Rank C/B → execute + flag for review
-      └─ Rank A/S → BLOCKED → operator approval → execute
-
-EVOLUTION FLOW:
-  Mission completes → XP awarded → evolve() called
-      │
-      ├─ Stage threshold met → STAGE_CHANGE event
-      └─ New traits unlocked → TRAIT_UNLOCKED event
-             │
-             └─ Trait gates worker capabilities
-                (AUTONOMOUS_CHAIN required for auto-execution)
-```
+- Governed AI mission runtime with a truthful cockpit interface.
+- A cockpit-grade control plane for governed AI missions.
+- Built for operators who want telemetry, not theatre.
+- State. Memory. Mission. Audit. Truth.
+- Alive where the state is real.
 
 ---
 
-## GITHUB BANNER TAGLINES
+## Public Links To Reference
 
-**Repo description (short):**
-Governed autonomy organism. Mission engine, worker swarm, artifact vault. One operator. Full control.
-
-**Punchy:**
-The open-source autonomous execution system that earns its own capabilities.
-
-**Technical:**
-Mission orchestration + worker execution + artifact memory + governance + evolution state. FastAPI. Local-first. MIT.
-
-**Philosophical:**
-Autonomy without accountability is liability. NEXUSMON makes governance the architecture.
-
-**Lore-forward:**
-One operator. One organism. Capabilities earned through missions. DORMANT → APEX.
+- `README.md`
+- `docs/repository_layout.md`
+- `docs/truthful_migration_playbook.md`
+- `docs/DOCTRINE.md`
+- `docs/status/local_validation_2026-03-07.md`
 
 ---
 
-## PRESS RELEASE
+## Usage Note
 
-**FOR IMMEDIATE RELEASE**
+This press kit is intentionally public-facing.
 
-**NEXUSMON: AN OPEN-SOURCE GOVERNED AUTONOMY ORGANISM FOR MISSION-CRITICAL EXECUTION**
+It should stay aligned with the current README and validated status docs.
 
-NEXUSMON is now available as an open-source autonomous execution system designed for operators who need real control over real automation.
+Do not use outdated claims such as:
 
-Unlike current AI agent frameworks that prioritize capability over governance, NEXUSMON is built infrastructure-first: a mission orchestration engine, a worker execution layer, a versioned artifact vault, and a risk-tiered governance system — before a single line of interface code was written.
-
-The system is designed around six core principles: missions are decomposed into executable task graphs, not handed to a black box. Every output is stored as a versioned artifact with operator review trails. A/S rank missions are blocked until the operator explicitly approves. The system's own capabilities are locked behind a stage progression — DORMANT, AWAKENING, FORGING, SOVEREIGN, APEX — earned through demonstrated mission performance, not configured at install.
-
-"Most autonomy systems are built for the platform," said the creator. "NEXUSMON is built for the operator. One operator. One organism. Non-transferable bond earned through use."
-
-NEXUSMON is written in Python with FastAPI, stores all data locally in SQLite and JSONL, and requires no cloud dependency. The system uses Anthropic Claude for AI-powered mission decomposition and claim analysis, with graceful fallbacks for offline operation.
-
-The system includes a cognitive instrumentation layer — 13 tools for measuring prediction calibration, belief dependency, error taxonomy, and decision quality — built on the same principles as the mission engine: feedback loops that reduce systematic errors, not just add knowledge.
-
-NEXUSMON is available under the MIT license at:
-https://github.com/darthvpirateking-afk/NEXUSMON
-
-Live cockpit:
-https://nexusmonv10-production.up.railway.app/organism
-
-Landing page:
-https://nexusmonv10-production.up.railway.app/landing
+- open-source / MIT licensing
+- old deployment URLs
+- obsolete evolution ladders
+- stale test or route counts
+- "fully live" cockpit language for panels still in migration
 

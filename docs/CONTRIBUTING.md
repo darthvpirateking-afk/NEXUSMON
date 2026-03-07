@@ -65,7 +65,7 @@ fix/short-description
 evolution/stage-name
 ```
 
-Do not push directly to `master` or `evolution/**` without a passing test run.
+Do not push directly to `main` or `evolution/**` without a passing test run. `master` is legacy and should not receive new work.
 
 ---
 

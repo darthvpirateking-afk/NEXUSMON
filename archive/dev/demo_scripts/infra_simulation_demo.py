@@ -4,7 +4,7 @@
 #!/usr/bin/env python3
 """Dev-only helper to exercise the infra orchestrator simulation.
 
-This script is **optional** and lives under `dev/` so it does not
+This script is **optional** and lives under `archive/dev/demo_scripts/` so it does not
 interfere with core behavior. It assumes the SWARMZ runtime server is
 running locally and, if infra is enabled, it will:
 
@@ -14,7 +14,7 @@ running locally and, if infra is enabled, it will:
 
 Usage (from repository root):
 
-  SWARMZ_INFRA_ORCHESTRATOR_ENABLED=1 python dev/infra_simulation_demo.py
+    SWARMZ_INFRA_ORCHESTRATOR_ENABLED=1 python archive/dev/demo_scripts/infra_simulation_demo.py
 
 The script fails gracefully if the server is not running or if the
 infra orchestrator is disabled.

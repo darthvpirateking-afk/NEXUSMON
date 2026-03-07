@@ -2,7 +2,7 @@
 
 **Governed. Sovereign. Additive forever.**
 
-All versions are sealed and tagged on `master`. Evolution is earned, not declared.
+All current versions are sealed and tagged from the canonical `main` line. Evolution is earned, not declared.
 
 ---
 

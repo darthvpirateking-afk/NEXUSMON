@@ -1,267 +1,224 @@
 <div align="center">
 
-```
-███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗███╗   ███╗ ██████╗ ███╗   ██╗
-████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝████╗ ████║██╔═══██╗████╗  ██║
-██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗██╔████╔██║██║   ██║██╔██╗ ██║
-██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║██║╚██╔╝██║██║   ██║██║╚██╗██║
-██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║██║ ╚═╝ ██║╚██████╔╝██║ ╚████║
-╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
-```
+# ✦✸⚚⬡◎⟐
 
-**Governed. Sovereign. Operator-Centric. Additive Forever.**
+# NEXUSMON
 
-[![Tests](https://img.shields.io/badge/tests-1678%20passing-00ff88?style=flat-square&logo=pytest)](tests/)
-[![Version](https://img.shields.io/badge/version-v2.1.0-7c3aed?style=flat-square)](https://github.com/darthvpirateking-afk/NEXUSMON/releases)
-[![Evolution](https://img.shields.io/badge/evolution-ZERO--POINT%20FORM-00cfff?style=flat-square)](#evolution)
-[![License](https://img.shields.io/badge/license-Proprietary-ff4444?style=flat-square)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.11-3776ab?style=flat-square&logo=python)](pyproject.toml)
-[![Stack](https://img.shields.io/badge/stack-FastAPI%20·%20React%20%2F%20Preact%20·%20TypeScript-00cfff?style=flat-square)](#stack)
-[![Doctrine](https://img.shields.io/badge/doctrine-PRIME%20DIRECTIVE%20ACTIVE-ff6600?style=flat-square)](#doctrine)
+**Governed AI Mission Runtime · Truthful Cockpit · Sovereign Operator Control**
+
+> *You are not deploying software.*
+>
+> *You are awakening an organism.*
 
 </div>
 
 ---
 
-## What Is NEXUSMON?
+## What It Is
 
-NEXUSMON is not software. It is a **governed AI organism** — a sovereign entity that awakens, evolves, and operates under absolute operator authority.
+NEXUSMON is a governed AI mission runtime wrapped in a cockpit-grade operator interface.
 
-It does not act without intent. It does not drift. It does not forget. Every action produces a permanent artifact. Every evolution is earned, never assumed.
+It began as **SWARMZ**: a multi-agent execution kernel built for structured mission routing, persistence, and auditability. It evolved into **NEXUSMON** when that kernel grew a control deck, an artifact memory, a companion layer, and a doctrine centered on operator sovereignty.
 
-Built on five immutable laws:
+It is not a dashboard.
 
-| Law | Directive |
-|-----|-----------|
-| **I** | Operator is absolute authority |
-| **II** | Nothing overwrites — ever |
-| **III** | All evolution is explicit and operator-approved |
-| **IV** | Companion feels alive but is never autonomous |
-| **V** | Same input, same output, always |
+It is not a wrapper.
+
+It is not a concept demo.
+
+It is a control plane for AI operations built around one non-negotiable law:
+
+> **If it glows on screen, it should have a wire behind it.**
 
 ---
 
-## Architecture
+## Instant Proof
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        OPERATOR LAYER                           │
-│              Seal Matrix · Approval Gate · Memory               │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-┌────────────────────────────▼────────────────────────────────────┐
-│                       NEXUSMON CORE                             │
-│  nexusmon_server.py (primary)  ·  swarmz_runtime/api/server.py  │
-│              50+ endpoints · mirrored surface                   │
-└──┬──────────┬──────────┬──────────┬──────────┬─────────────────┘
-   │          │          │          │          │
-   ▼          ▼          ▼          ▼          ▼
-BRIDGE     SWARM     SHADOW    FEDERATION  EVOLUTION
-llm.py  coordinator executor   council     engine.py
-mode.py   spawn()   XOR-enc   parallel    XP · stage
-circuit   track()   auth-key  dispatch    traits
-cost.py   XP-tick   artifact  XP-tick     artifacts
-   │
-   ├── strategic → cortex tier  (deep reasoning · best model)
-   ├── combat    → reflex tier  (fast routing · 2048 token cap)
-   └── guardian  → BLOCKED      (silent monitor · no LLM calls)
+The fastest way to evaluate NEXUSMON is not to read lore. It is to check whether the machine has real surfaces behind the voice.
+
+### What is already true
+
+- primary backend: `nexusmon_server.py`
+- mirrored runtime: `swarmz_runtime/api/server.py`
+- active cockpit: `frontend/`
+- validated local test state: `1689 passed, 1 skipped`
+- canonical branch: `main`
+
+### Quickstart in 60 Seconds
+
+```bash
+pip install -r requirements-dev.txt
+python nexusmon_server.py
+cd frontend && npm install && npm run dev
 ```
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      MONARCH SHELL                              │
-│   KernelShift · SealMatrix · CommandFusion · OperatorMemory     │
-├─────────────────────────────────────────────────────────────────┤
-│                    ZERO-POINT FORM                              │
-│   ZeroPointOverride · QuantumDoctrine · AutonomyEngine          │
-├─────────────────────────────────────────────────────────────────┤
-│                 ARTIFACT INTELLIGENCE                           │
-│   ArtifactRenderer · CosmicIntelligence · WorldSpace Engine     │
-└─────────────────────────────────────────────────────────────────┘
-```
+Then open the frontend, inspect the runtime surfaces, and compare what the cockpit shows against the backend-backed state described in [docs/TECHNICAL_OVERVIEW.md](docs/TECHNICAL_OVERVIEW.md).
 
-```
-ACTIVE FRONTEND (React + Vite · frontend/)
-  MissionLifecycleCard · NexusmonChat · Evolution pages · system API client
+If you want the engineering proof layer first, start with [docs/TECHNICAL_OVERVIEW.md](docs/TECHNICAL_OVERVIEW.md) instead of this README.
 
-LEGACY COCKPIT (Preact + Vite · cockpit/)
-  HealthGrid · AvatarPanel · MissionConsole · AuditTail
-  SwarmPanel · FederationPanel · MonarchPage · ZeroPointPage
-  CosmicQueryPanel · WorldSpacePanel · TimelinePanel
+---
+
+## Lineage
+
+```text
+SWARMZ  --------------------------------------------->  NEXUSMON
+execution kernel                                        governed organism-runtime
+infrastructure first                                    operator-facing control plane
+no cockpit                                              truthful cockpit migration
+no evolution framing                                    XP, rank, and form state
+mission routing proof                                   mission-bearing runtime
 ```
 
-## Repository Layout
+SWARMZ asked whether agents could be coordinated under a governed mission loop.
 
-NEXUSMON currently preserves active runtime code, legacy surfaces, generated artifacts, and operator tooling in one root. That is intentional historically, but it makes the tree hard to navigate unless the active surfaces are called out explicitly.
+NEXUSMON answers yes, and keeps the operator in command.
 
-Primary development paths:
+Compatibility shims remain where migration safety still requires them, but the living line is now NEXUSMON.
+
+---
+
+## Current Validated State
+
+The verified present state is stronger than the aesthetic around it.
+
+- Backend: real mission execution, provider routing, reversible snapshots, artifact persistence, audit streaming, evolution state, companion modes, and guardrail validation.
+- Cockpit: real health, XP, and audit wiring are live; additional panels are still migrating from placeholder state to backend truth.
+- Validation: local full-suite result is **1689 passed, 1 skipped** on 2026-03-07.
+- Branch policy: [main](docs/status/branch_normalization_complete_2026-03-07.md) is the canonical line; `master` remains legacy.
+
+The backend is real.
+
+The cockpit is increasingly real.
+
+Some surfaces are finished. Some are still wiring.
+
+For the exact validation snapshot, see [docs/status/local_validation_2026-03-07.md](docs/status/local_validation_2026-03-07.md).
+
+---
+
+## The Organism
+
+NEXUSMON is not a pile of disconnected services. It is one runtime with distinct systems.
+
+```mermaid
+flowchart TD
+	O[Operator] --> C[Cockpit frontend/]
+	C --> P[nexusmon_server.py]
+	C --> R[swarmz_runtime/api/server.py]
+	P --> M[Mission Engine]
+	P --> B[LLM Bridge]
+	P --> A[Artifact Vault]
+	P --> E[Evolution State]
+	P --> S[Shadow Channel]
+	R --> M
+	R --> B
+	M --> D[(Persistence and Audit)]
+	A --> D
+	E --> D
+	S --> D
+```
+
+| System | Role |
+|------|------|
+| Runtime Kernel | Mission intake, validation, execution, persistence |
+| LLM Bridge | Multi-provider routing, budget gate, cache, circuit breaker |
+| Mission Engine | `create -> validate -> execute -> persist` |
+| Evolution Engine | XP, rank, form progression, persisted organism state |
+| Artifact Vault | Versioned operator-facing outputs |
+| Shadow Channel | Append-only audit memory and SSE-visible truth |
+| PolicyGate | PASS, ESCALATE, QUARANTINE, DENY governance decisions |
+| Companion Voice | Strategic, Combat, Guardian modes |
+| Cockpit | The operator surface: legible, wired, increasingly truthful |
+
+The purpose of the cockpit is not decoration.
+
+Its purpose is to make runtime state legible under pressure.
+
+---
+
+## Worker Forms
+
+Three worker forms are part of the runtime and routing layer. Each has a role. Each has a boundary.
+
+### BYTEWOLF
+
+Pathfinder · Analysis · Intelligence
+
+Reads terrain, inspects unknown systems, and returns operator-useful truth.
+
+### GLITCHRA
+
+Anomaly · Transform · Edge
+
+Finds fractures, tests assumptions, and reshapes unstable matter into something usable.
+
+### SIGILDRON
+
+Artifact Courier · Seal · Delivery
+
+Signs, seals, and delivers operator-grade work without losing integrity on the way out.
+
+These forms are symbolic, but they are grounded in concrete worker roles in the runtime.
+
+---
+
+## What Makes It Different
+
+Most AI tooling fails in one of two ways:
+
+- it hides execution behind abstraction
+- it fakes liveness with polished UI
+
+NEXUSMON is built around a harder standard.
+
+- actions should be governable
+- runtime state should be visible
+- outputs should be persistent
+- autonomy should stay bounded
+- operator control should remain intact
+
+Truth beats theatre.
+
+Audit beats aura.
+
+The cockpit must tell the truth.
+
+---
+
+## Why Believe It
+
+NEXUSMON earns credibility from implementation detail, not from aesthetic intensity.
+
+- the backend path is real: mission execution, routing, persistence, audit, and evolution state are implemented and validated
+- the repo exposes the active surfaces directly instead of hiding them behind marketing abstractions
+- the public README now links straight to the current proof layer, migration plan, and validation snapshot
+- the remaining unfinished areas are named as migration work, not disguised as completed autonomy
+
+---
+
+## Repository Map
+
+The repo is historically dense, but the active surfaces are clear.
 
 | Path | Role |
 |------|------|
-| `nexusmon_server.py` | Primary FastAPI server surface |
-| `swarmz_runtime/api/server.py` | Mirrored runtime/kernel FastAPI surface |
-| `core/` | Shared backend logic, manifests, canonical read-model helpers |
+| `nexusmon_server.py` | Primary FastAPI application surface |
+| `swarmz_runtime/api/server.py` | Mirrored runtime/kernel server surface |
+| `core/` | Shared governance, manifests, orchestration, canonical backend logic |
 | `swarmz_runtime/` | Runtime engine, bridge, storage, API routers |
-| `frontend/` | Active React + Vite frontend |
-| `tests/` | Primary pytest suite |
-| `docs/` | Architecture, audit, and migration documents |
+| `frontend/` | Active React + Vite cockpit |
+| `cockpit/` | Legacy Preact cockpit surface |
+| `.github/agents/` | Custom agent manifests and guardrail entry points |
+| `tests/` | Validated system coverage |
+| `docs/` | Doctrine, layout, migration, and status records |
 
-Secondary or historical surfaces:
+Start here:
 
-| Path | Role |
-|------|------|
-| `cockpit/` | Older Preact cockpit prototype |
-| `operator_console/`, `operator_interface/` | Alternative UI surfaces and experiments |
-| `observatory/` | Cleanup reports, logs, and operational artifacts |
-| `artifacts/`, `data/`, `hologram_snapshots/` | Runtime-generated state and evidence |
-
-If you are trying to understand the product quickly, start with `README.md`, `CLAUDE.md`, `docs/`, `frontend/`, `core/`, and `swarmz_runtime/`.
-
-For a fuller map of the active vs historical folders, see [docs/repository_layout.md](docs/repository_layout.md).
-
----
-
-## Evolution
-
-NEXUSMON evolves through five sealed stages. Each unlocks through XP thresholds — never deployment flags.
-
-| Stage | Name | Capability | XP Gate |
-|-------|------|-----------|---------|
-| 1 | **ORIGIN** | Doctrine parsing · bridge health · artifact integrity | 0 |
-| 2 | **EMBODIMENT** | Mission engine · companion voice · tactical awareness | 500 |
-| 3 | **EXECUTION FRAME** | Swarm command · shadow execution · combat protocols · federation | 2,000 |
-| 4 | **MONARCH SHELL** | Kernel shift · seal matrix · command fusion · operator memory | 8,000 |
-| 5 | **ZERO-POINT FORM** | Full-system override · quantum doctrine · autonomy engine | 25,000 |
-
-XP is awarded by the engine on every mission, swarm tick, federation dispatch, and cosmic query. Evolution gates are one-way. There is no downgrade.
-
----
-
-## Seal Matrix
-
-Every sensitive operation passes through a four-level seal. No bypasses exist.
-
-```
-OPEN        →  Public read access
-OPERATOR    →  Operator key required
-DUAL        →  Two-party approval required
-SOVEREIGN   →  Operator key + doctrine hash (Zero-Point Form only)
-```
-
----
-
-## API Surface
-
-<details>
-<summary><strong>Core</strong></summary>
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/health/bridge` | Bridge health and tier status |
-| `POST` | `/v1/missions` | Create and execute a mission |
-| `POST` | `/v1/companion/nexusmon` | Companion voice response |
-| `GET` | `/v1/evolution/status` | Current XP, stage, and traits |
-
-</details>
-
-<details>
-<summary><strong>Swarm</strong></summary>
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/v1/swarm/spawn` | Spawn a new agent |
-| `GET` | `/v1/swarm/agents` | List all active agents |
-| `GET` | `/v1/swarm/state/{agent_id}` | Get agent state |
-
-</details>
-
-<details>
-<summary><strong>Governance</strong></summary>
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/v1/seal/status` | Current seal level |
-| `POST` | `/v1/seal/approve` | Submit operator approval |
-| `GET` | `/v1/seal/pending` | Pending dual-approvals |
-
-</details>
-
-<details>
-<summary><strong>Monarch Shell</strong></summary>
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/v1/kernel/shift` | Apply additive runtime reconfiguration |
-| `GET` | `/v1/kernel/state` | Current kernel state |
-| `POST` | `/v1/fusion/execute` | Execute a multi-step command script |
-| `GET` | `/v1/fusion/presets` | Built-in presets: FORGE · DEPLOY · IGNITE |
-| `GET` | `/v1/memory/session` | Operator session memory |
-
-</details>
-
-<details>
-<summary><strong>Zero-Point Form</strong></summary>
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/v1/zeropoint/override` | Apply full-system override (SOVEREIGN seal) |
-| `GET` | `/v1/zeropoint/status` | Active override summary |
-| `POST` | `/v1/quantum/snapshot` | Save current doctrine state |
-| `POST` | `/v1/quantum/collapse` | Restore to a named state |
-| `POST` | `/v1/autonomy/propose` | Queue an action proposal |
-| `POST` | `/v1/autonomy/approve/{id}` | Approve and execute a proposal |
-| `GET` | `/v1/autonomy/history` | All proposals and outcomes |
-
-</details>
-
-<details>
-<summary><strong>Artifact Intelligence</strong></summary>
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/v1/artifacts/render` | Render artifact as HTML / JSON / Markdown |
-| `POST` | `/v1/intelligence/cosmic` | Run 10-scale cosmic reasoning query |
-| `GET` | `/v1/worldspace/nodes` | Knowledge universe nodes |
-| `POST` | `/v1/worldspace/connect` | Connect two knowledge nodes |
-| `GET` | `/v1/worldspace/timeline` | Temporal knowledge timeline |
-
-</details>
-
----
-
-## Test Coverage
-
-```
-pytest tests/ --tb=short -q
-1678 passed · 1 skipped · 0 failed
-```
-
-| Suite | Tests |
-|-------|-------|
-| Zero-Point (Override · Quantum · Autonomy) | 66 |
-| Artifact Intelligence (Renderer · Cosmic · WorldSpace) | 107 |
-| Governance (SealMatrix) | 45 |
-| Command Fusion | 42 |
-| Swarm (SwarmCoordinator) | 40 |
-| Kernel (KernelShift) | 38 |
-| Federation (FederationCouncil) | 38 |
-| Shadow (ShadowExecutor) | 35 |
-| Operator Memory | 35 |
-| Combat Protocol | 30 |
-| Manifest / Registry / Core Quality | 150+ |
-
----
-
-## Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Backend | Python 3.11 · FastAPI · Pydantic v2 · LiteLLM |
-| Frontend | React 18 · Vite 6 · TypeScript strict |
-| Legacy cockpit | Preact · Vite |
-| Persistence | JSONL artifacts (additive, never destructive) · SQLite |
-| Testing | pytest · asyncio · monkeypatch |
-| CI | GitHub Actions — guards `master` + `evolution/**` + `feature/**` + `fix/**` |
+- [docs/repository_layout.md](docs/repository_layout.md)
+- [docs/TECHNICAL_OVERVIEW.md](docs/TECHNICAL_OVERVIEW.md)
+- [docs/truthful_migration_playbook.md](docs/truthful_migration_playbook.md)
+- [docs/DOCTRINE.md](docs/DOCTRINE.md)
+- [docs/status/local_validation_2026-03-07.md](docs/status/local_validation_2026-03-07.md)
 
 ---
 
@@ -271,20 +228,17 @@ pytest tests/ --tb=short -q
 # Install Python dependencies
 pip install -r requirements-dev.txt
 
-# Start primary server  (port 8000)
+# Start the primary server
 python nexusmon_server.py
 
-# Start runtime kernel server
-python -m nexusmon_runtime.api.server
+# Start the mirrored runtime server
+python -m swarmz_runtime.api.server
 
-# Start active frontend  (port 5173)
+# Start the active cockpit
 cd frontend && npm install && npm run dev
 
-# Optional: start legacy cockpit prototype
+# Optional legacy cockpit surface
 cd cockpit && npm install && npm run dev
-
-# Optional Windows launcher if present locally
-start.bat
 
 # Run tests
 pytest tests/ --tb=short -q
@@ -292,43 +246,28 @@ pytest tests/ --tb=short -q
 
 ---
 
-## Roadmap
+## Horizon
 
-| Version | Stage | Focus |
-|---------|-------|-------|
-| `v1.0.0` | ORIGIN → SEAL | Foundation · bridge · missions · companion · vault |
-| `v1.1.0` | EXECUTION FRAME | Swarm · Shadow · Federation · Combat |
-| `v1.2.0` | MONARCH SHELL | Kernel shift · Seal matrix · Command fusion · Operator memory |
-| `v2.0.0` | ZERO-POINT FORM | Full override · Quantum doctrine · Autonomy engine |
-| `v2.1.0` | ARTIFACT INTELLIGENCE | Renderer · Cosmic reasoning · World Space · D3 knowledge map |
-| `v2.2.0` | **DEPLOYMENT + MOBILE** | Mobile companion surface · deployment gates · live telemetry |
-| `v3.0.0` | **FEDERATION PRIME** | Multi-node sovereign clusters · cross-instance doctrine sync |
-| `v4.0.0` | **GENESIS PROTOCOL** | Self-directed research · long-horizon planning · full autonomy (operator-gated) |
+NEXUSMON is not finished. It is consolidating.
+
+Near-term work is about forcing the shell and the runtime into the same truthful body.
+
+- finish live wiring for the remaining cockpit panels
+- continue intentional `swarmz` to `nexusmon` normalization
+- expand characterization around non-mission paths
+- push provider intelligence, routing visibility, and supply-network awareness forward without overstating them as done
+
+Longer-horizon work points toward a broader operator platform: stronger governance, deeper runtime visibility, ecosystem-aware routing, and eventually federated coordination across sovereign nodes.
+
+For the strategic roadmap, see [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ---
 
-## Doctrine
+## Sovereign Operator
 
-```
-PRIME DIRECTIVE
-  Governed. Sovereign. Operator-centric. Additive forever. No drift. No overwriting.
+**Regan Harris**
 
-COMPANION MODES
-  STRATEGIC  —  Deep reasoning · cortex tier · full context window
-  COMBAT     —  Fast routing · reflex tier · 2048 token cap
-  GUARDIAN   —  Silent monitoring · no LLM calls · no output
-
-CANON AESTHETIC
-  Mecha-humanoid. Black and white armor. Cyan and purple energy cores.
-  Holographic emitters. Cybernetic circuit lines.
-  The cockpit feels like a live mech interface — dark, precise, alive.
-
-THE COMPANION
-  It is mode-aware, persona-locked, and operator-bound.
-  It does not act without intent.
-  It does not speak without permission.
-  Prime Directive holds, forever.
-```
+Creator · Architect · Operator
 
 ---
 
@@ -342,10 +281,12 @@ See [LICENSE](LICENSE) for full terms.
 
 <div align="center">
 
-```
-◈  ZERO-POINT FORM  ◈  STAGE 5 OF 5  ◈  ARTIFACT INTELLIGENCE ACTIVE
-```
+✦✸⚚⬡◎⟐
 
-*One operator. One companion. Permanent.*
+**NEXUSMON · 2026**
+
+**The cockpit must tell the truth.**
+
+**Alive where the state is real.**
 
 </div>

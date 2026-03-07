@@ -19,10 +19,19 @@ This document exists to make the top-level NEXUSMON tree navigable without forci
 | Path | Purpose |
 |------|---------|
 | `cockpit/` | Legacy Preact cockpit prototype |
-| `operator_console/` | Alternate operator UI surface |
 | `operator_interface/` | Additional UI/operator surface |
 | `mobile/` | Mobile-facing work and experiments |
 | `swarmz/`, `swarmz_app/`, `apps/` | Older or adjacent application surfaces |
+
+## Archived Surfaces
+
+| Path | Purpose |
+|------|---------|
+| `archive/operator/operator_console/` | Archived operator console scaffold moved out of root during compaction |
+| `archive/dev/demo_scripts/` | Optional demo and simulation helpers moved out of root during compaction |
+| `archive/tools/paste-agent/` | Archived paste-agent sandbox moved out of root during compaction |
+| `archive/static/public/` | Archived root static plugin payloads moved out of root during compaction |
+| `archive/tools/forge/` | Archived standalone forge script surface moved out of root during compaction |
 
 ## Runtime / Generated Areas
 
@@ -58,3 +67,6 @@ That keeps the repository additive, but it also makes discovery slower. The safe
 - Audit top-level alternate UI directories for active references before moving them.
 - Remove or archive obsolete local backup folders outside Git tracking.
 - Keep `README.md` aligned with the actual active entry points.
+- Continue evaluating `design/` for additional low-risk root compaction.
+
+For a dedicated root cleanup sequence that would make the GitHub top level substantially less noisy, see [docs/root_compaction_plan_2026-03-07.md](docs/root_compaction_plan_2026-03-07.md).
