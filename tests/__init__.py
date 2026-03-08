@@ -1,0 +1,1 @@
+"""Test package marker for stable pytest module imports."""

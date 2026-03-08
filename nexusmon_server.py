@@ -598,6 +598,14 @@ app.include_router(audit_router, prefix="/api/audit", tags=["audit"])
 app.include_router(avatar_router, prefix="/api/avatar", tags=["avatar"])
 app.include_router(health_ext_router, prefix="/api/health", tags=["health"])
 app.include_router(self_router, prefix="/api/self", tags=["self"])
+try:
+    from swarmz_runtime.api.bond import router as bond_router
+    from swarmz_runtime.api.supply import router as supply_router
+
+    app.include_router(bond_router, tags=["bond"])
+    app.include_router(supply_router, tags=["supply"])
+except Exception:
+    pass
 
 # Include the new tab loader routes
 # app.include_router(app.router, prefix="/v1/tabs")
@@ -3691,6 +3699,7 @@ except Exception as _cockpit_mount_err:
 frontend_build = os.path.join(os.path.dirname(__file__), "frontend", "dist")
 frontend_assets = os.path.join(frontend_build, "assets")
 if os.path.exists(frontend_build) and os.path.exists(frontend_assets):
+    app.mount("/assets", StaticFiles(directory=frontend_assets), name="frontend-assets")
     app.mount("/static", StaticFiles(directory=frontend_assets), name="static")
 
     @app.get("/nexusmon")

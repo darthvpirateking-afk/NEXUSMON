@@ -11,6 +11,7 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from swarmz_runtime.bridge.mode import NexusmonMode
 
 logger = logging.getLogger("swarmz.mission_lifecycle")
 
@@ -51,6 +52,20 @@ ALLOWED_TRANSITIONS: Dict[str, List[str]] = {
 
 _LOCK = threading.Lock()
 _MISSIONS: Dict[str, Dict[str, Any]] = {}
+
+
+def _execution_truth_fields(*, execution_backed: bool) -> Dict[str, Any]:
+    if execution_backed:
+        return {
+            "execution_backed": True,
+            "execution_truth_label": "EXECUTION-BACKED",
+            "execution_truth_detail": "Execution output is present in the mission payload.",
+        }
+    return {
+        "execution_backed": False,
+        "execution_truth_label": "LIFECYCLE STATE ONLY",
+        "execution_truth_detail": "Execution not yet wired.",
+    }
 
 
 def _ts() -> str:
@@ -119,6 +134,7 @@ class StartMissionRequest(BaseModel):
     goal: str
     category: str = "default"
     constraints: Dict[str, Any] = {}
+    mode: NexusmonMode | None = None
 
 
 class CompleteMissionRequest(BaseModel):
@@ -148,11 +164,22 @@ def start_mission(req: StartMissionRequest) -> Dict[str, Any]:
         "created_at": now,
         "history": [{"state": "QUEUED", "timestamp": now}],
         "bridge_output": None,
-        "mode": None,
+        "mode": req.mode.value if req.mode else None,
     }
     with _LOCK:
         _MISSIONS[mission_id] = mission
-    return {"mission_id": mission_id, "state": "QUEUED", "timestamp": now}
+    try:
+        from swarmz_runtime.operator.memory import get_operator_memory
+
+        get_operator_memory().record_mission_start()
+    except Exception as exc:
+        logger.warning("Failed to record operator mission count for %s: %s", mission_id, exc)
+    return {
+        "mission_id": mission_id,
+        "state": "QUEUED",
+        "mode": mission["mode"],
+        "timestamp": now,
+    }
 
 
 @router.post("/stop")
@@ -193,7 +220,15 @@ def complete_mission(req: CompleteMissionRequest) -> Dict[str, Any]:
 def missions_status() -> Dict[str, Any]:
     """Return all active missions and their current states."""
     with _LOCK:
-        missions = [dict(m) for m in _MISSIONS.values()]
+        missions = [
+            {
+                **dict(m),
+                **_execution_truth_fields(
+                    execution_backed=bool(m.get("bridge_output"))
+                ),
+            }
+            for m in _MISSIONS.values()
+        ]
     return {
         "missions": missions,
         "total": len(missions),
@@ -208,8 +243,13 @@ def mission_status(mission_id: str) -> Dict[str, Any]:
     return {
         "mission_id": mission_id,
         "state": m["state"],
+        "goal": m.get("goal"),
+        "category": m.get("category"),
+        "constraints": m.get("constraints"),
+        "created_at": m.get("created_at"),
         "history": m["history"],
         "bridge_output": m.get("bridge_output"),
         "mode": m.get("mode"),
+        **_execution_truth_fields(execution_backed=bool(m.get("bridge_output"))),
         "timestamp": _ts(),
     }

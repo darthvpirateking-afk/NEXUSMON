@@ -135,6 +135,15 @@ class OperatorMemory:
         self._append(entry)
         return entry
 
+    def record_mission_start(self) -> MemoryEntry:
+        """Increment the persisted total_missions counter exactly once per mission creation."""
+        entry = self.load()
+        entry.total_missions += 1
+        if not entry.created_at:
+            entry.created_at = _now_iso()
+        self._append(entry)
+        return entry
+
     def introduce(self, name: str) -> MemoryEntry:
         """Register operator name (first-time only — no overwrite if already named)."""
         entry = self.load()
