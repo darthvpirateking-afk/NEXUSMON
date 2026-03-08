@@ -29,6 +29,7 @@ import { NexusmonPage } from "./pages/NexusmonPage";
 import { MonarchPage } from "./pages/MonarchPage";
 import { ZeroPointPage } from "./pages/ZeroPointPage";
 import { CosmicPage } from "./pages/CosmicPage";
+import { apiGet } from "./api/client";
 import { systemApi } from "./api/system";
 import { colors, spacing, radii, typography, shadows } from "./theme/cosmicTokens";
 
@@ -64,6 +65,11 @@ interface NavItem {
   label: string;
 }
 
+interface AvatarMatrixResponse {
+  current_state?: string;
+  current_form?: string;
+}
+
 const NAV_ITEMS: NavItem[] = [
   { id: "nexusmon",  icon: "⬡", label: "NEXUSMON" },
   { id: "companion", icon: "🤖", label: "Companion" },
@@ -97,9 +103,7 @@ export default function App() {
   useEffect(() => {
     const pollAvatar = async () => {
       try {
-        const res = await fetch("/v1/avatar/matrix");
-        if (!res.ok) return;
-        const data = (await res.json()) as { current_state?: string; current_form?: string };
+        const data = await apiGet<AvatarMatrixResponse>("/v1/avatar/matrix");
         if (data.current_state) setAvatarState(data.current_state);
         if (data.current_form) setAvatarForm(data.current_form);
       } catch { /* non-fatal */ }
@@ -218,17 +222,26 @@ export default function App() {
 
         {/* ── Main Content ── */}
         <main style={shell.main}>
-          <PageContent activePage={activePage} />
+          <PageContent
+            activePage={activePage}
+            onOpenCompanion={() => setActivePage("companion")}
+          />
         </main>
       </div>
     </div>
   );
 }
 
-function PageContent({ activePage }: { activePage: PageId }) {
+function PageContent({
+  activePage,
+  onOpenCompanion,
+}: {
+  activePage: PageId;
+  onOpenCompanion: () => void;
+}) {
   switch (activePage) {
     case "nexusmon":
-      return <NexusmonPage />;
+      return <NexusmonPage onOpenCompanion={onOpenCompanion} />;
     case "companion":
       return <CompanionCorePage />;
     case "runtime":
@@ -574,7 +587,8 @@ const shell: Record<string, CSSProperties> = {
   },
   main: {
     flex: 1,
-    overflowY: "auto",
+    overflow: "hidden",
+    minHeight: 0,
     padding: spacing.lg,
     display: "flex",
     flexDirection: "column",

@@ -159,14 +159,14 @@ export function KernelShiftPanel() {
               <div key={i} style={styles.historyRow}>
                 <span style={{
                   ...styles.tierDot,
-                  background: TIER_COLOR[(entry as Record<string, string>).primary_tier] ?? colors.textSecondary,
+                  background: TIER_COLOR[entry.primary_tier] ?? colors.textSecondary,
                 }} />
                 <span style={styles.historyTier}>
-                  {(entry as Record<string, string>).primary_tier ?? "—"}
+                  {entry.primary_tier ?? "—"}
                 </span>
                 <span style={styles.historyTs}>
-                  {(entry as Record<string, string>).timestamp
-                    ? new Date((entry as Record<string, string>).timestamp).toLocaleTimeString()
+                  {entry.timestamp
+                    ? new Date(entry.timestamp).toLocaleTimeString()
                     : ""}
                 </span>
               </div>

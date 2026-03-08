@@ -6,6 +6,7 @@ import {
   spacing,
   typography,
 } from "../theme/cosmicTokens";
+import { useBondStatus } from "../hooks/useBondStatus";
 import { useOperatorMemory } from "../hooks/useOperatorMemory";
 
 const RELATIONSHIP_COLOR: Record<string, string> = {
@@ -17,6 +18,7 @@ const RELATIONSHIP_COLOR: Record<string, string> = {
 export function OperatorMemoryPanel() {
   const { memory, greeting, loading, error, locked, lockStatus, addNote, addMilestone } =
     useOperatorMemory();
+  const { bond, loading: bondLoading, error: bondError } = useBondStatus();
 
   const [noteInput, setNoteInput] = useState("");
   const [noteError, setNoteError] = useState<string | null>(null);
@@ -27,6 +29,8 @@ export function OperatorMemoryPanel() {
   const relColor = RELATIONSHIP_COLOR[relState] ?? colors.textSecondary;
   const noteDisabled = locked || !noteInput.trim();
   const milestoneDisabled = locked || !milestoneInput.trim();
+  const primaryGreeting = bond?.reply?.trim() || greeting;
+  const showBondMeta = Boolean(bond && !bondError);
 
   const handleAddNote = async () => {
     if (noteDisabled) return;
@@ -66,7 +70,7 @@ export function OperatorMemoryPanel() {
           </span>
           <h2 style={styles.title}>{memory?.name ?? "OPERATOR"}</h2>
         </div>
-        {loading && <span style={styles.loadingDot}>...</span>}
+        {loading || bondLoading ? <span style={styles.loadingDot}>...</span> : null}
       </div>
 
       {locked ? (
@@ -86,8 +90,17 @@ export function OperatorMemoryPanel() {
         </div>
       ) : null}
 
-      {greeting ? <p style={{ ...styles.greeting, color: relColor }}>{greeting}</p> : null}
+      {primaryGreeting ? <p style={{ ...styles.greeting, color: relColor }}>{primaryGreeting}</p> : null}
+      {showBondMeta ? (
+        <div style={styles.bondMetaRow}>
+          <span style={styles.bondMetaPill}>ABSENCE {bond?.absence_label ?? "-"}</span>
+          <span style={styles.bondMetaPill}>MOOD {bond?.state.mood ?? "-"}</span>
+          <span style={styles.bondMetaPill}>FORM {bond?.state.form ?? "-"}</span>
+          <span style={styles.bondMetaPill}>OPEN {bond?.unfinished_count ?? 0}</span>
+        </div>
+      ) : null}
       {error ? <p style={styles.errorText}>{error}</p> : null}
+      {bondError && !primaryGreeting ? <p style={styles.errorText}>{bondError}</p> : null}
 
       {memory ? (
         <div style={styles.statsRow}>
@@ -271,6 +284,22 @@ const styles: Record<string, CSSProperties> = {
     color: colors.error,
     fontSize: typography.fontSizeSm,
     fontFamily: typography.fontFamily,
+  },
+  bondMetaRow: {
+    display: "flex",
+    gap: spacing.xs,
+    flexWrap: "wrap",
+  },
+  bondMetaPill: {
+    color: colors.textSecondary,
+    border: `1px solid ${colors.borderColor}`,
+    background: colors.bg,
+    borderRadius: radii.full,
+    padding: `2px ${spacing.sm}`,
+    fontSize: "0.6rem",
+    fontFamily: typography.fontFamily,
+    fontWeight: typography.fontWeightBold,
+    letterSpacing: "0.08em",
   },
   statsRow: {
     display: "flex",
