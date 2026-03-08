@@ -3855,6 +3855,17 @@ async def deployment_mobile_status():
         return {"ok": False, "error": str(exc)}
 
 
+@app.get("/v1/telemetry/summary", operation_id="nexus_telemetry_summary")
+async def telemetry_summary():
+    """Return truthful operator-safe telemetry summary for the active cockpit."""
+    try:
+        from swarmz_runtime.api.telemetry_summary import get_telemetry_summary
+
+        return get_telemetry_summary()
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
 # --- Artifact Renderer routes ---
 
 @app.get("/v1/artifacts/{artifact_id}/render/{format}", operation_id="nexus_artifact_render_get")

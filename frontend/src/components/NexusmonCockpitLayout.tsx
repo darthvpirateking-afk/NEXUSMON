@@ -10,6 +10,7 @@ import { NexusmonPresencePanel } from "../components/NexusmonPresencePanel";
 import { OperatorMemoryPanel } from "../components/OperatorMemoryPanel";
 import { DeploymentReadinessPanel } from "../components/DeploymentReadinessPanel";
 import { SupplyNetworkPanel } from "../components/SupplyNetworkPanel";
+import { TelemetrySummaryPanel } from "../components/TelemetrySummaryPanel";
 import { colors, radii, spacing, shadows } from "../theme/cosmicTokens";
 
 function SectionLabel({ children }: { children: string }) {
@@ -163,6 +164,9 @@ export function NexusmonCockpitLayout({ onOpenCompanion }: { onOpenCompanion: ()
           </div>
           <div style={{ ...panel, flexShrink: 0 }}>
             <NexusmonBridgeHealth />
+          </div>
+          <div style={{ ...panel, flexShrink: 0 }}>
+            <TelemetrySummaryPanel />
           </div>
         </div>
 

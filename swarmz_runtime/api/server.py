@@ -729,6 +729,17 @@ def evolution_status(agent_id: str):
         return {"error": str(exc), "agent_id": agent_id}
 
 
+@app.get("/v1/telemetry/summary")
+def telemetry_summary():
+    """Return truthful operator-safe telemetry summary for the active cockpit."""
+    try:
+        from swarmz_runtime.api.telemetry_summary import get_telemetry_summary
+
+        return get_telemetry_summary()
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
 @app.post("/v1/companion/nexusmon")
 async def companion_nexusmon(payload: dict):
     """Generate a mode-aware companion response from NEXUSMON."""
