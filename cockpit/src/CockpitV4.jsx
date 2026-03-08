@@ -1,4 +1,11 @@
 import { useState, useEffect, useRef, useReducer, useCallback } from "preact/hooks";
+import {
+  approveCockpitArtifact,
+  fetchCockpitArtifacts,
+  rejectCockpitArtifact,
+} from "./artifactSync";
+import { fetchCockpitMissions } from "./missionSync";
+import { fetchSupplyNetwork } from "./supplySync";
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  NEXUSMON COCKPIT v4.0 — FULL ORGANISM BUILD
@@ -92,13 +99,7 @@ const INIT_MISSIONS = [
   { id:"M-004", title:"EvolutionEngine XP Unlock", status:"PENDING",   priority:"LOW",  worker:"BYTEWOLF",  risk:0.31, score:0, symbolic:"GROWTH_CATALYST",    ts:"09:00", logs:["Awaiting XP threshold"] },
 ];
 
-const INIT_ARTIFACTS = [
-  { id:"A-001", name:"NEXUSMON_SPECIES_CODEX.md",  ver:"v3.2", sealed:true,  ts:"03-05", size:"48KB",  type:"CODEX"  },
-  { id:"A-002", name:"Master_Docblock.docx",        ver:"v1.0", sealed:true,  ts:"03-01", size:"2.1MB", type:"DOC"    },
-  { id:"A-003", name:"PolicyGate_Spec.json",        ver:"v0.4", sealed:false, ts:"03-06", size:"12KB",  type:"SPEC"   },
-  { id:"A-004", name:"EvolutionEngine.py",          ver:"v0.2", sealed:false, ts:"03-06", size:"8KB",   type:"CODE"   },
-  { id:"A-005", name:"NEXUSMON_GLYPH_CODEX.svg",    ver:"v2.1", sealed:true,  ts:"03-02", size:"320KB", type:"DESIGN" },
-];
+const INIT_ARTIFACTS = [];
 
 const INIT_SHADOW = [
   { id:1, ts:"14:23:01", type:"POLICY",     level:"OK",   msg:"M-001 → BYTEWOLF | PASS" },
@@ -135,8 +136,8 @@ function reducer(s, a) {
     case "LOG":        return {...s, logs:[...s.logs,a.v].slice(-60)};
     case "MISS_UP":    return {...s, missions:s.missions.map(m=>m.id===a.id?{...m,...a.p}:m)};
     case "MISS_ADD":   return {...s, missions:[a.v,...s.missions]};
-    case "ART_SEAL":   return {...s, artifacts:s.artifacts.map(x=>x.id===a.id?{...x,sealed:true}:x)};
-    case "ART_DEL":    return {...s, artifacts:s.artifacts.filter(x=>x.id!==a.id)};
+    case "ART_APPROVE": return {...s, artifacts:s.artifacts.map(x=>x.id===a.v.id?{...x,...a.v}:x), diff:s.diff===a.v.id?a.v.id:s.diff};
+    case "ART_REJECT":  return {...s, artifacts:s.artifacts.map(x=>x.id===a.v.id?{...x,...a.v}:x), diff:s.diff===a.v.id?a.v.id:s.diff};
     case "ART_ADD":    return {...s, artifacts:[a.v,...s.artifacts]};
     case "APPROVAL":   return {...s, approval:a.v};
     case "EVO":        return {...s, currentForm:a.v, evoLog:[{ts:new Date().toLocaleTimeString(),form:EVO_FORMS[a.v].form,rank:EVO_FORMS[a.v].rank},...s.evoLog]};
@@ -150,18 +151,22 @@ function reducer(s, a) {
     case "DRAW_RIGHT": return {...s, drawerRight:a.v};
     case "HOLO":       return {...s, holoActive:a.v};
     case "MONARCH":    return {...s, monarchMode:a.v};
+    case "COMP_INTENT": return {...s, panel:"COMPANION", companionIntent:a.v};
     case "MISSIONS_SET": return {...s, missions:a.v};
     case "ARTIFACTS_SET": return {...s, artifacts:a.v};
+    case "ARTIFACT_STATS_SET": return {...s, artifactStats:a.v};
+    case "ARTIFACT_ERROR": return {...s, artifactError:a.v};
+    case "SUPPLY_SET": return {...s, supplyNetwork:a.v};
+    case "SUPPLY_ERROR": return {...s, supplyError:a.v};
     case "SEAL": {
-      const latest = s.artifacts[0];
-      if (!latest) return {...s, shadow:[{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"SEAL",level:"WARN",msg:`${G.SEAL} NO ARTIFACTS TO SEAL`},...s.shadow.slice(0,49)]};
       return {...s,
-        artifacts: s.artifacts.map((x,i)=>i===0?{...x,sealed:true}:x),
-        shadow:[{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"SEAL",level:"INFO",msg:`${G.SEAL} OPERATOR SEAL APPLIED · ${latest.id}`},...s.shadow.slice(0,49)],
+        panel:"COMPANION",
+        companionIntent:"seal",
+        shadow:[{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"SEAL",level:"INFO",msg:`${G.SEAL} SEAL WORKFLOW ARMED · COMPANION COMPOSER READY`},...s.shadow.slice(0,49)],
       };
     }
-    case "TRANSMIT":   return {...s, panel:"COMPANION",
-      shadow:[{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"TRANSMIT",level:"INFO",msg:`${G.PULSE} TRANSMIT INITIATED · ROUTING TO COMPANION`},...s.shadow.slice(0,49)],
+    case "TRANSMIT":   return {...s, panel:"COMPANION", companionIntent:"transmit",
+      shadow:[{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"TRANSMIT",level:"INFO",msg:`${G.PULSE} COMPANION LINK ARMED · AWAITING OPERATOR DIRECTIVE`},...s.shadow.slice(0,49)],
     };
     default:           return s;
   }
@@ -171,7 +176,10 @@ const INIT = {
   mode:"NOMINAL", avatarState:"IDLE", panel:"COMPANION",
   messages:INIT_MSGS, missions:INIT_MISSIONS, artifacts:INIT_ARTIFACTS,
   shadow:INIT_SHADOW, logs:INIT_LOGS, approval:null,
+  artifactStats:null, artifactError:null,
+  supplyNetwork:null, supplyError:null,
   currentForm:0, evoLog:[], evolving:false, diff:null,
+  companionIntent:null,
   weights:{ bytewolf:0.72, glitchra:0.88, sigildron:0.61, policy:0.85, shadow:0.73, operator:0.94, mission:0.67 },
   breathPhase:0, heartbeat:72, resonance:0.87,
   drawerLeft:false, drawerRight:false, holoActive:false, monarchMode:false,
@@ -691,7 +699,17 @@ function CompanionPanel({ state, dispatch, mode }) {
   const [input, setInput] = useState("");
   const [sealQ, setSealQ] = useState(null);
   const endRef = useRef(null);
+  const inputRef = useRef(null);
   useEffect(()=>{ endRef.current?.scrollIntoView({behavior:"smooth"}); },[state.messages]);
+
+  useEffect(()=>{
+    if (!state.companionIntent) return;
+    const nextDraft = state.companionIntent === "seal"
+      ? "Prepare sealed command: "
+      : "Transmit directive: ";
+    setInput((current)=>current.trim()?current:nextDraft);
+    inputRef.current?.focus();
+  },[state.companionIntent]);
 
   const replies = [
     `${G.ID} Processing directive. PolicyGate: PASS. Routing to BYTEWOLF. ${G.SEAL}`,
@@ -706,6 +724,7 @@ function CompanionPanel({ state, dispatch, mode }) {
     if (!input.trim()) return;
     const ts = new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
     const prompt = input;
+    dispatch({type:"COMP_INTENT",v:null});
     dispatch({type:"MSG",v:{id:Date.now(),role:"op",text:prompt,ts}});
     dispatch({type:"AVATAR",v:"PROCESSING"});
     dispatch({type:"SHADOW",v:{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"COMPANION",level:"INFO",msg:'Op: "'+prompt.slice(0,45)+'…"'}});
@@ -740,19 +759,26 @@ function CompanionPanel({ state, dispatch, mode }) {
           <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{G.SEAL} SEALED: "{sealQ.text.slice(0,40)}{sealQ.text.length>40?"…":""}"</span>
           <div style={{display:"flex",gap:4,flexShrink:0}}>
             <button className="btn b-grn b-sm" onClick={()=>{
-              dispatch({type:"APPROVAL",v:{title:"SEALED COMMAND",body:"Command: "+sealQ.text+"\n\nApprove sealed execution? Will be logged to ShadowChannel.",action:"SEALED_CMD",onApprove:()=>{ setSealQ(null); dispatch({type:"LOG",v:{ts:new Date().toLocaleTimeString(),lv:"OK",msg:'Sealed cmd: "'+sealQ.text.slice(0,28)+'"'}}); }}});
+              dispatch({type:"APPROVAL",v:{title:"SEALED COMMAND",body:"Command: "+sealQ.text+"\n\nApprove sealed execution staging? This arms operator-reviewed execution and logs it to ShadowChannel.",action:"SEALED_CMD",onApprove:()=>{ setSealQ(null); dispatch({type:"COMP_INTENT",v:null}); dispatch({type:"LOG",v:{ts:new Date().toLocaleTimeString(),lv:"OK",msg:'Sealed cmd staged: "'+sealQ.text.slice(0,28)+'"'}}); dispatch({type:"SHADOW",v:{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"SEAL",level:"INFO",msg:`${G.SEAL} SEALED COMMAND STAGED · OPERATOR REVIEWED`}}); }}});
             }}>APPROVE</button>
             <button className="btn b-red b-sm" onClick={()=>setSealQ(null)}>DENY</button>
           </div>
         </div>
       )}
+      {state.companionIntent&&(
+        <div style={{fontFamily:"var(--fm)",fontSize:11,color:state.companionIntent==="seal"?"var(--cg)":"var(--mc)",marginBottom:8}}>
+          {state.companionIntent==="seal"
+            ? `${G.SEAL} Sealed-command composer armed. Draft the command, then seal or transmit from here.`
+            : `${G.PULSE} Transmit composer armed. Draft the directive, then send it through the real companion route.`}
+        </div>
+      )}
       <div className="cbottom">
-        <textarea className="cinput" value={input} onChange={e=>setInput(e.target.value)}
-          placeholder="Issue directive to NEXUSMON…"
+        <textarea ref={inputRef} className="cinput" value={input} onChange={e=>setInput(e.target.value)}
+          placeholder={state.companionIntent==="seal"?"Draft a sealed command for operator review…":"Issue directive to NEXUSMON…"}
           onKeyDown={e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();} }}/>
         <div className="crow">
           <span style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",flex:1}}>{G.SYS} Op grammar active · {mode} · Resonance {Math.round(state.resonance*100)}%</span>
-          <button className="btn b-gold b-sm" onClick={()=>{ if(!input.trim()) return; setSealQ({text:input,id:Date.now()}); setInput(""); }}>{G.SEAL} SEAL</button>
+          <button className="btn b-gold b-sm" onClick={()=>{ if(!input.trim()) return; dispatch({type:"COMP_INTENT",v:"seal"}); setSealQ({text:input,id:Date.now()}); setInput(""); }}>{G.SEAL} SEAL</button>
           <button className="btn b-blue b-sm" onClick={send}>TRANSMIT ⟶</button>
         </div>
       </div>
@@ -763,9 +789,10 @@ function CompanionPanel({ state, dispatch, mode }) {
 // ── MISSION ENGINE ────────────────────────────────────────────────────────────
 function MissionPanel({ state, dispatch }) {
   const [exp, setExp] = useState("M-001");
-  const scol = {ACTIVE:"#ffcc44",PENDING:"#00d4ff",COMPLETED:"#44ff88"};
+  const scol = {ACTIVE:"#ffcc44",RUNNING:"#ffcc44",PENDING:"#00d4ff",QUEUED:"#00d4ff",INITIALIZING:"#00d4ff",PAUSED:"#ffaa00",COMPLETED:"#44ff88",FAILED:"#ff3c3c",ABORTED:"#ff3c3c"};
   const pcol = {HIGH:"#ff3c3c",MED:"#ffaa00",LOW:"#44ff88"};
   const rcol = (r) => r>0.6?"#ff3c3c":r>0.4?"#ffaa00":"#44ff88";
+  const activeMissionCount = state.missions.filter(m => m.status === "ACTIVE" || m.status === "RUNNING").length;
 
   const doDispatch = (m) => dispatch({type:"APPROVAL",v:{
     title:"MISSION DISPATCH",
@@ -784,7 +811,7 @@ function MissionPanel({ state, dispatch }) {
   return (
     <div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-        <div className="st" style={{marginBottom:0}}>MISSION ENGINE — {state.missions.length} ACTIVE</div>
+        <div className="st" style={{marginBottom:0}}>MISSION ENGINE — {activeMissionCount} ACTIVE / {state.missions.length} TRACKED</div>
         <button className="btn b-gold b-sm" onClick={addNewMission}>+ NEW</button>
       </div>
 
@@ -822,8 +849,8 @@ function MissionPanel({ state, dispatch }) {
               <div className="mlogs">{m.logs.map((l,i)=><span key={i}>{G.SYS} {l}</span>)}</div>
               {m.score>0&&<div style={{fontFamily:"var(--fm)",fontSize:12,color:"#44ff88",marginTop:4}}>SCORE: {m.score} XP</div>}
               <div style={{display:"flex",gap:4,marginTop:6}}>
-                {m.status==="PENDING"&&<button className="btn b-gold b-xs" onClick={e=>{e.stopPropagation();doDispatch(m);}}>DISPATCH</button>}
-                {m.status==="ACTIVE"&&<button className="btn b-grn b-xs" onClick={e=>{e.stopPropagation();dispatch({type:"MISS_UP",id:m.id,p:{status:"COMPLETED",score:Math.floor(Math.random()*60+20),logs:[...m.logs,"Complete ✓"]}});dispatch({type:"SHADOW",v:{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"MISSION",level:"OK",msg:m.id+" COMPLETED"}});}}>COMPLETE</button>}
+                {(m.status==="PENDING"||m.status==="QUEUED"||m.status==="INITIALIZING")&&m.actionsEnabled!==false&&<button className="btn b-gold b-xs" onClick={e=>{e.stopPropagation();doDispatch(m);}}>DISPATCH</button>}
+                {(m.status==="ACTIVE"||m.status==="RUNNING")&&m.actionsEnabled!==false&&<button className="btn b-grn b-xs" onClick={e=>{e.stopPropagation();dispatch({type:"MISS_UP",id:m.id,p:{status:"COMPLETED",score:Math.floor(Math.random()*60+20),logs:[...m.logs,"Complete ✓"]}});dispatch({type:"SHADOW",v:{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"MISSION",level:"OK",msg:m.id+" COMPLETED"}});}}>COMPLETE</button>}
               </div>
             </>
           )}
@@ -1089,6 +1116,64 @@ function OperatorPanel({ state, dispatch }) {
   );
 }
 
+// ── SUPPLY NETWORK ───────────────────────────────────────────────────────────
+function SupplyPanel({ state }) {
+  const network = state.supplyNetwork;
+  const providers = network?.providers || [];
+  const routingPreview = network?.routing_preview || {};
+  const billing = network?.billing || null;
+  return (
+    <div>
+      <div className="st">SUPPLY NETWORK</div>
+      {state.supplyError&&<div style={{fontFamily:"var(--fm)",fontSize:11,color:"#ff3c3c",marginBottom:8}}>{state.supplyError}</div>}
+      {providers.map(provider=>{
+        const tone = provider.health === "healthy" ? "#44ff88" : provider.health === "degraded" ? "#ffcc44" : provider.health === "disabled" ? "var(--td)" : "#ff3c3c";
+        return (
+          <div key={`${provider.tier}:${provider.provider}:${provider.model}`} style={{padding:"8px",border:`1px solid ${tone}22`,borderRadius:2,marginBottom:5}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div style={{fontFamily:"var(--fd)",fontSize:12,fontWeight:700,letterSpacing:".08em",color:tone}}>{provider.tier.toUpperCase()} · {provider.provider}/{provider.model}</div>
+              <span className="chip" style={{color:tone}}>{provider.health.toUpperCase()}</span>
+            </div>
+            <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:3}}>
+              Modes: {(provider.routed_modes || []).join(", ") || "unassigned"} · Compliance: {provider.compliance} · Billing: {provider.billing_integrity}
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:11,color:"var(--td)",marginTop:4}}>
+              <span>Failures: {provider.failures}</span>
+              <span>Circuit: {provider.circuit_open ? "OPEN" : "CLOSED"}</span>
+              <span>Score: {Math.round((provider.score || 0) * 100)}%</span>
+            </div>
+          </div>
+        );
+      })}
+
+      <div className="div"/>
+      <div className="st">ROUTING PREVIEW</div>
+      {[["Strategic", routingPreview.strategic], ["Combat", routingPreview.combat], ["Offline", routingPreview.offline]].map(([label, value])=>(
+        <div key={label} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:11,padding:"3px 0",borderBottom:"1px solid var(--bd)"}}>
+          <span style={{color:"var(--td)"}}>{label}</span>
+          <span style={{color:"var(--tp)"}}>{value || "unresolved"}</span>
+        </div>
+      ))}
+
+      <div className="div"/>
+      <div className="st">BILLING INTEGRITY</div>
+      {billing ? [
+        ["Global used", billing.global_tokens_used],
+        ["Global cap", billing.global_max_tokens],
+        ["Agent cap", billing.per_agent_max_tokens],
+        ["Call cap", billing.per_call_max_tokens],
+        ["Tracked agents", billing.tracked_agents],
+        ["Tracked models", billing.tracked_models],
+      ].map(([label, value])=>(
+        <div key={label} style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fm)",fontSize:11,padding:"3px 0",borderBottom:"1px solid var(--bd)"}}>
+          <span style={{color:"var(--td)"}}>{label}</span>
+          <span style={{color:billing.drift_detected?"#ff3c3c":"var(--mc)"}}>{String(value)}</span>
+        </div>
+      )) : <div style={{fontFamily:"var(--fm)",fontSize:11,color:"var(--td)"}>No billing snapshot available.</div>}
+    </div>
+  );
+}
+
 // ── ADAPTIVE WEIGHT DRAWER ────────────────────────────────────────────────────
 function WeightDrawer({ weights, onClose }) {
   const nodes = [
@@ -1268,36 +1353,53 @@ function HealthPanel({ state, dispatch }) {
 
 // ── ARTIFACT VAULT ────────────────────────────────────────────────────────────
 function VaultPanel({ state, dispatch }) {
-  const tcol = {CODEX:"#00d4ff",DOC:"#aa44ff",SPEC:"#ffaa00",CODE:"#44ff88",DESIGN:"#ff44aa"};
-  const sealArtifact = (a) => (e) => { e.stopPropagation(); dispatch({type:"APPROVAL",v:{title:"SEAL ARTIFACT",body:"Seal "+a.name+"?\nPermanent. Audit logged.",action:"SEAL",onApprove:()=>dispatch({type:"ART_SEAL",id:a.id})}}); };
-  const deleteArtifact = (a) => (e) => { e.stopPropagation(); dispatch({type:"APPROVAL",v:{title:"DELETE ARTIFACT",body:"Delete "+a.name+"?\nIrreversible.",action:"DELETE",onApprove:()=>dispatch({type:"ART_DEL",id:a.id})}}); };
+  const tcol = {TEXT:"#00d4ff",CODE:"#44ff88",DATA:"#ffaa00",REPORT:"#aa44ff",ANALYSIS:"#00ffcc",DECISION:"#ffcc44",LOG:"#ff44aa"};
+  const scol = {PENDING_REVIEW:"#00d4ff",APPROVED:"#ffcc44",REJECTED:"#ff3c3c",ARCHIVED:"#7ab8d2"};
+  const selectedArtifact = state.artifacts.find(a=>a.id===state.diff) || null;
+  const approveArtifact = (a) => async () => {
+    const artifact = await approveCockpitArtifact(a.id);
+    dispatch({type:"ART_APPROVE",v:artifact});
+  };
+  const rejectArtifact = (a) => async () => {
+    const artifact = await rejectCockpitArtifact(a.id);
+    dispatch({type:"ART_REJECT",v:artifact});
+  };
   return (
     <div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-        <div className="st" style={{marginBottom:0}}>ARTIFACT VAULT — {state.artifacts.length}</div>
+        <div className="st" style={{marginBottom:0}}>ARTIFACT VAULT — {state.artifactStats?.pendingReview ?? 0} PENDING / {state.artifacts.length} LOADED</div>
       </div>
+      {state.artifactError&&<div style={{fontFamily:"var(--fm)",fontSize:11,color:"#ff3c3c",marginBottom:8}}>{state.artifactError}</div>}
       {state.artifacts.map(a=>(
         <div key={a.id} className="ai" onClick={()=>dispatch({type:"DIFF",v:state.diff===a.id?null:a.id})}>
           <span style={{color:a.sealed?"var(--cg)":"var(--td)",fontSize:12}}>{a.sealed?G.SEAL:"○"}</span>
           <div className="ainfo">
             <div className="aname2">{a.name}</div>
-            <div className="ameta2"><span className="chip" style={{color:tcol[a.type]||"var(--td)"}}>{a.type}</span> {a.ver} · {a.ts} · {a.size}</div>
+            <div className="ameta2"><span className="chip" style={{color:tcol[a.type]||"var(--td)"}}>{a.type}</span> <span className="chip" style={{color:scol[a.status]||"var(--td)"}}>{a.status}</span> {a.ver} · {a.ts} · {a.size}</div>
           </div>
           <div style={{display:"flex",gap:3,flexShrink:0}}>
-            <button className="btn b-blue b-xs" onClick={e=>e.stopPropagation()}>↓</button>
-            {!a.sealed&&<>
-              <button className="btn b-gold b-xs" onClick={sealArtifact(a)}>{G.SEAL}</button>
-              <button className="btn b-red b-xs" onClick={deleteArtifact(a)}>✕</button>
+            {a.status==="PENDING_REVIEW"&&<>
+              <button className="btn b-gold b-xs" onClick={e=>{e.stopPropagation();dispatch({type:"APPROVAL",v:{title:"APPROVE ARTIFACT",body:"Approve "+a.name+"?\nArtifact will be marked APPROVED in the vault.",action:"ARTIFACT_APPROVE",onApprove:approveArtifact(a)}});}}>{G.SEAL} APPROVE</button>
+              <button className="btn b-red b-xs" onClick={e=>{e.stopPropagation();dispatch({type:"APPROVAL",v:{title:"REJECT ARTIFACT",body:"Reject "+a.name+"?\nArtifact will remain in the vault with REJECTED status.",action:"ARTIFACT_REJECT",onApprove:rejectArtifact(a)}});}}>REJECT</button>
             </>}
           </div>
         </div>
       ))}
       {state.diff&&(
         <div style={{background:"var(--bg2)",border:"1px solid var(--bd)",borderRadius:2,padding:10,marginTop:6,fontFamily:"var(--fm)",fontSize:11,animation:"fadeIn .2s ease"}}>
-          <div className="st">DIFF — {state.artifacts.find(a=>a.id===state.diff)?.name}</div>
-          {["+ governance enforcement layer","+ operator approval gate","~ policygate weight thresholds","+ ShadowChannel SSE hook","- legacy auth bypass (deprecated)"].map((l,i)=>(
-            <div key={i} style={{color:l.startsWith("+")?`#44ff88`:l.startsWith("-")?"#ff3c3c":"#ffcc44",marginBottom:2}}>{l}</div>
+          <div className="st">ARTIFACT RECORD — {selectedArtifact?.name}</div>
+          {[
+            `STATUS · ${selectedArtifact?.status || "UNKNOWN"}`,
+            `MISSION · ${selectedArtifact?.missionId || "—"}`,
+            `TASK · ${selectedArtifact?.taskId || "—"}`,
+            `REVIEWED BY · ${selectedArtifact?.reviewedBy || "—"}`,
+            `REVIEWED AT · ${selectedArtifact?.reviewedAt || "—"}`,
+            `PREVIOUS VERSION · ${selectedArtifact?.previousVersionId || "—"}`,
+            `NOTES · ${selectedArtifact?.notes || "—"}`,
+          ].map((l,i)=>(
+            <div key={i} style={{color:"var(--tp)",marginBottom:2}}>{l}</div>
           ))}
+          <div style={{color:"var(--td)",marginTop:8,whiteSpace:"pre-wrap",wordBreak:"break-word"}}>{selectedArtifact?.preview || "No artifact payload stored."}</div>
         </div>
       )}
     </div>
@@ -1363,7 +1465,7 @@ function ApprovalModal({ approval, dispatch }) {
         <div className="aacts">
           <button className="btn b-red" onClick={()=>dispatch({type:"APPROVAL",v:null})}>DENY</button>
           <button className="btn b-gold" onClick={()=>dispatch({type:"APPROVAL",v:null})}>ESCALATE</button>
-          <button className="btn b-grn" onClick={()=>{ approval.onApprove?.(); dispatch({type:"APPROVAL",v:null}); dispatch({type:"SHADOW",v:{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"APPROVAL",level:"OK",msg:approval.action+" approved"}}); dispatch({type:"LOG",v:{ts:new Date().toLocaleTimeString(),lv:"OK",msg:"Approval: "+approval.action}}); }}>
+          <button className="btn b-grn" onClick={async()=>{ try { await approval.onApprove?.(); dispatch({type:"SHADOW",v:{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"APPROVAL",level:"OK",msg:approval.action+" approved"}}); dispatch({type:"LOG",v:{ts:new Date().toLocaleTimeString(),lv:"OK",msg:"Approval: "+approval.action}}); } catch (error) { const message = error instanceof Error ? error.message : String(error); dispatch({type:"SHADOW",v:{id:Date.now(),ts:new Date().toLocaleTimeString(),type:"APPROVAL",level:"ERR",msg:approval.action+" failed · "+message}}); dispatch({type:"LOG",v:{ts:new Date().toLocaleTimeString(),lv:"ERR",msg:"Approval failed: "+approval.action+" · "+message}}); } finally { dispatch({type:"APPROVAL",v:null}); } }}>
             {G.SEAL} APPROVE
           </button>
         </div>
@@ -1393,6 +1495,7 @@ const PANELS = [
   {id:"MISSION",   label:"MISSION",    glyph:G.MISS  },
   {id:"EVOLUTION", label:"EVOLUTION",  glyph:G.EVO   },
   {id:"VAULT",     label:"VAULT",      glyph:G.ART   },
+  {id:"SUPPLY",    label:"SUPPLY",     glyph:G.PLUG  },
   {id:"FACTORY",   label:"FACTORY",    glyph:G.FACT  },
   {id:"SHADOW",    label:"SHADOW CH",  glyph:G.SHADOW},
   {id:"OPERATOR",  label:"INNER WORLD",glyph:G.WITNESS},
@@ -1480,22 +1583,12 @@ export default function NexusmonCockpitV4() {
     return ()=>clearInterval(t);
   },[state.weights, state.resonance]);
 
-  // ── LIVE DATA: missions from /api/missions ──────────────────────────────────
+  // ── LIVE DATA: missions from lifecycle + read model ─────────────────────────
   useEffect(()=>{
     const poll = async () => {
       try {
-        const r = await fetch("/api/missions");
-        if (!r.ok) return;
-        const d = await r.json();
-        const ms = (d.missions || []).map(m => ({
-          id:      m.mission_id || m.id || "M-???",
-          title:   m.goal || m.title || m.mission_id || "(untitled)",
-          status:  (m.status || "active").toUpperCase(),
-          workers: m.workers || [],
-          risk:    m.risk || "LOW",
-          mode:    m.mode || "strategic",
-        }));
-        if (ms.length) dispatch({type:"MISSIONS_SET", v:ms});
+        const missions = await fetchCockpitMissions();
+        dispatch({type:"MISSIONS_SET", v:missions});
       } catch {}
     };
     poll();
@@ -1503,24 +1596,35 @@ export default function NexusmonCockpitV4() {
     return ()=>clearInterval(t);
   },[]);
 
-  // ── LIVE DATA: artifacts from /api/artifacts ────────────────────────────────
+  // ── LIVE DATA: artifacts from vault routes ─────────────────────────────────
   useEffect(()=>{
     const poll = async () => {
       try {
-        const r = await fetch("/api/artifacts");
-        if (!r.ok) return;
-        const d = await r.json();
-        const arts = (d.artifacts || []).map(a => ({
-          id:      a.artifact_id || a.id || "A-???",
-          title:   a.title || a.artifact_id || "(untitled)",
-          type:    a.type || "ARTIFACT",
-          status:  a.status || "ACTIVE",
-          size:    a.size || "—",
-          version: a.version || 1,
-          sealed:  a.sealed || false,
-        }));
-        if (arts.length) dispatch({type:"ARTIFACTS_SET", v:arts});
-      } catch {}
+        const { artifacts, stats } = await fetchCockpitArtifacts();
+        dispatch({type:"ARTIFACTS_SET", v:artifacts});
+        dispatch({type:"ARTIFACT_STATS_SET", v:stats});
+        dispatch({type:"ARTIFACT_ERROR", v:null});
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        dispatch({type:"ARTIFACT_ERROR", v:message});
+      }
+    };
+    poll();
+    const t = setInterval(poll, 30000);
+    return ()=>clearInterval(t);
+  },[]);
+
+  // ── LIVE DATA: supply network ──────────────────────────────────────────────
+  useEffect(()=>{
+    const poll = async () => {
+      try {
+        const network = await fetchSupplyNetwork();
+        dispatch({type:"SUPPLY_SET", v:network});
+        dispatch({type:"SUPPLY_ERROR", v:null});
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        dispatch({type:"SUPPLY_ERROR", v:message});
+      }
     };
     poll();
     const t = setInterval(poll, 30000);
@@ -1563,6 +1667,7 @@ export default function NexusmonCockpitV4() {
       case "MISSION":   return <div className="pc"><MissionPanel {...props}/></div>;
       case "EVOLUTION": return <div className="pc"><EvolutionPanel {...props}/></div>;
       case "VAULT":     return <div className="pc"><VaultPanel {...props}/></div>;
+      case "SUPPLY":    return <div className="pc"><SupplyPanel {...props}/></div>;
       case "FACTORY":   return <div className="pc"><FactoryPanel {...props}/></div>;
       case "SHADOW":    return <div className="pc"><ShadowPanel {...props}/></div>;
       case "OPERATOR":  return <div className="pc"><OperatorPanel {...props}/></div>;
