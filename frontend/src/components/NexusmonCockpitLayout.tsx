@@ -8,6 +8,7 @@ import { EvolutionPanel } from "../components/EvolutionPanel";
 import { NexusmonMissionCommandCard } from "../components/NexusmonMissionCommandCard";
 import { NexusmonPresencePanel } from "../components/NexusmonPresencePanel";
 import { OperatorMemoryPanel } from "../components/OperatorMemoryPanel";
+import { DeploymentReadinessPanel } from "../components/DeploymentReadinessPanel";
 import { SupplyNetworkPanel } from "../components/SupplyNetworkPanel";
 import { colors, radii, spacing, shadows } from "../theme/cosmicTokens";
 
@@ -88,6 +89,15 @@ const actionHint: CSSProperties = {
   lineHeight: 1.5,
 };
 
+const railStack: CSSProperties = {
+  display: "grid",
+  gap: spacing.md,
+  flex: 1,
+  minHeight: 0,
+  overflow: "auto",
+  paddingRight: 2,
+};
+
 export function NexusmonCockpitLayout({ onOpenCompanion }: { onOpenCompanion: () => void }) {
   const [mode, setMode] = useState<NexusmonMode>("strategic");
 
@@ -136,8 +146,14 @@ export function NexusmonCockpitLayout({ onOpenCompanion }: { onOpenCompanion: ()
             </p>
           </div>
 
-          <div style={{ ...panel, flexShrink: 0, maxHeight: 420 }}>
-            <SupplyNetworkPanel />
+          <div style={railStack}>
+            <div style={{ ...panel, flexShrink: 0 }}>
+              <DeploymentReadinessPanel />
+            </div>
+
+            <div style={{ ...panel, flexShrink: 0 }}>
+              <SupplyNetworkPanel />
+            </div>
           </div>
         </div>
 
